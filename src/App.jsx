@@ -1,0 +1,189 @@
+import { useEffect, useState } from 'react'
+import './App.css'
+import { Box, Button, IconButton, useMediaQuery } from '@mui/material'
+import Sidebar from './component/Sidebar/Sidebar'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import Login from './pages/Auth/Login'
+import Auth from './pages/Auth/Auth'
+import Home from './pages/Dashboard/Dashboard'
+import Navbar from './component/Navbar/Navbar'
+import MultiStream from './pages/MultiStream/MultiStream'
+import SingleStream from './pages/SingleStream/SingleStream'
+import AddCamera from './component/CameraActions/AddCamera'
+import RemoveCamera from './component/CameraActions/RemoveCamera'
+import Dashboard from './pages/Dashboard/Dashboard'
+import Fire from './pages/Detection/Fire'
+import { jwtDecode } from 'jwt-decode'
+import { useDispatch, useSelector } from 'react-redux'
+import ProtectedRoute from './ProtectedRoute'
+import { loginSuccess, logout } from './Redux/Actions/authAction'
+import Ppe from './pages/Detection/Ppe'
+import React from 'react'
+import UnderConstruction from './component/UnderConstruction'
+import { fetchCameras } from './Redux/Actions/cameraAction'
+import Smoke from './pages/Detection/Smoke'
+import Truck from './pages/Detection/Truck'
+import { Scale } from '@mui/icons-material'
+import { IoMdClose } from 'react-icons/io'
+import FgStock from './pages/Boards/FgStock/FgStock'
+import StoreStock from './pages/Boards/StoreStock/StoreStock'
+import FourM from './pages/Boards/FourM/FourM'
+import ToolManage from './pages/Boards/ToolManage/ToolManage'
+
+// import Sidebar from './component/Sidebar/Sidebar'
+
+function App() {
+  const {token, userData}= useSelector((state)=> state.auth)
+  console.log(token, userData)
+//  const [isLoggedIn, setIsLoggedIn]= useState(true)
+const [isOpen, setIsOpen]= useState(false);
+const [isSliderOpen, setIsSliderOpen]= useState(false);
+console.log(isSliderOpen)
+const location= useLocation();
+const path= location.pathname.split('/')[1];
+const navigate= useNavigate();
+const dispatch= useDispatch();
+
+console.log(userData)
+
+//   useEffect(() => {
+//     const token = localStorage.getItem('rabsToken')?.replace(/^"|"$/g, '');
+//     const storedUserData = localStorage.getItem('rabsUser'); // Retrieve persisted user data
+
+//     if (token) {
+//         const userData = storedUserData ? JSON.parse(storedUserData) : jwtDecode(token);
+//         dispatch(loginSuccess(token, userData)); // Initialize Redux state
+//     }
+// }, []);
+
+useEffect(() => {
+  const token = localStorage.getItem('rabsToken')?.replace(/^"|"$/g, '');
+  const storedUserData = localStorage.getItem('rabsUser');
+
+  if (token) {
+    try {
+      const decodedToken = jwtDecode(token);
+
+      // Check if token is expired
+      if (decodedToken.exp * 1000 < Date.now()) {
+        // Token expired - trigger logout
+        dispatch(logout());
+        localStorage.removeItem('rabsToken');
+        localStorage.removeItem('rabsUser');
+      } else {
+        // Token is valid - load user
+        const userData = storedUserData ? JSON.parse(storedUserData) : decodedToken;
+        dispatch(loginSuccess(token, userData));
+      }
+    } catch (error) {
+      console.error('Invalid token:', error);
+      dispatch(logout());
+      localStorage.removeItem('rabsToken');
+      localStorage.removeItem('rabsUser');
+    }
+  }
+}, [dispatch]);
+
+useEffect(()=>{
+  console.log(token)
+    dispatch(fetchCameras(token))
+  }, [dispatch, token])
+// const token= JSON.parse(localStorage.getItem('rabsToken'));
+// if(token){
+//   const decoded= jwtDecode(token)
+//   console.log(decoded)
+//   const currentTime = Date.now() / 1000; // in seconds
+
+// if (decoded.exp && decoded.exp < currentTime) {
+//   console.log("Token is expired");
+//   localStorage.removeItem("rabsToken");
+//   navigate("/auth"); // or your logic
+// }
+// }
+
+// -------------------screens----------------
+const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
+
+  return (
+
+    <Box bgcolor={"lightpink"} display={"flex"} height="100vh" position={'relative'}>
+      {/* Static Sidebar with Fixed Width */}
+      {/* <Box width="13vw" bgcolor="blue"> */}
+      {/* <Box position={'absolute'} top={0} left={0} height={'100vh'} width={'100vw'} zIndex={99} bgcolor={'rgba(0, 0, 0, 0.6)'}> */}
+      {
+        (path !== 'auth' && isLargerThan1000) && <Sidebar />
+      }
+      {/* </Box> */}
+{/* {
+  (isSliderOpen && !isLargerThan1000)  &&  */}
+  {/* <Box className={`asideBack ${isSliderOpen? 'open': ''}`} onClick={()=> setIsSliderOpen(false)} > */}
+    {/* <Box> */}
+    {
+      (path !== 'auth') && <Box className={`aside ${isSliderOpen? 'open': ''}`} bgcolor={'red'} width={'15rem'} onClick={(e)=> e.stopPropagation()}>
+        <Box sx={{position: 'absolute', top: '1rem',right: '0', zIndex: '1000', color: 'white', bgcolor: 'red', width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center'}} onClick={()=> setIsSliderOpen(false)}><IoMdClose /></Box>
+        <Sidebar setIsSliderOpen={setIsSliderOpen} /></Box>
+    }
+    
+    {/* </Box> */}
+
+{/* </Box> */}
+{/* } */}
+
+
+
+
+
+        
+        {/* </Box> */}
+        
+      {/* </Box> */}
+
+      {/* Main Content Area */}
+      <Box flex={1} sx={{ overflowY: "scroll", bgcolor: 'white', backgroundColor: '#F5F5F5' }}>
+        {/* Fixed Navbar */}
+        {/* <Box flex={1} bgcolor={'red'}>dd */}
+        {path !== 'auth' && <Navbar setIsOpen={setIsOpen} setIsSliderOpen={setIsSliderOpen} />}
+        
+        {/* </Box> */}
+
+        {/* Routes with padding to avoid overlapping with fixed navbar */}
+        <Box mt="0px" p={path == 'auth'? '0rem':'1rem 0.5rem'}>
+          <Routes>
+            <Route path="/auth" element={token ? <Navigate to="/" replace /> : <Auth />} />
+            {/* <Route path="/multi-stream" element={<MultiStream />} />
+            <Route path="/single-stream/:id" element={<SingleStream />} />
+            <Route path="/fire" element={<Fire />} /> */}
+            {/* Protected Routes */}
+  <Route path="/" element={<ProtectedRoute><Dashboard setIsOpen={setIsOpen} /></ProtectedRoute>} />
+  {/* <Route path="/multi-stream" element={<ProtectedRoute><MultiStream /></ProtectedRoute>} /> */}
+  <Route path="/multi-stream/:model" element={<ProtectedRoute><MultiStream /></ProtectedRoute>} />
+  <Route path="/single-stream" element={<ProtectedRoute><SingleStream /></ProtectedRoute>} />
+  <Route path="/single-stream/:model/:cameraId" element={<ProtectedRoute><SingleStream /></ProtectedRoute>} />
+  
+  
+  <Route path="/ppe-kit" element={<ProtectedRoute><Ppe /></ProtectedRoute>} />
+  <Route path="/fire" element={<ProtectedRoute><Fire /></ProtectedRoute>} />
+  <Route path="/smoke" element={<ProtectedRoute><Smoke /></ProtectedRoute>} />
+  <Route path="/truck" element={<ProtectedRoute><Truck /></ProtectedRoute>} />
+  <Route path="/fg-stock" element={<ProtectedRoute><FgStock /></ProtectedRoute>} />
+  <Route path="/store-stock" element={<ProtectedRoute><StoreStock /></ProtectedRoute>} />
+  <Route path="/tool-management" element={<ProtectedRoute><ToolManage /></ProtectedRoute>} />
+  {/* <Route path="/4m-change" element={<ProtectedRoute><FourM /></ProtectedRoute>} /> */}
+  <Route path="*" element={<ProtectedRoute><UnderConstruction /></ProtectedRoute>} />
+          </Routes>
+        </Box>
+      </Box>
+
+      {
+                  (isOpen == 'open-add' || isOpen == 'open-remove')  &&  
+                  <Box bgcolor={'rgba(0, 0, 0, 0.6)'} position={'fixed'} height={'100vh'} width={'100vw'} display={'flex'} justifyContent={'center'} alignItems={'center'} zIndex={9}  onClick={()=> setIsOpen(false)}>
+                  {isOpen == 'open-add' && <AddCamera setIsOpen={setIsOpen} />}
+                  {isOpen == 'open-remove' && <RemoveCamera setIsOpen={setIsOpen}/>}
+                </Box>
+                }
+    </Box>
+     
+  )
+}
+
+export default App

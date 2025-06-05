@@ -1,0 +1,103 @@
+// .sidebar {
+//     display: flex;
+//     flex-direction: column;
+//     height: 100vh;
+//     overflow: scroll;
+//     position: fixed;
+//     background-color: yellow;
+//   }
+
+/* Variables */
+// $primary-color: #7637fe;
+$primary-color: rgb(241, 92, 109);
+
+/* Sidebar */
+// $sidebar-width: 180px;
+
+.sidebar {
+  background-image: url("../../assets/images/sidebar-bg.png");
+  background-color: rgb(37, 46, 62);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  // overflow: scroll;
+  // position: fixed;
+  // width: 100%;
+  background-attachment: fixed;
+  background-position: left 0 bottom 0 !important;
+  background-size: 250px !important;
+  background-repeat: no-repeat;
+  // padding: 0 20px;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none; /* Hides scrollbar for Chrome, Safari */
+}
+
+.MuiList-root.MuiList-padding.css-h4y409-MuiList-root::-webkit-scrollbar {
+  display: none !important;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  padding: 50px 10px;
+}
+
+.sidebar-list {
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-listItem {
+  // background-color: red;
+  // height: 40px;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  // color: #fff;
+  // color: green;
+  padding: 0 !important;
+  margin: 5px 0;
+  width: 100%;
+  font-size: 14px;
+  letter-spacing: 1px;
+  transition: all 0.2s ease-in-out;
+  margin-bottom: 0.6rem;
+  
+
+}
+
+.sidebar-list-text {
+  color: #fff;
+}
+
+.sidebar-link.active,
+.sidebar-link:hover {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border-radius: 8px;
+  border-left: 5px solid $primary-color;
+  font-weight: 600;
+  padding: 0 !important;
+  transition: 0.3s;
+}
+
+.sidebar-link:hover {
+  color: #fff !important;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.sidebar-list-text {
+  margin-bottom: 0 !important;
+}

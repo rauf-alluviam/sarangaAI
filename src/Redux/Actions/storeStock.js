@@ -1,0 +1,4 @@
+export const GET_STORE_STOCK= 'GET_STORE_STOCK';
+export const ADD_STORE_STOCK= 'ADD_STORE_STOCK';
+export const EDIT_STORE_STOCK= 'EDIT_STORE_STOCK';
+
