@@ -20,7 +20,7 @@ import {
 import React, { useEffect, useState } from "react";
 import colors from "../../../utils/colors";
 import AddStock from "./AddStock";
-import axios from "axios";
+// import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { MdDone, MdOutlineCancel, MdOutlineEdit } from "react-icons/md";
 import CloseIcon from "@mui/icons-material/Close";
@@ -30,7 +30,7 @@ import { editFgStock, getAllFgStock } from "../../../Redux/Actions/fgStockAction
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const FgStock = () => {
-  const { userData, token } = useSelector((state) => state.auth);
+  // const { userData, token } = useSelector((state) => state.auth);
   const {fgStockArr}= useSelector((state)=> state.fgStock)
   console.log(fgStockArr)
   const dispatch= useDispatch();
@@ -38,7 +38,7 @@ const FgStock = () => {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [stock, setStock] = useState([]);
   console.log(stock);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const [edit, setEdit] = useState({});
   console.log(edit);
 const [status, setStatus]= useState('all');
@@ -208,7 +208,7 @@ const [status, setStatus]= useState('all');
           required
         />
 
-<FormControl sx={{width: '14rem'}}>
+{/* <FormControl sx={{width: '14rem'}}>
                        <InputLabel id="Status">Status</InputLabel>
                        <Select
                         // size='small'
@@ -225,7 +225,7 @@ const [status, setStatus]= useState('all');
                          
                          
                        </Select>
-                     </FormControl>
+                     </FormControl> */}
       </Box>
       {isOpen && (
         <Box
@@ -302,7 +302,7 @@ const [status, setStatus]= useState('all');
                     Next Action
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Resp
+                    Responsibility
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Next Day Target

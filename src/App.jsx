@@ -29,6 +29,9 @@ import FgStock from './pages/Boards/FgStock/FgStock'
 import StoreStock from './pages/Boards/StoreStock/StoreStock'
 import FourM from './pages/Boards/FourM/FourM'
 import ToolManage from './pages/Boards/ToolManage/ToolManage'
+import BracketD from './pages/Detection/BracketD/BracketD'
+import Complaint from './pages/Boards/Complaint/Complaint'
+// import Dashboard2 from './pages/Dashboard/Dashboard2'
 
 // import Sidebar from './component/Sidebar/Sidebar'
 
@@ -45,7 +48,6 @@ const navigate= useNavigate();
 const dispatch= useDispatch();
 
 console.log(userData)
-
 //   useEffect(() => {
 //     const token = localStorage.getItem('rabsToken')?.replace(/^"|"$/g, '');
 //     const storedUserData = localStorage.getItem('rabsUser'); // Retrieve persisted user data
@@ -112,6 +114,9 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
       {/* <Box position={'absolute'} top={0} left={0} height={'100vh'} width={'100vw'} zIndex={99} bgcolor={'rgba(0, 0, 0, 0.6)'}> */}
       {
         (path !== 'auth' && isLargerThan1000) && <Sidebar />
+        // <Box position={'relative'} display={!isSliderOpen && 'none'}><Button sx={{position: 'absolute', top: '1rem', right: '0', zIndex: '999'}} onClick={()=> setIsSliderOpen(true)}>close</Button>
+        //   <Sidebar /></Box>
+        
       }
       {/* </Box> */}
 {/* {
@@ -139,7 +144,7 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
       {/* </Box> */}
 
       {/* Main Content Area */}
-      <Box flex={1} sx={{ overflowY: "scroll", bgcolor: 'white', backgroundColor: '#F5F5F5' }}>
+      <Box flex={1} sx={{ overflowY: "scroll", bgcolor: 'white', backgroundColor: '#F0F7FF' }}>
         {/* Fixed Navbar */}
         {/* <Box flex={1} bgcolor={'red'}>dd */}
         {path !== 'auth' && <Navbar setIsOpen={setIsOpen} setIsSliderOpen={setIsSliderOpen} />}
@@ -155,6 +160,7 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
             <Route path="/fire" element={<Fire />} /> */}
             {/* Protected Routes */}
   <Route path="/" element={<ProtectedRoute><Dashboard setIsOpen={setIsOpen} /></ProtectedRoute>} />
+  {/* <Route path="/a" element={<ProtectedRoute><Dashboard2 setIsOpen={setIsOpen} /></ProtectedRoute>} /> */}
   {/* <Route path="/multi-stream" element={<ProtectedRoute><MultiStream /></ProtectedRoute>} /> */}
   <Route path="/multi-stream/:model" element={<ProtectedRoute><MultiStream /></ProtectedRoute>} />
   <Route path="/single-stream" element={<ProtectedRoute><SingleStream /></ProtectedRoute>} />
@@ -165,9 +171,11 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
   <Route path="/fire" element={<ProtectedRoute><Fire /></ProtectedRoute>} />
   <Route path="/smoke" element={<ProtectedRoute><Smoke /></ProtectedRoute>} />
   <Route path="/truck" element={<ProtectedRoute><Truck /></ProtectedRoute>} />
+  <Route path="/bracket-d" element={<ProtectedRoute><BracketD /></ProtectedRoute>} />
   <Route path="/fg-stock" element={<ProtectedRoute><FgStock /></ProtectedRoute>} />
   <Route path="/store-stock" element={<ProtectedRoute><StoreStock /></ProtectedRoute>} />
   <Route path="/tool-management" element={<ProtectedRoute><ToolManage /></ProtectedRoute>} />
+  <Route path="/complaint-board" element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
   {/* <Route path="/4m-change" element={<ProtectedRoute><FourM /></ProtectedRoute>} /> */}
   <Route path="*" element={<ProtectedRoute><UnderConstruction /></ProtectedRoute>} />
           </Routes>

@@ -14,7 +14,7 @@ export const getAllFgStock=(date)=> async(dispatch, getState)=>{
         const token = getState().auth.token;
 
         const response = await axios.get(
-            `${BACKEND_API}/get_daily_fg_stock_monitoring_sheets/${year}/${month}/${day}`,
+            `${BACKEND_API}/get_daily_dispatch_stock_monitoring_sheets/${year}/${month}/${day}`,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -32,7 +32,7 @@ export const getAllFgStock=(date)=> async(dispatch, getState)=>{
 export const addFgStock=(data)=> async(dispatch, getState)=>{
     const token= getState().auth.token;
     try {
-        const response= await axios.post(`${BACKEND_API}/submit_fg_stock_monitoring_sheet_entry`, data,
+        const response= await axios.post(`${BACKEND_API}/submit_dispatch_stock_monitoring_sheet_entry`, data,
             {
               headers: {
                 'accept': 'application/json',
@@ -41,7 +41,7 @@ export const addFgStock=(data)=> async(dispatch, getState)=>{
               }
             }
           );
-          dispatch({type: ADD_FG_STOCK, payload: data})
+          dispatch({type: ADD_FG_STOCK, payload: {_id: response.data.id, ...data}})
           alert('Item Added Successfull')
           console.log(response.data)
     } catch (error) {
@@ -53,7 +53,7 @@ export const editFgStock=(edit)=> async(dispatch, getState)=>{
   const token= getState().auth.token;
     try {
       const response = await axios.put(
-        `${BACKEND_API}/update_fg_stock_monitoring_sheet_entry/${edit._id}`,
+        `${BACKEND_API}/update_dispatch_stock_monitoring_sheet_entry/${edit._id}`,
         edit,
         {
           headers: {

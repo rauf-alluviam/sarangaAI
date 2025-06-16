@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { deleteCamera, fetchCameras } from '../../Redux/Actions/cameraAction';
 import { useSnackbar } from 'notistack';
+import { Camera, CheckCircle, QrCode } from '@mui/icons-material';
 // import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 
 
@@ -200,6 +201,12 @@ try {
   //   dispatch(fetchCameras(token))
   // }, [token])
 
+    const quickActions = [
+    { title: 'Snap Check', description: 'Quick image verification and analysis', icon: Camera, color: '#A78BFA', onClick: () => console.log('Snap Check clicked') },
+    { title: 'QR Locker', description: 'Secure QR code management system', icon: QrCode, color: '#818CF8', onClick: () => console.log('QR Locker clicked') },
+  ];
+
+
   // --------screen sizes----------
   const isLargerThan1390= useMediaQuery('(min-width: 1390px)');
 
@@ -207,7 +214,10 @@ try {
     <Box sx={{minHeight: '88vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
       <Box display={'flex'} width={'100%'} height={'auto'} flexDirection={'column'} justifyContent={'space-between'} alignItems={'start'} mb={'auto'} p={'0rem 1rem'} >
         <Box bgcolor={'white'} width={'100%'} mt={'0.4rem'} height={'100%'} p={'1.3rem'} display={'flex'} flexDirection={'column'} justifyContent={'space-between'} alignItems={'center'} mb={'auto'} borderRadius={'19px'} boxShadow={'rgba(0, 0, 0, 0.24) 0px 3px 8px'}>
-          <Typography fontSize={'1.8rem'} mb={'1rem'}><span style={{color: colors.primary}}>Hi {userData?.sub?.split('@')[0].replace(/^./, c => c.toUpperCase())}...</span> Welcome To the Alvision Count</Typography>
+          <Typography fontSize={'1.8rem'} mb={'1rem'}>
+            {/* <span style={{color: colors.primary}}> Hi {userData?.sub?.split('@')[0].replace(/^./, c => c.toUpperCase())}...</span>  */}
+            Welcome To the Rabs Industries</Typography>
+         {/* <Typography  color='grey'>Advanced AI-powered monitoring and detection system</Typography> */}
           {/* <Box bgcolor={'blue'} width={'100%'} height={'14rem'} display={'flex'} justifyContent={'space-between'} gap={'0.5rem'}>
               {
                 [
@@ -236,10 +246,11 @@ try {
                   {icon: <GiSmokeBomb />, title: 'Smoke Detection', path: '/smoke', color: '#A38181'},
                   {icon: <IoMedkit />, title: 'PPE Detection', path: '/ppe-kit', color: '#767794'},
                   {icon: <FaTruckLoading />, title: 'Loading-unloading', path: '/truck', color: 'rgb(155, 131, 119)'},
-                  {icon: <FaClipboardList />, title: 'FG Stock Board', path: '/fg-stock', color: '#7C99AE'},
+                  {icon: <FaClipboardList />, title: 'Dispatch Stock', path: '/fg-stock', color: '#7C99AE'},
                   {icon: <IoStorefront />, title: 'Store Stock Board', path: '/store-stock', color: 'rgb(128, 116, 128)'},
-                  {icon: <MdOutlineManageHistory />, title: '4M Change Board', path: '/4m-change', color: 'rgb(112, 152, 155)'},
+                  {icon: <MdOutlineManageHistory />, title: 'Complaint', path: '/complaint-board', color: 'rgb(112, 152, 155)'},
                   {icon: <FaTools />, title: 'Tool Manage Board', path: 'tool-management', color: '#A5A06B'},
+                  {icon: <FaTools />, title: 'BracketD', path: 'bracket-d', color: 'rgb(80, 105, 88)'},
                   // {icon: <FaFire />, title: 'Fire Detection', path: 'fire', color: '#81A493'},
                   // {icon: <GiSmokeBomb />, title: 'Smoke Detection', path: 'smoke', color: '#A38181'},
                   // {icon: <IoMedkit />, title: 'PPE Detection', path: 'ppe', color: '#A5A06B'},
@@ -424,8 +435,15 @@ try {
 
     </Box>
 
+    <Box display={'flex'} flexDirection={'column'} width={isLargerThan1390? '34%': '100%'} ml={isLargerThan1390? '1rem': '0rem'}>
+      <Box display={'flex'} justifyContent={'space-between'} margin={'1rem'} >
+        <Box component={'a'} target="_blank"
+    rel="noopener noreferrer" href='http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login' width={'48%'} bgcolor={'rgba(73, 104, 150, 0.29)'} sx={{cursor: 'pointer', textDecoration: 'none', color: 'black'}} height={'3.9rem'} display={'flex'} alignItems={'center'} justifyContent={'center'} boxShadow={'rgba(0, 0, 0, 0.1) 0px 4px 12px;'} borderRadius={'8px'}>Snapcheck</Box>
+        <Box component={'a'}target="_blank"
+    rel="noopener noreferrer" href='http://qrlocker.s3-website.ap-south-1.amazonaws.com/login?redirect=%2F' width={'48%'} bgcolor={'rgba(150, 73, 115, 0.29)'}  sx={{cursor: 'pointer', textDecoration: 'none', color: 'black'}} height={'3.9rem'} display={'flex'} alignItems={'center'} justifyContent={'center'}  boxShadow={'rgba(0, 0, 0, 0.1) 0px 4px 12px;'} borderRadius={'8px'}>QR Locker</Box>
+      </Box>
 {/* ---------------camera details--------------- */}
-     <Box width={isLargerThan1390? '34%': '100%'} ml={isLargerThan1390? '1rem': '0rem'} mt={isLargerThan1390? '0rem':'2rem'} bgcolor={'white'}  p={'0.7rem'} borderRadius={'6px'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
+     <Box width={'100%'}  mt={isLargerThan1390? '0rem':'2rem'} bgcolor={'white'}  p={'0.7rem'} borderRadius={'6px'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
           <Typography fontSize={'1.4rem'} mb={'1rem'} borderBottom={'1px solid grey'}>Camera Details:</Typography>
         <Paper sx={{ width: '100%',maxHeight: '25.3rem', overflow: 'auto' }}>
         <TableContainer component={Paper} sx={{ maxHeight: '25rem'}}>
@@ -463,6 +481,7 @@ try {
           </Box>
 
           </Box>
+          </Box>
 
 
 
@@ -482,3 +501,5 @@ try {
 }
 
 export default Dashboard;
+
+

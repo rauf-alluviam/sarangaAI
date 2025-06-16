@@ -238,7 +238,7 @@ const AddCamera = ({setIsOpen}) => {
     id="demo-simple-select"
     value={category}
     onChange={(e)=> setCategory(e.target.value)}
-    label="Category"
+    label="Select Category"
     
     // onChange={handleChange}
   >

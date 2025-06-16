@@ -163,8 +163,10 @@ const StoreStock = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
-        bgcolor: "lightgray",
+        height: "88vh",
+        // bgcolor: "lightgray",
+        position: "relative",
+        padding: "1rem",
       }}
     >
       <Typography
@@ -244,7 +246,7 @@ const StoreStock = () => {
       {/* --------------Table------------------- */}
       <Box
         position={"relative"}
-        bgcolor={"lightgrey"}
+        // bgcolor={"lightgrey"}
         mr={"1rem"}
         p={"0.7rem"}
         borderRadius={"6px"}
@@ -308,7 +310,7 @@ const StoreStock = () => {
                 </TableRow>
               </TableHead>
 
-              <TableBody>
+              <TableBody >
                 {stock.length > 0 ? (
                   stock.map((elem, index) => (
                     <TableRow key={elem.id || index}>
@@ -577,7 +579,11 @@ const StoreStock = () => {
                 </Box>
                 
 </Box> */}
-          <Table>
+          
+        </Paper>
+        
+      </Box>
+      <Table sx={{position: 'fixed', bottom: 0, bgcolor: 'lightgrey', width: '100rem'}}>
             <TableRow>
               <TableCell sx={{ border: "1px solid black" }}>
                 <Box display={'flex'} flexDirection={'column'} >
@@ -587,12 +593,11 @@ const StoreStock = () => {
                 </Box>
               </TableCell>
               <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'red'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Critical ({'<'}MIN)</Typography></Box></TableCell>
-              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'green'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Excess ({'>'}MAX)</Typography></Box></TableCell>
-              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'blue'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Ok (MIN-MAX)</Typography></Box></TableCell>
+              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'blue'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Excess ({'>'}MAX)</Typography></Box></TableCell>
+              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'green'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Ok (MIN-MAX)</Typography></Box></TableCell>
+
             </TableRow>
           </Table>
-        </Paper>
-      </Box>
     </Box>
   );
 };

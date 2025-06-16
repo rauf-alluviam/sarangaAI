@@ -7,7 +7,7 @@ import { FaCircleUser } from 'react-icons/fa6'
 import { useSelector } from 'react-redux'
 import { MdMenu } from 'react-icons/md'
 
-const Navbar = ({setIsOpen, setIsSliderOpen}) => {
+const Navbar = ({setIsOpen, setIsSliderOpen, isSliderOpen}) => {
   const {userData} = useSelector((state) => state.auth);
   console.log(userData)
   const navigate= useNavigate();
@@ -36,7 +36,7 @@ const Navbar = ({setIsOpen, setIsSliderOpen}) => {
         >
           <Box height={'100%'} display={'flex'} alignItems={'center'}>
           {!isLargerThan1000 &&  <MdMenu style={{fontSize: '1.5rem', marginRight: '1rem'}} onClick={()=> setIsSliderOpen(true)} />}
-         
+          {/* {(isLargerThan1000 && isSliderOpen) &&  <MdMenu style={{fontSize: '1.5rem', marginRight: '1rem'}} onClick={()=> setIsSliderOpen(true)} />} */}
           
           <img src={logo} onClick={()=> navigate('/')} style={{height: isLargerThan1000? '70%': '40%', cursor: 'pointer'}} alt="" />
           </Box>

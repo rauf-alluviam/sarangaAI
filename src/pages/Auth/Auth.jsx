@@ -12,7 +12,7 @@ const Auth=()=> {
   const sizeSmall = useMediaQuery("(max-width:992px)");
   const isLargerThan990= useMediaQuery("(min-width: 990px)");
   const navigate= useNavigate();
-  const [flag, setFlag]= useState(false);
+  const [flag, setFlag]= useState(true);
 
   return (
     <Box bgcolor={'red'} width={'100%'} height={'100vh'} display={'flex'}>

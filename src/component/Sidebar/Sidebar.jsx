@@ -7,7 +7,7 @@ import { Button, IconButton, List, ListItem, ListItemButton, useMediaQuery } fro
 // import { sidebarReportsList } from "../../assets/data/SidebarData";
 // import { UserContext } from "../contexts/UserContext";
 import AbcIcon from '@mui/icons-material/Abc';
-import { MdHome, MdStorefront } from "react-icons/md";
+import { MdHome, MdRateReview, MdStorefront } from "react-icons/md";
 import { BiSolidVideos } from "react-icons/bi";
 import { RiBox3Fill, RiVideoFill } from "react-icons/ri";
 import { IoIosLogOut } from "react-icons/io";
@@ -18,6 +18,7 @@ import { logout } from "../../Redux/Actions/authAction";
 import { GiFirstAidKit, GiSmokeBomb, GiStack } from "react-icons/gi";
 import { FaClipboardList, FaTools, FaTruckLoading } from "react-icons/fa";
 import { PiTruckFill } from "react-icons/pi";
+import { IoFileTray } from "react-icons/io5";
 
 
 const Sidebar = ({setIsSliderOpen}) => {
@@ -369,6 +370,28 @@ const isLargerThan900= useMediaQuery('(min-width: 900px)');
                     </ListItemButton>
                   </Button>
 
+                  <Button onClick={()=> {navigate('/Bracket-d'), setIsSliderOpen(false)}}  className="sidebar-link"  style={{marginLeft: '2rem', borderLeft: (path == '/bracket-d') && '5px solid rgb(241, 92, 109)', borderRadius: '8px'}}>
+                    <ListItemButton
+                      sx={{ textAlign: "left" }}
+                      className="appbar-links"
+                      style={{ padding: "5px 0" }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center", 
+                          padding: "0 10px",
+                        }}
+                      >
+                        <IconButton sx={{ color: "#ffffff9f" }} >
+                        <IoFileTray />
+                        </IconButton>
+                        {!isMinimize && <p className="sidebar-list-text">Bracket-D</p>}
+                        
+                      </div>
+                    </ListItemButton>
+                  </Button>
+
                   <Button onClick={()=> {navigate('/fg-stock'), setIsSliderOpen(false)}}  className="sidebar-link"  style={{borderLeft: (path == '/fg-stock') && '5px solid rgb(241, 92, 109)', borderRadius: '8px'}}>
                     <ListItemButton
                       sx={{ textAlign: "left" }}
@@ -452,6 +475,28 @@ const isLargerThan900= useMediaQuery('(min-width: 900px)');
                         <FaTools />
                         </IconButton>
                         {!isMinimize && <p className="sidebar-list-text">Tool Management</p>}
+                        
+                      </div>
+                    </ListItemButton>
+                  </Button>
+
+                  <Button onClick={()=> {navigate('/complaint-board'), setIsSliderOpen(false)}}  className="sidebar-link"  style={{marginLeft: '2rem', borderLeft: (path == '/complaint-board') && '5px solid rgb(241, 92, 109)', borderRadius: '8px'}}>
+                    <ListItemButton
+                      sx={{ textAlign: "left" }}
+                      className="appbar-links"
+                      style={{ padding: "5px 0" }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center", 
+                          padding: "0 10px",
+                        }}
+                      >
+                        <IconButton sx={{ color: "#ffffff9f" }} >
+                        <MdRateReview />
+                        </IconButton>
+                        {!isMinimize && <p className="sidebar-list-text">Complaint Board</p>}
                         
                       </div>
                     </ListItemButton>
