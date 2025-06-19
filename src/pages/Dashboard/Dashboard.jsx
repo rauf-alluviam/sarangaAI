@@ -1,6 +1,6 @@
 import { Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { BsCameraReelsFill, BsGraphUp } from 'react-icons/bs';
+import { BsCameraReelsFill, BsCheck2Square, BsGraphUp, BsQrCodeScan } from 'react-icons/bs';
 import { FaClipboardList, FaFire, FaTools, FaTruckLoading } from 'react-icons/fa';
 import { IoMedkit, IoStorefront } from 'react-icons/io5';
 import { MdOutlineManageHistory, MdSmokeFree, MdSpatialTracking } from 'react-icons/md';
@@ -251,11 +251,6 @@ try {
                   {icon: <MdOutlineManageHistory />, title: 'Complaint', path: '/complaint-board', color: 'rgb(112, 152, 155)'},
                   {icon: <FaTools />, title: 'Tool Manage Board', path: 'tool-management', color: '#A5A06B'},
                   {icon: <FaTools />, title: 'BracketD', path: 'bracket-d', color: 'rgb(80, 105, 88)'},
-                  // {icon: <FaFire />, title: 'Fire Detection', path: 'fire', color: '#81A493'},
-                  // {icon: <GiSmokeBomb />, title: 'Smoke Detection', path: 'smoke', color: '#A38181'},
-                  // {icon: <IoMedkit />, title: 'PPE Detection', path: 'ppe', color: '#A5A06B'},
-                  // {icon: <FaTruckLoading />, title: 'Loading-unloading', path: 'truck', color: '#767794'},
-                  // `/multi-stream/${elem.path}`-----
                 ].map((elem, index)=>(
                   <Box key={index} onClick={()=> navigate(elem.path)} bgcolor={elem.color} width={'24%'} borderRadius={'13px'} display={'flex'} flexDirection={'column'}  justifyContent={'space-between'} p={'1rem'}  alignItems={'center'} sx={{
                     cursor: 'pointer',
@@ -264,7 +259,6 @@ try {
                       boxShadow: 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px',
                     },
                   }}>
-                    {/* <span style={{backgroundColor: 'lightgrey', fontSize: '1.7rem', color: colors.primary, padding: '0.5rem', borderRadius: '50%', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{elem.icon}</span> */}
                     <span
   style={{
     backgroundColor: 'rgba(202, 202, 202, 0.83)', // lightgrey with opacity
@@ -290,6 +284,57 @@ try {
                 ))
               }
           </Box>
+
+{/* <Box width={'100%'} height={'11rem'} display={'flex'} justifyContent={'space-between'} gap={'0.5rem'}  >
+              {
+                [
+                  {icon: <FaFire />, title: 'Compliance', path: '/fire', color: '#1AAF51', backColor: '#F0FDF4' },
+                  {icon: <GiSmokeBomb />, title: 'Positioning', path: '/smoke', color: '#EC5B0D', backColor: '#FFF7ED'},
+                  {icon: <IoMedkit />, title: 'Inventory Management', path: '/ppe-kit', color: '#2A6AEE', backColor: '#E5EBF3'},
+                ].map((elem, index)=>(
+                  <Box key={index} onClick={()=> navigate(elem.path)} bgcolor={elem.backColor}  width={'32%'} borderRadius={'13px'} display={'flex'} flexDirection={'column'}  justifyContent={'space-between'} p={'1rem'}  alignItems={'center'} sx={{
+                    cursor: 'pointer',
+                    transition: '0.3s',
+                    '&:hover': {
+                      boxShadow: 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px',
+                    },
+                  }}>
+                    <Box display={'flex'} alignItems={'center'} mr={'auto'}>
+                    <span
+  style={{
+    backgroundColor: elem.color, // lightgrey with opacity
+    backdropFilter: 'blur(8px)', // blur effect for translucent background
+    WebkitBackdropFilter: 'blur(8px)', // Safari support
+    fontSize: '1.7rem',
+    color: 'white',
+    padding: '0.5rem',
+    borderRadius: '50%',
+    width: '3rem',
+    height: '3rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: 'rgba(50, 50, 93, 0.12) 0px 13px 27px -5px, rgba(0, 0, 0, 0.1) 0px 8px 16px -8px'
+  }}
+>
+  {elem.icon}
+</span>
+<Box display={'flex'} flexDirection={'column'} ml={'0.5rem'} alignItems={'start'}>
+                    <Typography fontSize={'1.1rem'} textAlign={'center'} >{elem.title}</Typography>
+                    <Typography>Fire, smoke and PPE Detection</Typography>
+                    </Box>
+                    </Box>
+
+                    <Box display={'flex'} flexDirection={'column'} mr={'auto'}>
+                      <span>- Fire</span>
+                      <span>- Smoke</span>
+                      <span>- PPE</span>
+                      <span>- Truck</span>
+                    </Box>
+                  </Box>
+                ))
+              }
+          </Box> */}
 
          
           
@@ -436,12 +481,73 @@ try {
     </Box>
 
     <Box display={'flex'} flexDirection={'column'} width={isLargerThan1390? '34%': '100%'} ml={isLargerThan1390? '1rem': '0rem'}>
-      <Box display={'flex'} justifyContent={'space-between'} margin={'1rem'} >
+      {/* <Box display={'flex'} justifyContent={'space-between'} margin={'1rem'} >
         <Box component={'a'} target="_blank"
     rel="noopener noreferrer" href='http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login' width={'48%'} bgcolor={'rgba(73, 104, 150, 0.29)'} sx={{cursor: 'pointer', textDecoration: 'none', color: 'black'}} height={'3.9rem'} display={'flex'} alignItems={'center'} justifyContent={'center'} boxShadow={'rgba(0, 0, 0, 0.1) 0px 4px 12px;'} borderRadius={'8px'}>Snapcheck</Box>
         <Box component={'a'}target="_blank"
     rel="noopener noreferrer" href='http://qrlocker.s3-website.ap-south-1.amazonaws.com/login?redirect=%2F' width={'48%'} bgcolor={'rgba(150, 73, 115, 0.29)'}  sx={{cursor: 'pointer', textDecoration: 'none', color: 'black'}} height={'3.9rem'} display={'flex'} alignItems={'center'} justifyContent={'center'}  boxShadow={'rgba(0, 0, 0, 0.1) 0px 4px 12px;'} borderRadius={'8px'}>QR Locker</Box>
-      </Box>
+      </Box> */}
+
+<Box display={'flex'} justifyContent={'space-between'} margin={'1rem'}>
+
+<Box
+    component={'a'}
+    target="_blank"
+    rel="noopener noreferrer"
+    href='http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login'
+    width={'48%'}
+    height={'3.9rem'}
+    display={'flex'}
+    alignItems={'center'}
+    justifyContent={'center'}
+    borderRadius={'8px'}
+    sx={{
+      cursor: 'pointer',
+      textDecoration: 'none',
+      color: 'black',
+      boxShadow: 'rgba(0, 0, 0, 0.1) 0px 4px 12px',
+      background: 'linear-gradient(135deg, rgba(150,73,115,0.5), rgba(161, 42, 42, 0.2))',
+      display: 'flex',
+      justifyContent: 'center',
+    }}
+  >
+    {/* <FiCheckCircle /> */}
+    <BsQrCodeScan style={{fontSize: '1.5rem', position: 'relative', right: '2.3rem'}} />
+    <Typography >QR Locker</Typography>
+   
+  </Box>
+  
+  <Box
+    component={'a'}
+    target="_blank"
+    rel="noopener noreferrer"
+    href='http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login'
+    width={'48%'}
+    height={'3.9rem'}
+    display={'flex'}
+    alignItems={'center'}
+    justifyContent={'center'}
+    borderRadius={'8px'}
+    sx={{
+      cursor: 'pointer',
+      textDecoration: 'none',
+      color: 'black',
+      boxShadow: 'rgba(0, 0, 0, 0.1) 0px 4px 12px',
+      background: 'linear-gradient(135deg, rgba(73,104,150,0.5), rgba(97, 96, 160, 0.2))',
+      display: 'flex',
+      justifyContent: 'center',
+    }}
+  >
+    <BsCheck2Square  style={{fontSize: '1.5rem', position: 'relative', right: '2.3rem'}} />
+    {/* <BsQrCodeScan style={{fontSize: '1.5rem', position: 'relative', right: '2.3rem'}} /> */}
+    <Typography>Snapcheck</Typography>
+   
+  </Box>
+
+  
+
+ 
+</Box>
 {/* ---------------camera details--------------- */}
      <Box width={'100%'}  mt={isLargerThan1390? '0rem':'2rem'} bgcolor={'white'}  p={'0.7rem'} borderRadius={'6px'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
           <Typography fontSize={'1.4rem'} mb={'1rem'} borderBottom={'1px solid grey'}>Camera Details:</Typography>
@@ -468,7 +574,7 @@ try {
             <TableCell align="start">{elem.camera_id}</TableCell>
             <TableCell align="start"><Box width={'10rem'} p={'0rem 0.5rem'} sx={{overflowX: 'auto'}}>{elem.rtsp_link}</Box></TableCell>
             {/* <TableCell align="start">yash@gmail.com</TableCell> */}
-            <TableCell align="start">{elem.model}</TableCell>
+            <TableCell align="start"><span style={{backgroundColor: 'rgb(92, 126, 100)', padding: '0.2rem 0.6rem',width: '5rem', borderRadius: '9px', color: 'white'}}>{elem.model}</span></TableCell>
             <TableCell align="start"><Button variant='contained' size='small' sx={{bgcolor: '#CE9E9D'}} onClick={()=> handleDelete(elem.camera_id, elem.model)}>Delete</Button></TableCell>
           </TableRow>
             )): <Typography p={'1rem'}>No camera found</Typography>

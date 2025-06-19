@@ -16,11 +16,14 @@ import {
   addFgStock,
   getAllFgStock,
 } from "../../../Redux/Actions/fgStockActions";
+import { addComplaint } from "../../../Redux/Actions/complaintAction";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const AddComplaint = ({ setIsOpen }) => {
+  const {  complaintsLoading } = useSelector((state) => state.complaint);
   const { token } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
   //   const [itemDescription, setItemDescription]= React.useState('');
   //   const [itemCode, setItemCode]= React.useState('');
   //   const [minimum, setMinimum]= React.useState('');
@@ -194,23 +197,26 @@ const handleSubmit = async (e) => {
       part_received_date: partReceivedDate,
     };
     console.log(data);
-    try {
-      const response = await axios.post(
-        `${BACKEND_API}/submit_customer_complaint_sheet_entry`,
-        data,
-        {
-          headers: {
-            accept: "application/json",
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+    dispatch(addComplaint(data, ()=>{
       setIsOpen(false);
-      alert(response.data.message);
-    } catch (error) {
-      console.error(error);
-    }
+    }));
+    // try {
+    //   const response = await axios.post(
+    //     `${BACKEND_API}/submit_customer_complaint_sheet_entry`,
+    //     data,
+    //     {
+    //       headers: {
+    //         accept: "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //         "Content-Type": "application/json",
+    //       },
+    //     }
+    //   );
+    //   setIsOpen(false);
+    //   alert(response.data.message);
+    // } catch (error) {
+    //   console.error(error);
+    // }
   };
   return (
     <Box
@@ -475,6 +481,7 @@ const handleSubmit = async (e) => {
       variant="contained"
       sx={{ bgcolor: colors.primary, mt: 2 }}
       fullWidth
+      loading={complaintsLoading}
     >
       Submit
     </Button>

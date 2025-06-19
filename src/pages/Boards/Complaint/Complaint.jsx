@@ -25,22 +25,23 @@ import { useDispatch, useSelector } from "react-redux";
 import { MdDone, MdOutlineCancel, MdOutlineEdit } from "react-icons/md";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import { editFgStock, getAllFgStock } from "../../../Redux/Actions/fgStockActions";
 import axios from "axios";
 import AddComplaint from "./AddComplaint";
+import { fetchComplaints, updateComplaint } from "../../../Redux/Actions/complaintAction";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const Complaint = () => {
   const { userData, token } = useSelector((state) => state.auth);
+  const { complaints, complaintsLoading } = useSelector((state) => state.complaint);
+console.log(complaintsLoading, complaints)
   const dispatch= useDispatch();
   const [isOpen, setIsOpen] = React.useState(false);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [stock, setStock] = useState([]);
+  // const [stock, setStock] = useState([]);
     const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
     console.log(month)
   
-  console.log(stock);
   // const [isLoading, setIsLoading] = useState(false);
   const [edit, setEdit] = useState({});
   console.log(edit)
@@ -130,51 +131,59 @@ const Complaint = () => {
 
 
 
-  useEffect(() => {
-    // const [year, week] = date.split("-W");
-    // console.log(date);
-    async function fetchData() {
-      const [selectedYear, selectedMonth] = month.split("-");
-      try {
-        // setIsLoading(true);
-        const response = await axios.get(
-          `${BACKEND_API}/get_monthly_customer_complaint_sheets/${selectedYear}/${selectedMonth}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        // setIsLoading(false);
-        setStock(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    fetchData();
-  }, [date, isOpen, edit, month]);
+  // useEffect(() => {
+  //   // const [year, week] = date.split("-W");
+  //   // console.log(date);
+  //   async function fetchData() {
+  //     const [selectedYear, selectedMonth] = month.split("-");
+  //     try {
+  //       // setIsLoading(true);
+  //       const response = await axios.get(
+  //         `${BACKEND_API}/get_monthly_customer_complaint_sheets/${selectedYear}/${selectedMonth}`,
+  //         {
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+  //       // setIsLoading(false);
+  //       setStock(response.data);
+  //       console.log(response.data);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  //   fetchData();
+  // }, [date, isOpen, edit, month]);
+
+  useEffect(()=> {
+    dispatch(fetchComplaints(month.split("-")[0], month.split("-")[1], token))
+  }, [month])
 
   const handleUpdate = async () => {
-    try {
-      const response = await axios.put(
-        `${BACKEND_API}/update_customer_complaint_sheet_entry/${edit.id}`,
-        edit,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response.data);
-      setEdit({});
-    } catch (error) {
-      console.log(error);
-    }
+    dispatch(updateComplaint(edit.id, edit, ()=>{
+      setEdit({}); // Clear the edit state after updating
+    }));
+    // try {
+    //   const response = await axios.put(
+    //     `${BACKEND_API}/update_customer_complaint_sheet_entry/${edit.id}`,
+    //     edit,
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     }
+    //   );
+    //   console.log(response.data);
+    //   setEdit({});
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
+  
   return (
     <Box
       sx={{
@@ -381,13 +390,14 @@ const Complaint = () => {
               </TableHead>
 
               <TableBody>
-  {stock.length > 0 ? (
-    stock.map((elem, index) => (
+  {complaints.length > 0 ? (
+    complaints.map((elem, index) => (
       <TableRow
         key={elem.id || index}
         sx={{
           bgcolor: elem.id === edit.id && "rgb(188, 196, 209)",
           transition: "0.4s",
+          position: "relative",
         }}
       >
         <TableCell align="center">{index + 1}</TableCell>
@@ -478,8 +488,8 @@ const Complaint = () => {
             <TextField
               fullWidth
               type="number"
-              value={edit.quantity || ""}
-              onChange={(e) => setEdit({ ...edit, quantity: e.target.value })}
+              value={Number(edit.quantity) || ""}
+              onChange={(e) => setEdit({ ...edit, quantity: Number(e.target.value) })}
               size="small"
             />
           ) : (
@@ -695,7 +705,7 @@ const Complaint = () => {
               </IconButton>
             </Box>
           ) : (
-            <IconButton onClick={() => setEdit(elem)}>
+            <IconButton onClick={() => setEdit(elem)} >
               <EditIcon style={{ color: "rgb(201, 162, 56)" }} />
             </IconButton>
           )}

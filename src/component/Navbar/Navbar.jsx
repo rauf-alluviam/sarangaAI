@@ -9,6 +9,7 @@ import { MdMenu } from 'react-icons/md'
 
 const Navbar = ({setIsOpen, setIsSliderOpen, isSliderOpen}) => {
   const {userData} = useSelector((state) => state.auth);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   console.log(userData)
   const navigate= useNavigate();
 
@@ -52,12 +53,16 @@ const Navbar = ({setIsOpen, setIsSliderOpen, isSliderOpen}) => {
           <Button variant='contained' onClick={()=> setIsOpen('open-add')} sx={{bgcolor: 'rgb(241, 92, 109)', color: 'white', p: '0.4rem 0.9rem', fontSize: isLargerThan1000? '0.8rem': '0.6rem', mr: '0.8rem' }}>Add Camera</Button>
           <Button variant='contained'  onClick={()=> setIsOpen('open-remove')} sx={{bgcolor: 'rgb(241, 92, 109)', color: 'white', p: '0.4rem 0.9rem', fontSize: isLargerThan1000? '0.8rem': '0.6rem', mr: '0.8rem'  }}>Remove Camera</Button>
           </Box>
-          <Box sx={{bgcolor: 'white', width: '2.5rem', height: '2.5rem', borderRadius: '50%',ml: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer'}}><FaCircleUser style={{height: '100%', width: '100%', backgroundColor: 'white'}} /></Box>
+          
+          <Box onClick={()=> navigate('/my-profile')} sx={{bgcolor: 'white', width: '2.5rem', height: '2.5rem', borderRadius: '50%',ml: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer'}}>
+            <FaCircleUser style={{height: '100%', width: '100%', backgroundColor: 'white'}} />
+            </Box>
+
+            {/* <Box position={'fixed'} right={'0'} top={0} height={'100vh'} width={'100vw'} bgcolor={'rgba(0, 0, 0, 0.7)'} zIndex={99} >
+              <Box width={'50%'} bgcolor={'white'} position={'absolute'} top={0} right={0} height={'100%'}>profile section</Box>
+            </Box> */}
           {/* <Box bgcolor={'red'} position={'absolute'} right={'0'} bottom={'-2rem'} height={'2rem'} width={'14rem'}>email id- punit@gmail.com</Box> */}
           </Box>
-
-          
-
 
         </Box>
   )

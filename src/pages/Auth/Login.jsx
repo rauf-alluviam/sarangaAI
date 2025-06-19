@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Box, Stack, useMediaQuery, Typography, TextField, InputAdornment, IconButton, Button } from "@mui/material";
+import { Container, Box, Stack, useMediaQuery, Typography, TextField, InputAdornment, IconButton, Button, Dialog } from "@mui/material";
 // import LoginForm from "../forms/LoginForm";
 import "./login.scss";
 // import alliviumImg from '../../assets/images/alluvium.png';
@@ -53,6 +53,7 @@ const Login=({setFlag})=> {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} style={{ maxWidth: "400px", margin: "auto", padding: "20px", borderRadius: "10px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)" }}>
     <Typography variant="h5" gutterBottom style={{ marginBottom: "20px", textAlign: "center" }}>Login</Typography>
     <TextField
@@ -108,8 +109,49 @@ const Login=({setFlag})=> {
       Login
     </Button>
     <Typography mt={'0.4rem'}>Don't have account?  <u onClick={()=> setFlag(false)} style={{cursor: 'pointer', color: 'blue', opacity: '65%'}}>Signup</u> </Typography>
+   <Typography>Do you remember password? Forgot Password</Typography>
+
    
   </form>
+
+  {/* <Dialog open={true}>
+    <Box>
+    <form onSubmit={handleSubmit} style={{ maxWidth: "400px", margin: "auto", padding: "20px", borderRadius: "10px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)" }}>
+    <Typography variant="h5" gutterBottom style={{ marginBottom: "20px", textAlign: "center" }}>Login</Typography>
+    <TextField
+    value={username}
+    onChange={(e) => setUsername(e.target.value)}
+      size="small"
+      margin="dense"
+      variant="outlined"
+      fullWidth
+      id="email"
+      name="email"
+      label="Email"
+      type="name"
+      style={{ marginBottom: "20px" }}
+      required
+    />
+
+    <Button
+      fullWidth
+      type="submit"
+      variant="contained"
+      color="primary"
+      size="large"
+      style={{ background: "linear-gradient(to right, #D31027, #EA384D)", borderRadius: "25px" }}
+    >
+      Login
+    </Button>
+    <Typography mt={'0.4rem'}>Don't have account?  <u onClick={()=> setFlag(false)} style={{cursor: 'pointer', color: 'blue', opacity: '65%'}}>Signup</u> </Typography>
+   <Typography>Do you remember password? Forgot Password</Typography>
+
+   
+  </form>
+    </Box>
+   </Dialog> */}
+
+  </>
    
   );
 }

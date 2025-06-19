@@ -3,17 +3,17 @@ import React, { useEffect, useRef, useState } from 'react'
 import colors from '../../../utils/colors';
 import { Cropper } from 'react-advanced-cropper';
 import axios from 'axios';
-import BracketDReport from './BracketDReport';
 import 'react-advanced-cropper/dist/style.css';
 import { useSelector } from 'react-redux';
 import { TbAlertTriangleFilled } from "react-icons/tb";
 import { IoFileTray } from "react-icons/io5";
 import { LuArrowLeftRight } from "react-icons/lu";
+import BracketEReport from './BracketEReport';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 
-const BracketD = () => {
+const BracketE = () => {
   const { token } = useSelector((state) => state.auth);
   const imageInputRef = useRef(null);
   const [isFileLoading, setIsFileLoading] = useState(false);
@@ -178,8 +178,7 @@ formData.append('file', croppedImageFile);
     // Step 4: Upload to server
     setIsLoading(true);
     const response = await axios.post(
-      `${BACKEND_API}/upload-bracketD-classification?expected_type=${selectedSide}`, // Use selected side from state
-      
+      `${BACKEND_API}/upload-bracketE-classification?expected_type=${selectedSide}`, // Use selected side from state
       formData,
       {
         headers: {
@@ -543,7 +542,7 @@ const resetCropper = () => {
   };
   
   const deleteReport= async()=>{
-    const response = await axios.delete(`${BACKEND_API}/delete-bracketD-classification/${addedItem.file_id}`, 
+    const response = await axios.delete(`${BACKEND_API}/delete-classification/${addedItem.file_id}`, 
       {
         headers:{
           Authorization: `Bearer ${token}`
@@ -622,7 +621,7 @@ const resetCropper = () => {
       </Box>
       </Box>
     </Box>
-    <BracketDReport addedItem={addedItem} totalCrateCount={totalCrateCount} />
+    <BracketEReport addedItem={addedItem} totalCrateCount={totalCrateCount} />
     {/* ---------show crop modal---------------- */}
     <Dialog
         open={showCropModal}
@@ -702,8 +701,8 @@ const resetCropper = () => {
     size='small'
     onChange={(e) => setSelectedSide(e.target.value)}
   >
-    <MenuItem value={'LH'}>LH</MenuItem>
-    <MenuItem value={'RH'}>RH</MenuItem>
+    <MenuItem value={'LH'}>Left</MenuItem>
+    <MenuItem value={'RH'}>Right</MenuItem>
   </Select>
   {selectedSide === '' && (
     <Typography variant="caption" color="error">
@@ -1109,4 +1108,4 @@ const resetCropper = () => {
   )
 }
 
-export default BracketD
+export default BracketE

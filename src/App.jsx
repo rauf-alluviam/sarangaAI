@@ -31,6 +31,12 @@ import FourM from './pages/Boards/FourM/FourM'
 import ToolManage from './pages/Boards/ToolManage/ToolManage'
 import BracketD from './pages/Detection/BracketD/BracketD'
 import Complaint from './pages/Boards/Complaint/Complaint'
+import BracketE from './pages/Detection/BracketE/BracketE'
+import Dashboard2 from './pages/Dashboard/Dashboard2'
+import UserProfile from './pages/UserProfile/UserProfile'
+import PasswordReset from './pages/UserProfile/PasswordReset'
+import TempPasswordGenerator from './pages/UserProfile/TempPasswordGenerator'
+import UserManagement from './pages/UserProfile/UserManagement'
 // import Dashboard2 from './pages/Dashboard/Dashboard2'
 
 // import Sidebar from './component/Sidebar/Sidebar'
@@ -155,12 +161,18 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
         <Box mt="0px" p={path == 'auth'? '0rem':'1rem 0.5rem'}>
           <Routes>
             <Route path="/auth" element={token ? <Navigate to="/" replace /> : <Auth />} />
+            <Route path="/my-profile" element={<ProtectedRoute>
+              {/* <PasswordReset />
+              <TempPasswordGenerator />
+              <UserProfile /> */}
+              <UserManagement />
+              </ProtectedRoute>} />
             {/* <Route path="/multi-stream" element={<MultiStream />} />
             <Route path="/single-stream/:id" element={<SingleStream />} />
             <Route path="/fire" element={<Fire />} /> */}
             {/* Protected Routes */}
   <Route path="/" element={<ProtectedRoute><Dashboard setIsOpen={setIsOpen} /></ProtectedRoute>} />
-  {/* <Route path="/a" element={<ProtectedRoute><Dashboard2 setIsOpen={setIsOpen} /></ProtectedRoute>} /> */}
+  {/* <Route path="/" element={<ProtectedRoute><Dashboard2 setIsOpen={setIsOpen} /></ProtectedRoute>} /> */}
   {/* <Route path="/multi-stream" element={<ProtectedRoute><MultiStream /></ProtectedRoute>} /> */}
   <Route path="/multi-stream/:model" element={<ProtectedRoute><MultiStream /></ProtectedRoute>} />
   <Route path="/single-stream" element={<ProtectedRoute><SingleStream /></ProtectedRoute>} />
@@ -172,6 +184,7 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
   <Route path="/smoke" element={<ProtectedRoute><Smoke /></ProtectedRoute>} />
   <Route path="/truck" element={<ProtectedRoute><Truck /></ProtectedRoute>} />
   <Route path="/bracket-d" element={<ProtectedRoute><BracketD /></ProtectedRoute>} />
+  <Route path="/bracket-e" element={<ProtectedRoute><BracketE /></ProtectedRoute>} />
   <Route path="/fg-stock" element={<ProtectedRoute><FgStock /></ProtectedRoute>} />
   <Route path="/store-stock" element={<ProtectedRoute><StoreStock /></ProtectedRoute>} />
   <Route path="/tool-management" element={<ProtectedRoute><ToolManage /></ProtectedRoute>} />

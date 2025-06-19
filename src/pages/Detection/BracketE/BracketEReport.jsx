@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 
-const BracketDReport = ({addedItem, totalCrateCount}) => {
+const BracketEReport = ({addedItem, totalCrateCount}) => {
     const {token}= useSelector((state) => state.auth);
     const [isShowImg, setIsShowImg] = useState(false);
     const [selectedImg, setSelectedImg] = useState('');
@@ -17,7 +17,7 @@ const BracketDReport = ({addedItem, totalCrateCount}) => {
     useEffect(() => {
   async function fetchData() {
     try {
-      const response = await axios.get(`${BACKEND_API}/bracketD-images-data-classification`, {
+      const response = await axios.get(`${BACKEND_API}/bracketE-images-data-classification`, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
@@ -138,4 +138,4 @@ const BracketDReport = ({addedItem, totalCrateCount}) => {
   )
 }
 
-export default BracketDReport
+export default BracketEReport

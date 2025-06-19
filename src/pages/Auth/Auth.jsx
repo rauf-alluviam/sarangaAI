@@ -15,7 +15,7 @@ const Auth=()=> {
   const [flag, setFlag]= useState(true);
 
   return (
-    <Box bgcolor={'red'} width={'100%'} height={'100vh'} display={'flex'}>
+    <Box width={'100%'} height={'100vh'} display={'flex'}>
         {/* <Box width={'50%'} height={'100%'} bgcolor={'red'}>
           {!sizeSmall && (
           <Box className="login-left-col" sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", bgcolor: "#f5f5f5" }}>
