@@ -169,7 +169,7 @@ const StoreStock = () => {
         padding: "1rem",
       }}
     >
-      <Typography
+      {/* <Typography
         sx={{
           fontSize: "2rem",
           textAlign: "center",
@@ -180,7 +180,24 @@ const StoreStock = () => {
         }}
       >
         STORE STOCK MONITORING BOARD
-      </Typography>
+      </Typography> */}
+
+      <Typography
+              sx={{
+                fontSize: "2rem",
+                textAlign: "center",
+                // borderBottom: "1px solid #282828",
+                width: "100%",
+                // marginLeft: "auto",
+                mr: "auto",
+                padding: "1rem 0rem",
+                bgcolor: 'white',
+                borderRadius: '12px',
+                boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
+              }}
+            >
+              STORE STOCK MONITORING BOARD
+            </Typography>
 
       <Box
         sx={{
@@ -253,13 +270,30 @@ const StoreStock = () => {
         display={"flex"}
         flexDirection={"column"}
         alignItems={"center"}
+        sx={{
+          height: "80vh", // or a fixed height like "600px"
+          width: "100%",  // Make sure it's not constrained by parent
+          overflow: "auto", // Enables both vertical & horizontal scroll
+          scrollbarWidth: "thin", // Firefox
+          "&::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#888",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#555",
+          },
+        }}
       >
         {/* <Typography position={'absolute'} top={'-1rem'} left={0}>0 Records found</Typography> */}
         {/* <Typography fontSize={'1.6rem'} sx={{borderBottom: '1px solid grey', mb: '1rem'}}>Fire Report</Typography> */}
-        <Paper sx={{ maxHeight: "75vh", overflow: "auto" }}>
+        <Paper sx={{ maxHeight: "75vh", overflow: "auto",  marginLeft: 'auto', mr: 'auto', width: '100%' }}>
           <TableContainer>
             <Table aria-label="simple table" border={1}>
-              <TableHead sx={{ bgcolor: "grey", border: "1px solid black" }}>
+              <TableHead sx={{ bgcolor: "#A4B6D3", border: "1px solid black" }}>
                 {/* {
       "item_description": "DATA",
       "item_code": "1234567",
@@ -275,7 +309,7 @@ const StoreStock = () => {
       "timestamp": "2025-05-20T10:45:50.624000"
     } */}
                 <TableRow>
-                  <TableCell sx={{ fontSize: "1.2rem" }}>Sr No</TableCell>
+                  <TableCell sx={{ fontSize: "1.2rem", maxWidth: '1.4rem', width: '1.4rem', minWidth: '1.4rem' }}>Sr No</TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem", width: "20rem",
                           maxWidth: "20rem",
                           minWidth: "20rem" }}>
@@ -289,7 +323,7 @@ const StoreStock = () => {
                     Maximum
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Current
+                    Current Stock
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Location
@@ -423,9 +457,9 @@ const StoreStock = () => {
                         sx={{ width: "7rem", height: "100%", padding: 0 }}
                         align="center"
                       >
- {elem.current_STOCK< elem.minimum_STOCK && <Box bgcolor={'red'} width={'4rem'} height={'3rem'} margin={'auto'}></Box>}
-                        {elem.current_STOCK> elem.minimum_STOCK && elem.current_STOCK < elem.maximum_STOCK && <Box bgcolor={'green'} width={'4rem'} height={'3rem'} margin={'auto'}></Box>}
-                        {elem.current_STOCK> elem.maximum_STOCK && <Box  bgcolor={'blue'} width={'4rem'} height={'3rem'} margin={'auto'}></Box>}
+ {elem.current_STOCK< elem.minimum_STOCK &&  <Box width={'25px'} height={'25px'} bgcolor={'red'} borderRadius={'50%'} margin={'auto'}></Box>}
+                        {elem.current_STOCK> elem.minimum_STOCK && elem.current_STOCK < elem.maximum_STOCK &&  <Box width={'25px'} height={'25px'} bgcolor={'green'} borderRadius={'50%'} margin={'auto'}></Box>}
+                        {elem.current_STOCK> elem.maximum_STOCK &&  <Box width={'25px'} height={'25px'} bgcolor={'blue'} borderRadius={'50%'} margin={'auto'}></Box>}
                         {/* <Box
                           display="grid"
                           gridTemplateColumns="repeat(3, 1fr)"

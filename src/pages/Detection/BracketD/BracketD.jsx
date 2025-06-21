@@ -270,7 +270,7 @@ const resetCropper = () => {
                   }
                 }}
               >
-                
+
                 <label htmlFor="image-upload" style={{ cursor: 'pointer', margin: 0, width: '100%', height: '100%' }}>
                  Upload Image
                 </label>
@@ -279,7 +279,7 @@ const resetCropper = () => {
                   ref={imageInputRef}
                   type="file"
                   accept="image/*"
-                  style={{ width: '10rem', display: 'none' }}
+                  style={{ width: '100%', height: '100%', backgroundColor: 'pink',  display: 'none' }}
                   onChange={(e) => handleFileUpload(e, 'image')}
                 />
               </Button>
@@ -310,7 +310,7 @@ const resetCropper = () => {
             alignItems: 'center',
             backgroundColor: '#f8f8f8',
             maxHeight: '350px',
-            overflow: 'hidden'
+            // overflow: 'hidden'
           }}>
             <img 
               src={uploadedFileURL} 
@@ -326,7 +326,8 @@ const resetCropper = () => {
             />
           </div>
         
-        <div className="d-flex justify-content-center py-3" style={{ backgroundColor: '#f0f0f0', borderTop: '1px solid #ddd', marginLeft: '10rem', marginTop: '1rem' }}>
+        {/* <div className="d-flex justify-content-center py-3" style={{margin: 'auto', backgroundColor: 'red', marginTop: '1rem', width: '23rem' }}> */}
+          <Box display={'flex'} margin={'auto'} justifyContent={'center'} >
           <Button 
             variant="outlined"
             onClick={() => {
@@ -338,7 +339,7 @@ const resetCropper = () => {
                 URL.revokeObjectURL(uploadedFileURL);
               }
             }}
-            sx={{ mx: 1 }}
+            sx={{ mx: 1}}
           >
             Remove
           </Button>
@@ -349,7 +350,7 @@ const resetCropper = () => {
             // onClick={fileType === 'image' ? captureImageForCropping : captureVideoFrame}
             onClick={captureImageForCropping}
             disabled={isCapturingSnapshot}
-            sx={{ mx: 1, bgcolor: colors.primary, '&:hover': {
+            sx={{ bgcolor: colors.primary, '&:hover': {
                                                 backgroundColor: colors.buttonHover
                                                 // backgroundColor: '#3A6F2F'
                                               } }}
@@ -357,7 +358,7 @@ const resetCropper = () => {
           >
             {isCapturingSnapshot ? (
               <>
-                <span style={{ opacity: 0 }}>
+                <span style={{ display: 'none' }}>
                   {fileType === 'image' ? 'Process Image' : 'Capture Frame'}
                 </span>
                 <CircularProgress
@@ -372,7 +373,10 @@ const resetCropper = () => {
               fileType === 'image' ? 'Process Image' : 'Capture Frame'
             )}
           </Button>
-        </div>
+          </Box>
+
+
+        {/* </div> */}
       </div>
     );
   };

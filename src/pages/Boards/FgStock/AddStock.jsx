@@ -9,6 +9,8 @@ const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const AddStock = ({setIsOpen}) => {
 const {token} = useSelector((state)=> state.auth)
+  const {fgStockArr}= useSelector((state)=> state.fgStock)
+
   const [itemDescription, setItemDescription]= React.useState('');
   const [itemCode, setItemCode]= React.useState('');
   const [minimum, setMinimum]= React.useState('');
@@ -88,6 +90,8 @@ setIsOpen(false)
               onChange={(e) => setItemDescription(e.target.value)}
               sx={{ mt: '1rem'}}
               size='small'
+              required
+              
             />
             
             <TextField
@@ -99,6 +103,7 @@ setIsOpen(false)
               onChange={(e) => setItemCode(e.target.value)}
               sx={{ mt: '1rem' }}
               size='small'
+              required
             />
 
 {/* <TextField
@@ -125,24 +130,26 @@ setIsOpen(false)
 
 <TextField
               fullWidth
-              label="Today's Target"
+              label="Today's Planning"
               // placeholder='rtsp://192.168.1.100:554/stream1'
-              type="text"
+              type="number"
               value={todaysTarget}
               onChange={(e) => setTodaysTarget(e.target.value)}
               sx={{ mt: '1rem' }}
               size='small'
+              required
             />
 
 <TextField
               fullWidth
               label="Current"
               // placeholder='rtsp://192.168.1.100:554/stream1'
-              type="text"
+              type="number"
               value={current}
               onChange={(e) => setCurrent(e.target.value)}
               sx={{ mt: '1rem' }}
               size='small'
+              required
             />
           
 
@@ -150,11 +157,12 @@ setIsOpen(false)
               // fullWidth
               label="Schedule"
               // placeholder='rtsp://192.168.1.100:554/stream1'
-              type="text"
+              type="number"
               value={schedule}
               onChange={(e) => setSchedule(e.target.value)}
               sx={{ mt: '1rem' }}
               size='small'
+              required
             />
             </Box>
 
@@ -163,11 +171,12 @@ setIsOpen(false)
               fullWidth
               label="Dispatched"
               // placeholder='rtsp://192.168.1.100:554/stream1'
-              type="text"
+              type="number"
               value={dispatched}
               onChange={(e) => setDispatched(e.target.value)}
               sx={{ mt: '1rem' }}
               size='small'
+              required
             />
 
 {/* <TextField
@@ -202,28 +211,34 @@ setIsOpen(false)
                                                   // onChange={(e) => setDate(e.target.value)}
                                                   InputLabelProps={{ shrink: true }}
                                                   onChange={(e) => setNextAction(e.target.value)}
+                                                  required
                                                 />
-
-<TextField
+{
+  fgStockArr?.length <= 0 && 
+  <TextField
               fullWidth
-              label="resp"
+              label="Responsible Person"
               // placeholder='rtsp://192.168.1.100:554/stream1'
               type="text"
               value={resp}
               onChange={(e) => setResp(e.target.value)}
               sx={{ mt: '1rem' }}
               size='small'
+              required
             />
+}
+
 
 <TextField
               fullWidth
               label="Next Day Target"
               // placeholder='rtsp://192.168.1.100:554/stream1'
-              type="text"
+              type="number"
               value={nextDayTarget}
               onChange={(e) => setNextDayTarget(e.target.value)}
               sx={{ mt: '1rem' }}
               size='small'
+              required
             />
 
 <Button

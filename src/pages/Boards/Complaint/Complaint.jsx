@@ -190,10 +190,10 @@ console.log(complaintsLoading, complaints)
         display: "flex",
         flexDirection: "column",
         height: "88vh",
-        bgcolor: "lightgray",
+        // bgcolor: "lightgray",
       }}
     >
-      <Typography
+      {/* <Typography
         sx={{
           fontSize: "2rem",
           textAlign: "center",
@@ -204,7 +204,24 @@ console.log(complaintsLoading, complaints)
         }}
       >
         CUSTOMER COMPLAINT MEETING BOARD
-      </Typography>
+      </Typography> */}
+      
+      <Typography
+              sx={{
+                fontSize: "2rem",
+                textAlign: "center",
+                // borderBottom: "1px solid #282828",
+                width: "100%",
+                // marginLeft: "auto",
+                mr: "auto",
+                padding: "1rem 0rem",
+                bgcolor: 'white',
+                borderRadius: '12px',
+                boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
+              }}
+            >
+              CUSTOMER COMPLAINT MEETING BOARD
+            </Typography>
 
       {/* <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
       Here is a gentle confirmation that your action was successful.

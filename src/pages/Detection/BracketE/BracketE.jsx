@@ -187,7 +187,7 @@ formData.append('file', croppedImageFile);
           // Axios will automatically set 'Content-Type' for FormData
         },
       }
-    );
+     );
     setIsLoading(false);
     setAddedItem(response.data);
     console.log("Upload response:", response.data);
@@ -325,7 +325,8 @@ const resetCropper = () => {
             />
           </div>
         
-        <div className="d-flex justify-content-center py-3" style={{ backgroundColor: '#f0f0f0', borderTop: '1px solid #ddd', marginLeft: '10rem', marginTop: '1rem' }}>
+        {/* <div className="d-flex justify-content-center py-3" style={{ backgroundColor: '#f0f0f0', borderTop: '1px solid #ddd', marginLeft: '10rem', marginTop: '1rem' }}> */}
+        <div className="d-flex justify-content-center py-3" style={{margin: 'auto', marginTop: '1rem', width: '23rem' }}>
           <Button 
             variant="outlined"
             onClick={() => {
@@ -542,7 +543,7 @@ const resetCropper = () => {
   };
   
   const deleteReport= async()=>{
-    const response = await axios.delete(`${BACKEND_API}/delete-classification/${addedItem.file_id}`, 
+    const response = await axios.delete(`${BACKEND_API}/delete-bracketE-classification/${addedItem.file_id}`, 
       {
         headers:{
           Authorization: `Bearer ${token}`

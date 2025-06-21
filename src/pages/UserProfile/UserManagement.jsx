@@ -91,7 +91,7 @@ useEffect(()=>{
           >
             <Tab label="Profile" />
             <Tab label="Change Password" />
-            <Tab label="Temporary Password" />
+            {/* <Tab label="Temporary Password" /> */}
           </Tabs>
 
           <TabPanel value={tabValue} index={0}>
@@ -102,9 +102,9 @@ useEffect(()=>{
             <PasswordReset user={userDetail} />
           </TabPanel>
 
-          <TabPanel value={tabValue} index={2}>
+          {/* <TabPanel value={tabValue} index={2}>
             <TempPasswordGenerator user={userDetail} />
-          </TabPanel>
+          </TabPanel> */}
         </Paper>
       </Container>
     </Box>

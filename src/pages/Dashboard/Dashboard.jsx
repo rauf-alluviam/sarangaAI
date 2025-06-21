@@ -251,6 +251,7 @@ try {
                   {icon: <MdOutlineManageHistory />, title: 'Complaint', path: '/complaint-board', color: 'rgb(112, 152, 155)'},
                   {icon: <FaTools />, title: 'Tool Manage Board', path: 'tool-management', color: '#A5A06B'},
                   {icon: <FaTools />, title: 'BracketD', path: 'bracket-d', color: 'rgb(80, 105, 88)'},
+                  // {icon: <FaTools />, title: 'BracketD', path: 'bracket-d', color: 'rgb(80, 105, 88)'},
                 ].map((elem, index)=>(
                   <Box key={index} onClick={()=> navigate(elem.path)} bgcolor={elem.color} width={'24%'} borderRadius={'13px'} display={'flex'} flexDirection={'column'}  justifyContent={'space-between'} p={'1rem'}  alignItems={'center'} sx={{
                     cursor: 'pointer',
@@ -494,7 +495,7 @@ try {
     component={'a'}
     target="_blank"
     rel="noopener noreferrer"
-    href='http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login'
+    href='http://qrlocker.s3-website.ap-south-1.amazonaws.com/login'
     width={'48%'}
     height={'3.9rem'}
     display={'flex'}

@@ -3,6 +3,7 @@ import { Container, Box, Stack, useMediaQuery, Typography, TextField, InputAdorn
 // import LoginForm from "../forms/LoginForm";
 import "./login.scss";
 import alliviumImg from '../../assets/images/alluvium.png';
+import rabsLogo from '../../assets/rabsLogo.png'
 // import lockImg from '../../assets/images/lock.png';
 import { Link, useNavigate } from "react-router-dom";
 import Login from "./Login";
@@ -31,9 +32,9 @@ const Auth=()=> {
         <Stack direction={sizeSmall ? "column" : "row"} className="login-row" sx={{ height: "100%", width: "100%" }}>
         {isLargerThan990 && (
           <Box className="login-left-col" sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", bgcolor: "#f5f5f5" }}>
-            <img src={alliviumImg} alt="logo" width={400} />
+            <img src={rabsLogo} alt="logo" width={400} />
             <p>
-              <span>"</span>Building world's best computer vision products<span>"</span>
+              <span>"</span>Powering Industrial Safety & Efficiency with Smart Vision<span>"</span>
             </p>
           </Box>
         )}
@@ -41,12 +42,14 @@ const Auth=()=> {
         <Box className="login-right-col" sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column"}}>
           {!isLargerThan990 && (
             <Box className="login-conditional-container" sx={{ textAlign: "center" }}>
-              <img src={alliviumImg} alt="logo" width={200} />
+              <img src={rabsLogo} alt="logo" width={200} />
               <p>
-                <span>"</span>Building world's best computer vision products<span>"</span>
+                <span>"</span>Powering Industrial Safety & Efficiency with Smart Vision<span>"</span>
               </p>
+              
             </Box>
-          ) 
+            
+          )   
         //   : (
         //     <img src={lockImg} alt="lock" width={100} />
         //   )
@@ -55,8 +58,12 @@ const Auth=()=> {
           {/* <LoginForm /> */}
           {/* <Login /> */}
           {/* <Signup /> */}
+          <Typography fontSize={'1rem'} color="#282828" position={'absolute'} bottom={'1rem'} right={'3rem'}>Powerd By Novusha</Typography>
+
 
         </Box>
+
+        
       </Stack>
         
     </Box>

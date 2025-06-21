@@ -1,3 +1,4 @@
+
 const colors = {
   // primary: '#416F64',
     primary: "rgb(241, 92, 109)", // pink
@@ -7,6 +8,7 @@ const colors = {
     navbar: "#e74c3c", // Red
     textPrimary: "#ffffff", // White
     textSecondary: "#333333", // Dark Text
+    tableHeader: "#F1F5F9", 
   };
   
   export default colors;

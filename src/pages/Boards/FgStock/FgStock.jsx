@@ -2,6 +2,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   FormControl,
   IconButton,
   InputLabel,
@@ -43,64 +44,6 @@ const FgStock = () => {
   console.log(edit);
 const [status, setStatus]= useState('all');
 
-  // let stock= [
-  //   {
-  //     "item_description": "ALTROZ BRACKET-D RH",
-  //     "item_code": "10077-7R05S",
-  //     "minimum": 200,
-  //     "maximum": 2500,
-  //     "current": 814,
-  //     "schedule": 5760,
-  //     "dispatched": 1560,
-  //     "balance": 4200,
-  //     "next_action": "20-05-25",
-  //     "resp": "Shrikant",
-  //     "target": 320,
-  //     "timestamp": "2025-05-20T10:16:37.249000"
-  //   },
-  //   {
-  //     "item_description": "ABgdhfC",
-  //     "item_code": "456fgdf3",
-  //     "minimum": 20,
-  //     "maximum": 40,
-  //     "current": 300,
-  //     "schedule": 600,
-  //     "dispatched": 340,
-  //     "balance": 650,
-  //     "next_action": "45-6543",
-  //     "resp": "AMOL",
-  //     "target": 564,
-  //     "timestamp": "2025-05-20T10:17:06.791000"
-  //   },
-  //   {
-  //     "item_description": "ABgdajdasgcsajkdsdhvdiohfC",
-  //     "item_code": "456fgdf3",
-  //     "minimum": 20,
-  //     "maximum": 40,
-  //     "current": 300,
-  //     "schedule": 600,
-  //     "dispatched": 340,
-  //     "balance": 650,
-  //     "next_action": "45-6543",
-  //     "resp": "AMOL",
-  //     "target": 564,
-  //     "timestamp": "2025-05-20T10:17:59.528000"
-  //   },
-  //   {
-  //     "item_description": "DATA",
-  //     "item_code": "1234567",
-  //     "minimum": 5,
-  //     "maximum": 90,
-  //     "current": 80,
-  //     "schedule": 40,
-  //     "dispatched": 2,
-  //     "balance": 90,
-  //     "next_action": "3hfhjvkj",
-  //     "resp": "rohit",
-  //     "target": 780,
-  //     "timestamp": "2025-05-20T10:45:50.624000"
-  //   }
-  // ]
 
   // useEffect(() => {
   //   const [year, month, day] = date.split("-");
@@ -156,17 +99,22 @@ const [status, setStatus]= useState('all');
         display: "flex",
         flexDirection: "column",
         height: "88vh",
-        bgcolor: "lightgray",
+        // bgcolor: "lightgray",
+        padding: "1rem",
       }}
     >
       <Typography
         sx={{
           fontSize: "2rem",
           textAlign: "center",
-          borderBottom: "1px solid #282828",
-          width: "40rem",
-          marginLeft: "auto",
+          // borderBottom: "1px solid #282828",
+          width: "100%",
+          // marginLeft: "auto",
           mr: "auto",
+          padding: "1rem 0rem",
+          bgcolor: 'white',
+          borderRadius: '12px',
+          boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
         }}
       >
         DISPATCH STOCK MONITORING BOARD
@@ -178,7 +126,7 @@ const [status, setStatus]= useState('all');
 
       <Box
         sx={{
-          width: "50rem",
+          width: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-evenly",
@@ -189,18 +137,23 @@ const [status, setStatus]= useState('all');
           // bgcolor: 'red'
         }}
       >
+        <Box bgcolor={'white'} color={'#282828'} fontSize={'1.2rem'} padding={'0.5rem 0.8rem'} borderRadius={'8px'} border={'1px solid #282828'} mr={'auto'}>
+          Responsible Person- {fgStockArr[0]?.resp || 'Not mentioned'}</Box>
         <Button
-          sx={{ bgcolor: colors.primary, width: "10rem" }}
+          sx={{ 
+            bgcolor: colors.primary,
+            width: "10rem", mr: "1rem" }}
           variant="contained"
-          onClick={() => setIsOpen(true)}
+          onClick={() => setIsOpen(true)} 
         >
-          Add New Item
+          Add New Item  
         </Button>
         <TextField
-          // size="small"
+          size="small"
           label="Date"
           // sx={{ width: '45rem' }}
-          sx={{ width: "15rem" }}
+          sx={{ width: "15rem"}}
+          // placeholder="Select Date"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
@@ -249,20 +202,37 @@ const [status, setStatus]= useState('all');
       <Box
         position={"relative"}
         // bgcolor={"green"}
-        mr={"1rem"}
+        // mr={"1rem"}
         p={"0.7rem"}
         borderRadius={"6px"}
         display={"flex"}
         flexDirection={"column"}
         alignItems={"start"}
         overflow={'auto'}
+        sx={{
+          height: "80vh", // or a fixed height like "600px"
+          width: "100%",  // Make sure it's not constrained by parent
+          overflow: "auto", // Enables both vertical & horizontal scroll
+          scrollbarWidth: "thin", // Firefox
+          "&::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#888",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#555",
+          },
+        }}
         // minHeight={'74vh'}
         
         
       >
         {/* <Typography position={'absolute'} top={'-1rem'} left={0}>0 Records found</Typography> */}
         {/* <Typography fontSize={'1.6rem'} sx={{borderBottom: '1px solid grey', mb: '1rem'}}>Fire Report</Typography> */}
-        <Paper sx={{ maxHeight: "75vh", overflow: 'auto' }}>
+        <Paper sx={{ maxHeight: "75vh", overflow: 'auto', marginLeft: 'auto', mr: 'auto', width: '100%' }} >
           <TableContainer>
             <Table aria-label="simple table" border={1} >
               <TableHead sx={{ bgcolor: "grey", border: "1px solid black" }}>
@@ -283,7 +253,7 @@ const [status, setStatus]= useState('all');
                     Maximum
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Today's Target
+                    Today's Planning
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Current
@@ -301,13 +271,11 @@ const [status, setStatus]= useState('all');
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Next Action
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Responsibility
-                  </TableCell>
+                 
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Next Day Target
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", minWidth: '6rem', width: '6rem', maxWidth: '6rem' }}>
                     Status
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
@@ -327,7 +295,7 @@ const [status, setStatus]= useState('all');
                 {fgStockArr.length > 0 ? (
                   fgStockArr.map((elem, index) => (
                     <TableRow key={elem.id || index} sx={{bgcolor: elem._id== edit._id && 'rgb(188, 196, 209)', transition: '0.4s', boxShadow: elem._id== edit._id && 'rgba(0, 0, 0, 0.24) 0px 3px 8px' }}>
-                      <TableCell align="center">{index + 1}</TableCell>
+                      <TableCell align="center"  sx={{ width: "2rem", maxWidth: '2rem', minWidth: '2rem' }}>{index + 1}</TableCell>
                       <TableCell  sx={{ width: "16rem", maxWidth: '16rem', minWidth: '16rem' }} align="center">
                         {elem.item_description}
                       </TableCell>
@@ -335,10 +303,10 @@ const [status, setStatus]= useState('all');
                         {elem.item_code}
                       </TableCell>
                       <TableCell  sx={{ width: "4rem", maxWidth: '4rem', minWidth: '4rem' }} align="center">
-                        {200}
+                        {elem.minimum}
                       </TableCell>
                       <TableCell  sx={{ width: "4rem", maxWidth: '4rem', minWidth: '4rem' }} align="center">
-                        {2500}
+                        {elem.maximum}
                       </TableCell>
 
                       <TableCell  sx={{ width: "4rem", maxWidth: '4rem', minWidth: '4rem' }} align="center">
@@ -477,24 +445,7 @@ const [status, setStatus]= useState('all');
                           elem.next_action? elem.next_action: '-'
                         )}
                       </TableCell>
-                      <TableCell sx={{ width: "10rem", maxWidth: '10rem', minWidth: '10rem' }} align="center">
-                        {edit._id == elem._id ? (
-                          <TextField
-                            fullWidth
-                            // label="Dispatched"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="text"
-                            defaultValue={elem.resp}
-                            onChange={(e) =>
-                              setEdit({ ...edit, resp: e.target.value })
-                            }
-                            sx={{ width: "100%" }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.resp
-                        )}
-                      </TableCell>
+                     
                       <TableCell sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center"> 
                         {edit._id == elem._id ? (
                           <TextField
@@ -516,8 +467,16 @@ const [status, setStatus]= useState('all');
 
                         )}
                       </TableCell>
-                      <TableCell>{elem.todays_target * 2 <= elem.current ? 
-                      <Box bgcolor={'green'}  height={'3rem'} width={'4rem'}></Box>: <Box  bgcolor={'red'} height={'3rem'} width={'4rem'}></Box> }</TableCell>
+                      {/* <TableCell>{elem.todays_target * 2 <= elem.current ? 
+                      <Box bgcolor={'green'}  height={'3rem'} width={'4rem'}></Box>: <Box  bgcolor={'red'} height={'3rem'} width={'4rem'}></Box> }</TableCell> */}
+                     <TableCell>
+  {elem.current < elem.minimum && <Box width={'25px'} height={'25px'} bgcolor={'red'} borderRadius={'50%'} margin={'auto'}></Box>}
+  {(elem.current >= elem.minimum && elem.current < 400) && (
+    <Box width={'25px'} height={'25px'} bgcolor={'orange'} borderRadius={'50%'} margin={'auto'}></Box>
+  )}
+  {elem.current >= 400 && <Box width={'25px'} height={'25px'} bgcolor={'green'} borderRadius={'50%'} margin={'auto'}></Box>}
+</TableCell>
+
                       <TableCell
                         sx={{ width: "5rem", maxWidth: "5rem" }}
                         align="center"
@@ -575,3 +534,5 @@ const [status, setStatus]= useState('all');
 };
 
 export default FgStock;
+
+

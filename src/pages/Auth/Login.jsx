@@ -9,6 +9,7 @@ import axios from "axios";
 import qs from 'qs'; 
 import { useDispatch } from "react-redux";
 import { login, loginSuccess } from "../../Redux/Actions/authAction";
+import TempPasswordGenerator from "../UserProfile/TempPasswordGenerator";
 
 const BACKEND_API= import.meta.env.VITE_BACKEND_API;
 
@@ -18,6 +19,8 @@ const Login=({setFlag})=> {
   const dispatch= useDispatch();
   const [username, setUsername]= useState('');
   const [password, setPassword]= useState('');
+  const [openReset, setOpenReset]= useState(false);
+  const [resetPassMail, setResetPassMail]= useState('');
 
   const handleSubmit= async(e)=>{
     e.preventDefault();
@@ -51,6 +54,44 @@ const Login=({setFlag})=> {
   //   }
 
   }
+
+  const handleSendTempPassword = async (e) => {
+    e.preventDefault();
+    // setIsGenerating(true);
+    // setError('');
+    // setSuccess(false);
+
+    try {
+        const response= await axios.post(`https://rabs.alvision.in/reset_password?email=${resetPassMail}`, {})
+        // setSuccess(true);
+    setOpenReset(false);
+        console.log('Temporary password generation response:', response.data);
+    } catch (error) {
+        console.error('Error generating temporary password:', error);
+        // setError('Failed to send temporary password. Please try again.');
+        console.log(error)
+    }finally {
+          // setIsGenerating(false);
+        }
+    // try {
+    //   const tempPassword = generateTempPassword();
+    //   console.log('Generated temporary password:', tempPassword);
+      
+    //   // Simulate API call to send email - replace with actual backend integration
+    //   await new Promise(resolve => setTimeout(resolve, 2000));
+      
+    //   // Simulate backend updating force_password_change flag
+    //   console.log('Setting force_password_change to true for user:', currentUser._id);
+      
+    //   setSuccess(true);
+
+    // } catch (error) {
+    //   console.error('Error sending temporary password:', error);
+    //   setError('Failed to send temporary password. Please try again.');
+    // } finally {
+    //   setIsGenerating(false);
+    // }
+  };
 
   return (
     <>
@@ -109,18 +150,18 @@ const Login=({setFlag})=> {
       Login
     </Button>
     <Typography mt={'0.4rem'}>Don't have account?  <u onClick={()=> setFlag(false)} style={{cursor: 'pointer', color: 'blue', opacity: '65%'}}>Signup</u> </Typography>
-   <Typography>Do you remember password? Forgot Password</Typography>
+   <Typography>Do you remember password? <span onClick={()=> setOpenReset(true)} style={{color: 'rgb(15, 59, 155)', cursor: 'pointer', fontWeight: 500, fontSize: '1.1rem'}}>Forgot Password</span></Typography>
 
    
   </form>
 
-  {/* <Dialog open={true}>
-    <Box>
-    <form onSubmit={handleSubmit} style={{ maxWidth: "400px", margin: "auto", padding: "20px", borderRadius: "10px", boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)" }}>
-    <Typography variant="h5" gutterBottom style={{ marginBottom: "20px", textAlign: "center" }}>Login</Typography>
+  <Dialog open={openReset} onClose={()=> setOpenReset(false)} maxWidth={'xs'} fullWidth>
+    <Box height={'14rem'} width={'28rem'}>
+    <form onSubmit={handleSendTempPassword} style={{ maxWidth: "400px", padding: "20px",width: '100%', height: '100%', borderRadius: "10px", display: 'flex',flexDirection: 'column', justifyContent: 'space-evenly', margin: 'auto' }}>
+    <Typography variant="h5" gutterBottom style={{ marginBottom: "20px", textAlign: "center" }}>Reset Password</Typography>
     <TextField
-    value={username}
-    onChange={(e) => setUsername(e.target.value)}
+    value={resetPassMail}
+    onChange={(e) => setResetPassMail(e.target.value)}
       size="small"
       margin="dense"
       variant="outlined"
@@ -139,17 +180,15 @@ const Login=({setFlag})=> {
       variant="contained"
       color="primary"
       size="large"
-      style={{ background: "linear-gradient(to right, #D31027, #EA384D)", borderRadius: "25px" }}
+      style={{ background: "linear-gradient(to right, #D31027, #EA384D)", borderRadius: "7px" }}
     >
-      Login
+      Send Temporary Password
     </Button>
-    <Typography mt={'0.4rem'}>Don't have account?  <u onClick={()=> setFlag(false)} style={{cursor: 'pointer', color: 'blue', opacity: '65%'}}>Signup</u> </Typography>
-   <Typography>Do you remember password? Forgot Password</Typography>
 
    
   </form>
     </Box>
-   </Dialog> */}
+   </Dialog>
 
   </>
    
