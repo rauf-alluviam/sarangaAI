@@ -29,7 +29,7 @@ export const getAllFgStock=(date)=> async(dispatch, getState)=>{
     }
 } 
 
-export const addFgStock=(data)=> async(dispatch, getState)=>{
+export const addFgStock=({data, onSuccess})=> async(dispatch, getState)=>{
     const token= getState().auth.token;
     try {
         const response= await axios.post(`${BACKEND_API}/submit_dispatch_stock_monitoring_sheet_entry`, data,
@@ -42,8 +42,9 @@ export const addFgStock=(data)=> async(dispatch, getState)=>{
             }
           );
           dispatch({type: ADD_FG_STOCK, payload: {_id: response.data.id, ...data}})
-          alert('Item Added Successfull')
-          console.log(response.data)
+          // alert('Item Added Successfull')
+          if (onSuccess) onSuccess(); // clear form or close modal
+          // console.log(response.data)
     } catch (error) {
         console.log(error)
     }

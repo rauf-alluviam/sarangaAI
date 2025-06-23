@@ -46,7 +46,7 @@ const Sidebar = ({ setIsSliderOpen }) => {
         { icon: <FaFireFlameCurved />, title: 'Fire Detection', path: '/fire' },
         { icon: <FaHelmetSafety />, title: 'PPE Kit', path: '/ppe-kit' },
         { icon: <GiSmokeBomb />, title: 'Smoke Detection', path: '/smoke' },
-        { icon: <PiTruckFill />, title: 'Truck Detection', path: '/truck' }
+        { icon: <PiTruckFill />, title: 'Loading-Unloading', path: '/truck' }
       ]
     },
     {

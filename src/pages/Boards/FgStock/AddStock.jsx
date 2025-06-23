@@ -4,10 +4,11 @@ import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typo
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { addFgStock, getAllFgStock } from '../../../Redux/Actions/fgStockActions';
+import { enqueueSnackbar } from 'notistack';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
-const AddStock = ({setIsOpen}) => {
+const AddStock = ({setIsOpen, setSelectedBoard}) => {
 const {token} = useSelector((state)=> state.auth)
   const {fgStockArr}= useSelector((state)=> state.fgStock)
 
@@ -34,7 +35,7 @@ const handleSubmit= async(e)=>{
     item_code: itemCode,
     minimum: 200,
     maximum: 2500,
-    todays_target: todaysTarget,
+    todays_planning: todaysTarget,
     current: current,
     schedule: schedule,
     dispatched: dispatched,
@@ -61,8 +62,13 @@ const handleSubmit= async(e)=>{
   
 // }
 
-dispatch(addFgStock(data));
-setIsOpen(false)
+dispatch(addFgStock({data, 
+  onSuccess: () => {
+  setIsOpen(false);
+  // setSelectedBoard('none');
+  enqueueSnackbar('Stock Added successfully!', { variant: 'success' });
+}}
+));
   // axios.post('http://
 }
   return (

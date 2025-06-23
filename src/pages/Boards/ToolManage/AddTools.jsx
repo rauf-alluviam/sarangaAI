@@ -5,7 +5,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { addTool } from "../../../Redux/Actions/toolManagementActions";
 
-const AddTools = ({setIsOpen}) => {
+const AddTools = ({setIsOpen, setSelectedBoard}) => {
     const {token} = useSelector((state)=> state.auth)
     const [machine, setMachine] = React.useState("");
   const [mouldName, setMouldName] = React.useState("");
@@ -53,6 +53,7 @@ const AddTools = ({setIsOpen}) => {
         console.log(response)
         if(response.data.message == 'Entry submitted') {
             setIsOpen(false);
+            // setSelectedBoard('none')
             alert("Tool added successfully");
         }
     } catch (error) {

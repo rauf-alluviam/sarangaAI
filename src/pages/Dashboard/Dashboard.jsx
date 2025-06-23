@@ -280,7 +280,7 @@ try {
   {elem.icon}
 </span>
                     <Typography fontSize={'3rem'}>{elem.count}</Typography>
-                    <Typography fontSize={'1.1rem'} textAlign={'center'}>{elem.title}</Typography>
+                    <Typography fontSize={'1rem'} textAlign={'center'}>{elem.title}</Typography>
                   </Box>
                 ))
               }
@@ -345,9 +345,9 @@ try {
 <Box display={'flex'} flexDirection={isLargerThan1390?'row': 'column'} justifyContent={'space-between'} alignItems={'start'} width={'100%'} mt={'1.4rem'} >
           <Box display={'flex'} minHeight={'30rem'} flex={1} flexDirection={'column'} bgcolor={'white'}  p={'1rem'} borderRadius={'8px'} sx={{boxShadow: 'rgba(0, 0, 0, 0.1) 0px 3px 8px'}}>
 <Box width={'100%'} display={'flex'} justifyContent={'space-between'}>
-            <Typography fontSize={'1.4rem'} fontWeight={500} color='#181818'>Model-wise Detection Overview:</Typography>
+            <Typography fontSize={'1.4rem'} fontWeight={500} color='#181818'><BsGraphUp style={{color: 'tomato', marginRight: '1rem', fontSize: '1.8rem'}} />Model-wise Detection Overview:</Typography>
 
-          <TextField
+          <TextField  
              size='small'
             label="Select Date"
             sx={{ width: '18rem' }}

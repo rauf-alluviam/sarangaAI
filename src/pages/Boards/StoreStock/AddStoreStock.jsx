@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
-const AddStoreStock = ({setIsOpen}) => {
+const AddStoreStock = ({setIsOpen, setSelectedBoard}) => {
   const {token} = useSelector((state)=> state.auth)
   const [itemDescription, setItemDescription]= React.useState('');
   // const [minimum, setMinimum]= React.useState('');
@@ -63,6 +63,7 @@ try {
     }
   );
   setIsOpen(false);
+  // setSelectedBoard('none')
   alert(response.data.message)
 } catch (error) {
   console.log(error)

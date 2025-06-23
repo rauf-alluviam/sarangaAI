@@ -317,7 +317,7 @@ const [status, setStatus]= useState('all');
                             // label="Current Stock"
                             // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="number"
-                            defaultValue={elem.todays_target}
+                            defaultValue={elem.todays_planning}
                             onChange={(e) =>
                               setEdit({ ...edit, todays_target: e.target.value })
                             }
@@ -325,7 +325,7 @@ const [status, setStatus]= useState('all');
                             size="small"
                           />
                         ) : (
-                          elem.todays_target
+                          elem.todays_planning
                         )}
                       </TableCell>
                       <TableCell  sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center">

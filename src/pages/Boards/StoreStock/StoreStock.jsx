@@ -201,18 +201,27 @@ const StoreStock = () => {
 
       <Box
         sx={{
-          width: "30%",
+          width: "100%",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-evenly",
+          justifyContent: "space-between",
           mt: "1.6rem",
-          ml: "auto",
-          mr: "auto",
-          padding: "0.5rem",
+          // ml: "auto",
+          // mr: "auto",
+          padding: "0.5rem",  
+          // bgcolor: 'red'
         }}
       >
+        <Box display={'flex'}  width={'15rem'} justifyContent={'space-between'} mr={'1rem'}>
+          <Box display={'flex'} alignItems={'center'}><Box bgcolor={'red'} height={'15px'} width={'15px'} borderRadius={'50%'} mr={'0.5rem'}></Box><Typography>Critical</Typography></Box>
+          <Box display={'flex'} alignItems={'center'}><Box bgcolor={'blue'} height={'15px'} width={'15px'} borderRadius={'50%'} mr={'0.5rem'}></Box><Typography>Excess</Typography></Box>
+          <Box display={'flex'} alignItems={'center'}><Box bgcolor={'green'} height={'15px'} width={'15px'} borderRadius={'50%'} mr={'0.5rem'}></Box><Typography>Ok</Typography></Box>
+
+        </Box>
+
+        <Box display={'flex'}>
         <Button
-          sx={{ bgcolor: colors.primary, width: "12rem" }}
+          sx={{ bgcolor: colors.primary, width: "12rem", mr: '1rem' }}
           variant="contained"
           onClick={() => setIsOpen(true)}
         >
@@ -231,6 +240,7 @@ const StoreStock = () => {
         /> */}
 
         <TextField
+        size="small"
           id="week"
           name="week"
           label="Select Week"
@@ -241,6 +251,7 @@ const StoreStock = () => {
             shrink: true,
           }}
         />
+        </Box>
       </Box>
       {isOpen && (
         <Box
