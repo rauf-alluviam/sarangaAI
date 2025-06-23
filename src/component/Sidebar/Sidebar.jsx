@@ -63,7 +63,7 @@ const Sidebar = ({ setIsSliderOpen }) => {
       title: 'Inventory Management',
       icon: <FaClipboardList />,
       items: [
-        { icon: <RiBox3Fill />, title: 'Dispatch Stock', path: '/fg-stock' },
+        { icon: <RiBox3Fill />, title: 'Fg Stock', path: '/fg-stock' },
         { icon: <MdStorefront />, title: 'Store Stock', path: '/store-stock' },
         { icon: <FaTools />, title: 'Tool Management', path: '/tool-management' },
         { icon: <MdRateReview />, title: 'Complaint Board', path: '/complaint-board' }

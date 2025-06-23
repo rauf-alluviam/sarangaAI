@@ -66,7 +66,7 @@ dispatch(addFgStock({data,
   onSuccess: () => {
   setIsOpen(false);
   // setSelectedBoard('none');
-  enqueueSnackbar('Stock Added successfully!', { variant: 'success' });
+  enqueueSnackbar('Store Stock Added successfully!', { variant: 'success' });
 }}
 ));
   // axios.post('http://

@@ -16,15 +16,21 @@ import React, { useEffect, useState } from "react";
 import colors from "../../../utils/colors";
 // import AddStock from "./AddStock";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { MdDone, MdOutlineCancel, MdOutlineEdit } from "react-icons/md";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import AddStoreStock from "./AddStoreStock";
+import { fetchStoreStock, updateStoreStock } from "../../../Redux/Actions/storeStockAction";
+import store from "../../../Redux/store";
+import { enqueueSnackbar } from "notistack";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const StoreStock = () => {
+  const { storeStockArr}= useSelector((state) => state.storeStock);
+  console.log(storeStockArr);
+
   // Get current date
   const currentDate = new Date();
 
@@ -53,6 +59,7 @@ const StoreStock = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [edit, setEdit] = useState({});
   console.log(edit);
+  const dispatch = useDispatch();
 
   // let stock= [
   //   {
@@ -116,46 +123,62 @@ const StoreStock = () => {
   useEffect(() => {
     const [year, week] = date.split("-W");
     console.log(date);
-    async function fetchData() {
-      try {
-        setIsLoading(true);
-        const response = await axios.get(
-          `${BACKEND_API}/get_weekly_store_stock_monitoring_sheets/${year}/${week}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setIsLoading(false);
-        setStock(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    fetchData();
-  }, [date, isOpen, edit]);
+    dispatch(fetchStoreStock(year, week, token ));
+    // async function fetchData() {
+    //   try {
+    //     setIsLoading(true);
+    //     const response = await axios.get(
+    //       `${BACKEND_API}/get_weekly_store_stock_monitoring_sheets/${year}/${week}`,
+    //       {
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           Authorization: `Bearer ${token}`,
+    //         }, 
+    //       }
+    //     );
+    //     setIsLoading(false);
+    //     setStock(response.data);
+    //     console.log(response.data);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
+    // fetchData();
+  }, [date]);
+  // }, [date, isOpen, edit]);
+
 
   const handleSubmit = async () => {
-    try {
-      const response = await axios.put(
-        `${BACKEND_API}/update_store_stock_monitoring_sheet_entry/${edit._id}`,
-        edit,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setEdit({});
+    dispatch(updateStoreStock(
+      edit, 
+      token, 
+      (successMessage) => {
+        // Success callback
+        enqueueSnackbar(successMessage, { variant: "success" });
+        setEdit({}); // Clear the edit state
+      },
+      (errorMessage) => {
+        // Error callback
+        enqueueSnackbar(errorMessage, { variant: "error" });
+      }
+    ));
+    // try {
+    //   const response = await axios.put(
+    //     `${BACKEND_API}/update_store_stock_monitoring_sheet_entry/${edit._id}`,
+    //     edit,
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     }
+    //   );
+    //   setEdit({});
 
-      console.log(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+    //   console.log(response.data);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   return (
@@ -356,8 +379,8 @@ const StoreStock = () => {
               </TableHead>
 
               <TableBody >
-                {stock.length > 0 ? (
-                  stock.map((elem, index) => (
+                {storeStockArr.length > 0 ? (
+                  storeStockArr.map((elem, index) => (
                     <TableRow key={elem.id || index}>
                       <TableCell align="center">{index + 1}</TableCell>
                       <TableCell

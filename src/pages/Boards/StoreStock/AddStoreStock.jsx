@@ -2,7 +2,9 @@ import React, { useState } from 'react'
 import colors from '../../../utils/colors'
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material'
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { addStoreStock } from '../../../Redux/Actions/storeStockAction';
+import { enqueueSnackbar } from 'notistack';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -23,6 +25,7 @@ const AddStoreStock = ({setIsOpen, setSelectedBoard}) => {
   // const [resp, setResp]= React.useState('');
   // const [target, setTarget]= React.useState('');
   const [timestamp, setTimestamp]= React.useState('2025-05-22T13:20:56.257Z');
+  const dispatch= useDispatch();
   // console.log(new Date())
 
 
@@ -52,23 +55,28 @@ const handleSubmit= async(e)=>{
    actual: actual,
     timestamp: timestamp
   }
-try {
-  const response= await axios.post(`${BACKEND_API}/submit_store_stock_monitoring_sheet_entry`, data,
-    {
-      headers: {
-        'accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      }
-    }
-  );
-  setIsOpen(false);
-  // setSelectedBoard('none')
-  alert(response.data.message)
-} catch (error) {
-  console.log(error)
+  dispatch(addStoreStock(data, token, 
+    (successMessage)=> {setIsOpen(false); 
+      enqueueSnackbar(successMessage, { variant: 'success' })},
+    (errorMessage)=> enqueueSnackbar(errorMessage, { variant: 'error' })
+    ))
+// try {
+//   const response= await axios.post(`${BACKEND_API}/submit_store_stock_monitoring_sheet_entry`, data,
+//     {
+//       headers: {
+//         'accept': 'application/json',
+//         'Authorization': `Bearer ${token}`,
+//         'Content-Type': 'application/json',
+//       }
+//     }
+//   );
+//   setIsOpen(false);
+//   // setSelectedBoard('none')
+//   alert(response.data.message)
+// } catch (error) {
+//   console.log(error)
   
-}
+// }
   // axios.post('http://
 }
   return (
@@ -124,7 +132,7 @@ try {
               fullWidth
               label="Current"
               // placeholder='rtsp://192.168.1.100:554/stream1'
-              type="text"
+              type="number"
               value={current}
               onChange={(e) => setCurrent(e.target.value)}
               sx={{ mt: '1rem' }}

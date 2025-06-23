@@ -256,7 +256,7 @@ const [status, setStatus]= useState('all');
                     Today's Planning
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Current
+                    Current Stock
                   </TableCell>
                   
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>

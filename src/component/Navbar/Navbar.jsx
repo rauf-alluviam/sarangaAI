@@ -18,7 +18,7 @@ const Navbar = ({setIsOpen, setIsSliderOpen, isSliderOpen}) => {
   console.log(selectedBoard)
   console.log(userData)
   const navigate= useNavigate();
-
+  
 
   const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
 

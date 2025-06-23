@@ -31,20 +31,20 @@ const Auth=()=> {
         {/* ---------- */}
         <Stack direction={sizeSmall ? "column" : "row"} className="login-row" sx={{ height: "100%", width: "100%" }}>
         {isLargerThan990 && (
-          <Box className="login-left-col" sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", bgcolor: "#f5f5f5" }}>
-            <img src={rabsLogo} alt="logo" width={400} />
-            <p>
-              <span>"</span>Powering Industrial Safety & Efficiency with Smart Vision<span>"</span>
+          <Box className="login-left-col" sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", bgcolor: "#f5f5f5"}}>
+            <img src={rabsLogo} alt="logo" width={400} style={{marginTop: '6rem'}} />
+            <p style={{color: 'white'}}>
+              <span  >"</span>Powering Industrial Safety & Efficiency with Smart Vision<span>"</span>
             </p>
           </Box>
         )}
 
         <Box className="login-right-col" sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column"}}>
           {!isLargerThan990 && (
-            <Box className="login-conditional-container" sx={{ textAlign: "center" }}>
-              <img src={rabsLogo} alt="logo" width={200} />
-              <p>
-                <span>"</span>Powering Industrial Safety & Efficiency with Smart Vision<span>"</span>
+            <Box className="login-conditional-container" sx={{ textAlign: "center", mt: '2rem' }}>
+              <img src={rabsLogo} alt="logo" width={200} style={{marginTop: '6rem'}} />
+              <p  style={{color: 'white'}}>
+                <span >"</span>Powering Industrial Safety & Efficiency with Smart Vision<span>"</span>
               </p>
               
             </Box>
