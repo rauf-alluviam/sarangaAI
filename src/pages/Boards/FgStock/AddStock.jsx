@@ -35,7 +35,7 @@ const handleSubmit= async(e)=>{
     item_code: itemCode,
     minimum: 200,
     maximum: 2500,
-    todays_planning: todaysTarget,
+    // todays_planning: todaysTarget,
     current: current,
     schedule: schedule,
     dispatched: dispatched,
@@ -134,9 +134,9 @@ dispatch(addFgStock({data,
               size='small'
             /> */}
 
-<TextField
+{/* <TextField
               fullWidth
-              label="Today's Planning"
+              label="Resp Tos"
               // placeholder='rtsp://192.168.1.100:554/stream1'
               type="number"
               value={todaysTarget}
@@ -144,7 +144,7 @@ dispatch(addFgStock({data,
               sx={{ mt: '1rem' }}
               size='small'
               required
-            />
+            /> */}
 
 <TextField
               fullWidth

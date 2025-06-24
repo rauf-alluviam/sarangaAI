@@ -710,14 +710,14 @@ export default Dashboard;
 //   return (
 //     <Box p={4} bgcolor="#f5f5f5" minHeight="100vh">
 //       {/* Header */}
-//       <Box textAlign="center" mb={4}>
+//       {/* <Box textAlign="center" mb={4}>
 //         <Typography variant="h3" component="h1" gutterBottom>
 //           Welcome to <Box component="span" color="primary.main">Rabs Industries</Box>
 //         </Typography>
 //         <Typography variant="h6" color="textSecondary">
 //           Advanced AI‑powered monitoring and management system
 //         </Typography>
-//       </Box>
+//       </Box> */}
 
 //       {/* Category Panels */}
 //       <Grid container spacing={4} mb={4}>

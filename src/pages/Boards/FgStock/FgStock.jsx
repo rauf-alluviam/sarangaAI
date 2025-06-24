@@ -352,9 +352,7 @@ const [status, setStatus]= useState('all');
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Maximum
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Today's Planning
-                  </TableCell>
+                  
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Current Stock
                   </TableCell>
@@ -371,6 +369,10 @@ const [status, setStatus]= useState('all');
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Next Action
                   </TableCell>
+
+                  {/* <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                    Resp Tos
+                  </TableCell> */}
                  
                   <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
                     Next Day Target
@@ -409,25 +411,7 @@ const [status, setStatus]= useState('all');
                         {elem.maximum}
                       </TableCell>
 
-                      <TableCell  sx={{ width: "4rem", maxWidth: '4rem', minWidth: '4rem' }} align="center">
-                        {/* {elem.todays_target} */}
-                        {edit._id == elem._id ? (
-                          <TextField
-                            fullWidth
-                            // label="Current Stock"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="number"
-                            defaultValue={elem.todays_planning}
-                            onChange={(e) =>
-                              setEdit({ ...edit, todays_target: e.target.value })
-                            }
-                            sx={{ width: "100%", height: '100%' }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.todays_planning
-                        )}
-                      </TableCell>
+                      
                       <TableCell  sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center">
                         {edit._id == elem._id ? (
                           <TextField
@@ -545,6 +529,25 @@ const [status, setStatus]= useState('all');
                           elem.next_action? elem.next_action: '-'
                         )}
                       </TableCell>
+
+                      {/* <TableCell  sx={{ width: "4rem", maxWidth: '4rem', minWidth: '4rem' }} align="center">
+                        {edit._id == elem._id ? (
+                          <TextField
+                            fullWidth
+                            // label="Current Stock"
+                            // placeholder='rtsp://192.168.1.100:554/stream1'
+                            type="number"
+                            defaultValue={elem.todays_planning}
+                            onChange={(e) =>
+                              setEdit({ ...edit, todays_target: e.target.value })
+                            }
+                            sx={{ width: "100%", height: '100%' }}
+                            size="small"
+                          />
+                        ) : (
+                          elem.todays_planning
+                        )}
+                      </TableCell> */}
                      
                       <TableCell sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center"> 
                         {edit._id == elem._id ? (
