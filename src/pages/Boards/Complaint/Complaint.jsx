@@ -229,13 +229,13 @@ console.log(complaintsLoading, complaints)
 
       <Box
         sx={{
-          width: "50rem",
+          width: "25rem",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-evenly",
+          justifyContent: "space-between",
           mt: "1.6rem",
           ml: "auto",
-          mr: "auto",
+          // mr: "auto",
           padding: "0.5rem",
           // bgcolor: 'red'
         }}
@@ -251,7 +251,7 @@ console.log(complaintsLoading, complaints)
                 size="small"
                 label="Select Month and Year"
                 // sx={{ width: '45rem' }}
-                sx={{ width: "10rem" }}
+                sx={{ width: "12rem" }}
                 // fullWidth
                 type="month"
                 value={month}

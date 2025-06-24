@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Box, Stack, useMediaQuery, Typography, TextField, InputAdornment, IconButton, Button, Dialog } from "@mui/material";
+import { Container, Box, Stack, useMediaQuery, Typography, TextField, InputAdornment, IconButton, Button, Dialog, FormControl, InputLabel, OutlinedInput } from "@mui/material";
 // import LoginForm from "../forms/LoginForm";
 import "./login.scss";
 // import alliviumImg from '../../assets/images/alluvium.png';
@@ -10,6 +10,7 @@ import qs from 'qs';
 import { useDispatch } from "react-redux";
 import { login, loginSuccess } from "../../Redux/Actions/authAction";
 import TempPasswordGenerator from "../UserProfile/TempPasswordGenerator";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const BACKEND_API= import.meta.env.VITE_BACKEND_API;
 
@@ -21,6 +22,7 @@ const Login=({setFlag})=> {
   const [password, setPassword]= useState('');
   const [openReset, setOpenReset]= useState(false);
   const [resetPassMail, setResetPassMail]= useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit= async(e)=>{
     e.preventDefault();
@@ -111,33 +113,32 @@ const Login=({setFlag})=> {
       style={{ marginBottom: "20px" }}
       required
     />
-    <TextField
-    value={password}
-    type="password"
-    onChange={(e)=> setPassword(e.target.value)}
-      size="small"
-      margin="dense"
-      variant="outlined"
-      fullWidth
-      id="password"
-      name="password"
-      label="Password"
-      // InputProps={{
-      //   endAdornment: (
-      //     <InputAdornment position="end">
-      //       <IconButton
-      //         aria-label="toggle password visibility"
-      //         edge="end"
-      //         size="small"
-      //       >
-      //         {/* {showPassword ? <VisibilityOff /> : <Visibility />} */}
-      //       </IconButton>
-      //     </InputAdornment>
-      //   ),
-      // }}
-      style={{ marginBottom: "20px" }}
-      required
-    />
+    
+<FormControl sx={{ width: '100%', mb: '1rem' }} variant="outlined" size="small">
+          <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+          <OutlinedInput
+          value={password}
+            id="outlined-adornment-password"
+            type={showPassword ? 'text' : 'password'}
+            onChange={(e)=> setPassword(e.target.value)}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label={
+                    showPassword ? 'hide the password' : 'display the password'
+                  }
+                  onClick={()=> setShowPassword(!showPassword)}
+                  // onMouseDown={handleMouseDownPassword}
+                  // onMouseUp={handleMouseUpPassword}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label="Password"
+          />
+        </FormControl>
 
     <Button
       fullWidth
@@ -155,6 +156,7 @@ const Login=({setFlag})=> {
    
   </form>
 
+{/* -----------Forgot password dialog---------------- */}
   <Dialog open={openReset} onClose={()=> setOpenReset(false)} maxWidth={'xs'} fullWidth>
     <Box height={'14rem'} width={'28rem'}>
     <form onSubmit={handleSendTempPassword} style={{ maxWidth: "400px", padding: "20px",width: '100%', height: '100%', borderRadius: "10px", display: 'flex',flexDirection: 'column', justifyContent: 'space-evenly', margin: 'auto' }}>

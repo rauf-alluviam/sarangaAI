@@ -27,6 +27,7 @@ import { MdDone, MdOutlineCancel, MdOutlineEdit } from "react-icons/md";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import { editFgStock, getAllFgStock } from "../../../Redux/Actions/fgStockActions";
+import { IoPersonSharp } from "react-icons/io5";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -117,7 +118,7 @@ const [status, setStatus]= useState('all');
           boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
         }}
       >
-        DISPATCH STOCK MONITORING BOARD
+        FG STOCK MONITORING BOARD
       </Typography>
 
       {/* <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
@@ -137,8 +138,106 @@ const [status, setStatus]= useState('all');
           // bgcolor: 'red'
         }}
       >
-        <Box bgcolor={'white'} color={'#282828'} fontSize={'1.2rem'} padding={'0.5rem 0.8rem'} borderRadius={'8px'} border={'1px solid #282828'} mr={'auto'}>
-          Responsible Person- {fgStockArr[0]?.resp || 'Not mentioned'}</Box>
+        {/* <Box bgcolor={'white'} color={'#282828'} display={'flex'} alignItems={'center'} fontSize={'1.2rem'} padding={'0.5rem 0.8rem'} borderRadius={'8px'} boxShadow={'rgba(56, 56, 56, 0.4) 0px 2px 8px 0px;'} mr={'auto'}>
+        <IoPersonSharp style={{color: '#282828'}} />
+        <Typography ml={'1rem'} display={'flex'} >Responsible Person- 
+          <div style={{backgroundColor: 'red', height: '2rem',borderRadius: '14px'}}>{fgStockArr[0]?.resp || 'Not mentioned'}</div></Typography>
+        </Box> */}
+
+<Box
+  bgcolor={"#f9f9f9"} // Light background color for highlighting
+  color={"#282828"}
+  display={"flex"}
+  alignItems={"center"}
+  fontSize={"1.2rem"}
+  padding={"0.5rem 0.8rem"}
+  borderRadius={"8px"}
+  boxShadow={"rgba(56, 56, 56, 0.4) 0px 2px 8px 0px"}
+  // border={`1px solid #282828`} // Green border for highlighting
+  mr={"auto"}
+  
+  sx={{
+    cursor: "pointer", // Pointer cursor for hover effect
+    transition: "0.3s ease-in-out", // Smooth transition for hover effect
+    "&:hover": {
+      // backgroundColor: "rgba(53, 53, 53, 0.5)", // Light green background on hover
+      boxShadow: "0px 4px 12px rgba(10, 12, 10, 0.38)", // Stronger shadow on hover
+    },
+  }}
+>
+  
+<Box ml={"1rem"} display={"flex"} alignItems={"center"}>
+  <Box display={"flex"} maxWidth={"12rem"} minWidth={"12rem"} width={"12rem"} alignItems={'center'}>
+    <IoPersonSharp style={{ color: "#282828", fontSize: "1.5rem", marginRight: '0.5rem' }} />
+    <Typography>Responsible Person-</Typography>
+  </Box>
+
+  {fgStockArr.length > 0 ? ( // Check if there is at least one item in fgStockArr
+    edit._id === fgStockArr[0]._id ? (
+      <>
+        <TextField
+          type="text"
+          defaultValue={fgStockArr[0]?.resp}
+          onChange={(e) => setEdit({ ...edit, resp: e.target.value })}
+          sx={{ width: "7rem" }}
+          size="small"
+        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            ml: "1rem",
+          }}
+        >
+          <IconButton onClick={() => setEdit({})}>
+            <CloseIcon style={{ color: "#CC7C7C" }} />
+          </IconButton>
+          <IconButton onClick={handleSubmit} style={{ color: "green" }}>
+            <MdDone />
+          </IconButton>
+        </Box>
+      </>
+    ) : (
+      <div
+        style={{
+          backgroundColor: "#FFCDD2",
+          height: "2rem",
+          borderRadius: "4px",
+          padding: "0 0.5rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginLeft: "0.5rem",
+          color: "#282828",
+          boxShadow: "rgba(0, 0, 0, 0.17) 0px 3px 8px",
+        }}
+      >
+        {fgStockArr[0]?.resp || "Not mentioned"}
+      </div>
+    )
+  ) : (
+    <Typography
+      sx={{
+        marginLeft: "1rem",
+        color: "#888",
+        fontStyle: "italic",
+      }}
+    >
+      No data available
+    </Typography>
+  )}
+
+  {fgStockArr.length > 0 && edit._id !== fgStockArr[0]?._id && ( // Show Edit button only if data exists
+    <IconButton
+      onClick={() => setEdit(fgStockArr[0])}
+      style={{ color: "grey", marginLeft: "1rem" }}
+    >
+      <EditIcon style={{ color: "rgb(201, 162, 56)" }} />
+    </IconButton>
+  )}
+</Box>
+</Box>
         <Button
           sx={{ 
             bgcolor: colors.primary,
@@ -232,7 +331,8 @@ const [status, setStatus]= useState('all');
       >
         {/* <Typography position={'absolute'} top={'-1rem'} left={0}>0 Records found</Typography> */}
         {/* <Typography fontSize={'1.6rem'} sx={{borderBottom: '1px solid grey', mb: '1rem'}}>Fire Report</Typography> */}
-        <Paper sx={{ maxHeight: "75vh", overflow: 'auto', marginLeft: 'auto', mr: 'auto', width: '100%' }} >
+        <Paper sx={{ maxHeight: "75vh", overflow: 'auto' }} >
+        {/* , marginLeft: 'auto', mr: 'auto', width: '100%' */}
           <TableContainer>
             <Table aria-label="simple table" border={1} >
               <TableHead sx={{ bgcolor: "grey", border: "1px solid black" }}>

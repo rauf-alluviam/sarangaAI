@@ -246,7 +246,7 @@ try {
                   {icon: <GiSmokeBomb />, title: 'Smoke Detection', path: '/smoke', color: '#A38181'},
                   {icon: <IoMedkit />, title: 'PPE Detection', path: '/ppe-kit', color: '#767794'},
                   {icon: <FaTruckLoading />, title: 'Loading-unloading', path: '/truck', color: 'rgb(155, 131, 119)'},
-                  {icon: <FaClipboardList />, title: 'Dispatch Stock', path: '/fg-stock', color: '#7C99AE'},
+                  {icon: <FaClipboardList />, title: 'Fg Stock', path: '/fg-stock', color: '#7C99AE'},
                   {icon: <IoStorefront />, title: 'Store Stock Board', path: '/store-stock', color: 'rgb(128, 116, 128)'},
                   {icon: <MdOutlineManageHistory />, title: 'Complaint', path: '/complaint-board', color: 'rgb(112, 152, 155)'},
                   {icon: <FaTools />, title: 'Tool Manage Board', path: 'tool-management', color: '#A5A06B'},
@@ -610,3 +610,286 @@ try {
 export default Dashboard;
 
 
+// --------------------New Dashboard Component--------------------
+
+// import React, { useState, useEffect } from 'react';
+// import {
+//   BarChart as BarChartIcon,
+//   CameraAlt as CameraIcon,
+//   LocalFireDepartment as FlameIcon,
+//   Security as ShieldIcon,
+//   LocalShipping as TruckIcon,
+//   Inventory as PackageIcon,
+//   Store as StoreIcon,
+//   Build as WrenchIcon,
+//   Message as MessageSquareIcon,
+//   LocationOn as MapPinIcon,
+//   CalendarToday as CalendarIcon,
+//   TrendingUp as TrendingUpIcon,
+//   EmojiObjects as ActivityIcon,
+//   Visibility as EyeIcon,
+//   ChevronRight as ChevronRightIcon,
+// } from '@mui/icons-material';
+// import {
+//   Box,
+//   Grid,
+//   Card,
+//   CardContent,
+//   CardHeader,
+//   Typography,
+//   Chip,
+//   IconButton,
+//   Input,
+//   Button,
+//   Link,
+// } from '@mui/material';
+
+// const Dashboard = ({ setIsOpen }) => {
+//   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+//   const [graphData, setGraphData] = useState([]);
+//   const [allCameras, setAllCameras] = useState([]);
+
+//   useEffect(() => {
+//     setGraphData([
+//       { category: 'Fire', cameras: [{ camera_id: 'CAM-001', images: Array(15).fill({}) }, { camera_id: 'CAM-002', images: Array(8).fill({}) }] },
+//       { category: 'Smoke', cameras: [{ camera_id: 'CAM-003', images: Array(12).fill({}) }, { camera_id: 'CAM-004', images: Array(6).fill({}) }] },
+//       { category: 'PPE', cameras: [{ camera_id: 'CAM-005', images: Array(25).fill({}) }, { camera_id: 'CAM-006', images: Array(18).fill({}) }] },
+//     ]);
+
+//     setAllCameras([
+//       { camera_id: 'CAM-001', rtsp_link: 'rtsp://192.168.1.100:554/stream1', model: 'fire' },
+//       { camera_id: 'CAM-002', rtsp_link: 'rtsp://192.168.1.101:554/stream1', model: 'fire' },
+//       { camera_id: 'CAM-003', rtsp_link: 'rtsp://192.168.1.102:554/stream1', model: 'smoke' },
+//       { camera_id: 'CAM-004', rtsp_link: 'rtsp://192.168.1.103:554/stream1', model: 'smoke' },
+//       { camera_id: 'CAM-005', rtsp_link: 'rtsp://192.168.1.104:554/stream1', model: 'ppe' },
+//       { camera_id: 'CAM-006', rtsp_link: 'rtsp://192.168.1.105:554/stream1', model: 'ppe' },
+//     ]);
+//   }, []);
+
+//   const categories = [
+//     {
+//       title: 'Detection Systems',
+//       items: [
+//         { icon: FlameIcon, title: 'Fire Detection', path: '/fire', count: 23, status: 'active' },
+//         { icon: ActivityIcon, title: 'Smoke Detection', path: '/smoke', count: 18, status: 'active' },
+//         { icon: ShieldIcon, title: 'PPE Detection', path: '/ppe-kit', count: 43, status: 'active' },
+//         { icon: TruckIcon, title: 'Loading/Unloading', path: '/truck', count: 12, status: 'active' },
+//       ],
+//     },
+//     {
+//       title: 'Inventory Management',
+//       items: [
+//         { icon: PackageIcon, title: 'FG Stock', path: '/fg-stock', count: 156, status: 'active' },
+//         { icon: StoreIcon, title: 'Store Stock', path: '/store-stock', count: 89, status: 'active' },
+//         { icon: WrenchIcon, title: 'Tool Management', path: '/tool-management', count: 34, status: 'active' },
+//         { icon: MessageSquareIcon, title: 'Complaint Board', path: '/complaint-board', count: 7, status: 'warning' },
+//       ],
+//     },
+//     {
+//       title: 'Positioning Systems',
+//       items: [
+//         { icon: MapPinIcon, title: 'Bracket-D', path: '/bracket-d', count: 28, status: 'active' },
+//         { icon: MapPinIcon, title: 'Bracket-E', path: '/bracket-e', count: 15, status: 'active' },
+//       ],
+//     },
+//   ];
+
+//   const statusColor = status => {
+//     switch (status) {
+//       case 'active': return 'success';
+//       case 'warning': return 'warning';
+//       case 'error': return 'error';
+//       default: return 'default';
+//     }
+//   };
+
+//   const handleCategoryClick = path => {
+//     console.log('Navigate to', path);
+//   };
+
+//   return (
+//     <Box p={4} bgcolor="#f5f5f5" minHeight="100vh">
+//       {/* Header */}
+//       <Box textAlign="center" mb={4}>
+//         <Typography variant="h3" component="h1" gutterBottom>
+//           Welcome to <Box component="span" color="primary.main">Rabs Industries</Box>
+//         </Typography>
+//         <Typography variant="h6" color="textSecondary">
+//           Advanced AI‑powered monitoring and management system
+//         </Typography>
+//       </Box>
+
+//       {/* Category Panels */}
+//       <Grid container spacing={4} mb={4}>
+//         {categories.map((cat, i) => (
+//           <Grid item xs={12}>
+//             <Card>
+//               <CardHeader title={cat.title} subheader={cat.description || ''} />
+//               <CardContent>
+//                 <Grid container spacing={2}>
+//                   {cat.items.map((item, idx) => {
+//                     const Icon = item.icon;
+//                     return (
+//                       <Grid item xs={12} sm={6} md={3} key={idx}>
+//                         <Card variant="outlined" onClick={() => handleCategoryClick(item.path)} sx={{ cursor: 'pointer' }}>
+//                           <CardContent>
+//                             <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+//                               <Icon color="action" />
+//                               <Chip label={item.count} color={statusColor(item.status)} size="small" />
+//                             </Box>
+//                             <Typography variant="subtitle1" gutterBottom>{item.title}</Typography>
+//                             <Box display="flex" alignItems="center" color="textSecondary">
+//                               <Typography variant="body2">View details</Typography>
+//                               <ChevronRightIcon fontSize="small" />
+//                             </Box>
+//                           </CardContent>
+//                         </Card>
+//                       </Grid>
+//                     );
+//                   })}
+//                 </Grid>
+//               </CardContent>
+//             </Card>
+//           </Grid>
+//         ))}
+//       </Grid>
+
+//       <Grid container spacing={4}>
+//         {/* Analytics */}
+//         <Grid item xs={12} lg={8}>
+//           <Card>
+//             <CardHeader
+//               avatar={<BarChartIcon color="primary" />}
+//               title="Detection Analytics"
+//               subheader="Real‑time monitoring overview"
+//               action={
+//                 <Box display="flex" alignItems="center">
+//                   <CalendarIcon color="action" />
+//                   <Input
+//                     type="date"
+//                     value={date}
+//                     onChange={e => setDate(e.target.value)}
+//                     sx={{ ml: 1 }}
+//                   />
+//                 </Box>
+//               }
+//             />
+//             <CardContent>
+//               {graphData.length > 0 ? (
+//                 <Grid container spacing={2}>
+//                   {graphData.map((grp, idx) => (
+//                     <Grid item xs={12} sm={6} md={4} key={idx}>
+//                       <Card variant="outlined">
+//                         <CardContent>
+//                           <Box display="flex" justifyContent="space-between" mb={1}>
+//                             <Typography variant="subtitle2">{grp.category}</Typography>
+//                             <TrendingUpIcon color="primary" fontSize="small"/>
+//                           </Box>
+//                           {grp.cameras.map((cam, cIdx) => (
+//                             <Box
+//                               key={cIdx}
+//                               display="flex"
+//                               justifyContent="space-between"
+//                               p={1}
+//                               my={0.5}
+//                               bgcolor="#fafafa"
+//                               borderRadius={1}
+//                             >
+//                               <Box display="flex" alignItems="center">
+//                                 <CameraIcon fontSize="small" color="disabled" />
+//                                 <Typography variant="body2" ml={0.5}>{cam.camera_id}</Typography>
+//                               </Box>
+//                               <Typography variant="body2" color="primary">{cam.images.length} detections</Typography>
+//                             </Box>
+//                           ))}
+//                           <Box display="flex" justifyContent="space-between" mt={1} pt={1} borderTop="1px solid #eee">
+//                             <Typography variant="caption">Total Detections</Typography>
+//                             <Typography variant="subtitle1" fontWeight="bold">
+//                               {grp.cameras.reduce((sum, cam) => sum + cam.images.length, 0)}
+//                             </Typography>
+//                           </Box>
+//                         </CardContent>
+//                       </Card>
+//                     </Grid>
+//                   ))}
+//                 </Grid>
+//               ) : (
+//                 <Box py={8} textAlign="center">
+//                   <BarChartIcon fontSize="large" color="disabled" />
+//                   <Typography>No data found for {date}</Typography>
+//                   <Typography variant="caption" color="textSecondary">Try selecting a different date</Typography>
+//                 </Box>
+//               )}
+//             </CardContent>
+//           </Card>
+//         </Grid>
+
+//         {/* Quick Actions + Camera List */}
+//         <Grid item xs={12} lg={4}>
+//           <Card sx={{ mb: 2 }}>
+//             <CardHeader title="Quick Actions" />
+//             <CardContent>
+//               <Button
+//                 component={Link}
+//                 href="http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login"
+//                 target="_blank"
+//                 variant="contained"
+//                 startIcon={<EyeIcon />}
+//                 fullWidth
+//                 sx={{ mb: 1 }}
+//               >
+//                 Snap Check
+//               </Button>
+//               <Button
+//                 component={Link}
+//                 href="http://qrlocker.s3-website.ap-south-1.amazonaws.com/login"
+//                 target="_blank"
+//                 variant="contained"
+//                 startIcon={<PackageIcon />}
+//                 fullWidth
+//               >
+//                 QR Locker
+//               </Button>
+//             </CardContent>
+//           </Card>
+
+//           <Card>
+//             <CardHeader
+//               avatar={<CameraIcon color="success" />}
+//               title="Camera Status"
+//               subheader={`${allCameras.length} cameras active`}
+//             />
+//             <CardContent sx={{ maxHeight: 300, overflow: 'auto' }}>
+//               {allCameras.length > 0 ? (
+//                 allCameras.map((cam, idx) => (
+//                   <Box key={idx} mb={1} p={1} borderRadius={1} sx={{ bgcolor: '#fafafa', cursor: 'pointer' }}>
+//                     <Box display="flex" justifyContent="space-between">
+//                       <Typography fontWeight="medium">{cam.camera_id}</Typography>
+//                       <Chip
+//                         label={cam.model.toUpperCase()}
+//                         color={
+//                           cam.model === 'fire' ? 'error' :
+//                           cam.model === 'smoke' ? 'warning' :
+//                           'primary'
+//                         }
+//                         size="small"
+//                       />
+//                     </Box>
+//                     <Typography variant="caption" noWrap>{cam.rtsp_link}</Typography>
+//                   </Box>
+//                 ))
+//               ) : (
+//                 <Box textAlign="center" py={4}>
+//                   <CameraIcon fontSize="large" color="disabled" />
+//                   <Typography>No cameras configured</Typography>
+//                 </Box>
+//               )}
+//             </CardContent>
+//           </Card>
+//         </Grid>
+//       </Grid>
+//     </Box>
+//   );
+// };
+
+// export default Dashboard;

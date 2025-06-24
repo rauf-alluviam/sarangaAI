@@ -58,7 +58,7 @@ const Auth=()=> {
           {/* <LoginForm /> */}
           {/* <Login /> */}
           {/* <Signup /> */}
-          <Typography fontSize={'1rem'} color="#282828" position={'absolute'} bottom={'1rem'} right={'3rem'}>Powerd By Novusha</Typography>
+          <Typography fontSize={'1rem'} color="#282828" position={'absolute'} bottom={'1rem'} right={'3rem'}>© 2025 | Powered by Novusha Consulting Services India LLP</Typography>
 
 
         </Box>

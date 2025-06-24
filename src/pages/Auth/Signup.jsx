@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Container, Box, Stack, useMediaQuery, Typography, TextField, InputAdornment, IconButton, Button, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { Container, Box, Stack, useMediaQuery, Typography, TextField, InputAdornment, IconButton, Button, FormControl, InputLabel, Select, MenuItem, OutlinedInput } from "@mui/material";
 // import LoginForm from "../forms/LoginForm";
 import "./login.scss";
 // import alliviumImg from '../../assets/images/alluvium.png';
 // import lockImg from '../../assets/images/lock.png';
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 // import dotenv from 'dotenv';
 // import axios from "axios";
 // dotenv.config();
@@ -19,6 +20,7 @@ const Signup=({setFlag})=> {
   const [email, setEmail]= useState('');
   const [password, setPassword]= useState('');
   const [role, setRole]= useState('user');
+  const [showPassword, setShowPassword] = useState(false);
   // const [phone_no, setPhone_no]= useState('');
 
   // -----------Registration Form Submited--------------
@@ -69,7 +71,7 @@ const Signup=({setFlag})=> {
         style={{ marginBottom: "20px" }}
         required
       />
-      <TextField 
+      {/* <TextField 
       value={password}
       onChange={(e)=> setPassword(e.target.value)}
         size="small"
@@ -80,21 +82,36 @@ const Signup=({setFlag})=> {
         name="password"
         label="Password"
         required
-        // InputProps={{
-        //   endAdornment: (
-        //     <InputAdornment position="end">
-        //       <IconButton
-        //         aria-label="toggle password visibility"
-        //         edge="end"
-        //         size="small"
-        //       >
-        //         {/* {showPassword ? <VisibilityOff /> : <Visibility />} */}
-        //       </IconButton>
-        //     </InputAdornment>
-        //   ),
-        // }}
+       
         style={{ marginBottom: "20px" }}
-      />
+      /> */}
+
+<FormControl sx={{ width: '100%', mb: '1rem' }} variant="outlined" size="small">
+          <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+          <OutlinedInput
+          value={password}
+            id="outlined-adornment-password"
+            type={showPassword ? 'text' : 'password'}
+            onChange={(e)=> setPassword(e.target.value)}
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label={
+                    showPassword ? 'hide the password' : 'display the password'
+                  }
+                  onClick={()=> setShowPassword(!showPassword)}
+                  // onMouseDown={handleMouseDownPassword}
+                  // onMouseUp={handleMouseUpPassword}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            }
+            label="Password"
+          />
+        </FormControl>
+
 
 {/* <TextField
 value={phone_no}
