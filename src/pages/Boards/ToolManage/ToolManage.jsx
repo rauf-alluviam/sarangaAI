@@ -21,7 +21,11 @@ import AddTools from "./AddTools";
 import { MdDone } from "react-icons/md";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import { addTool, fetchTools } from "../../../Redux/Actions/toolManagementActions";
+import { addTool, fetchTools, updateTool } from "../../../Redux/Actions/toolManagementActions";
+import { enqueueSnackbar } from "notistack";
+
+const BACKEND_API= import.meta.env.VITE_BACKEND_API;
+
 
 const ToolManage = () => {
   const { token } = useSelector((state) => state.auth);
@@ -36,55 +40,61 @@ const ToolManage = () => {
   const [selectedImg, setSelectedImg] = useState("https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg");
   console.log(month);
   useEffect(() => {
-    async function fetchData() {
-      const [selectedYear, selectedMonth] = month.split("-");
+    const [selectedYear, selectedMonth] = month.split("-");
+    dispatch(fetchTools(selectedYear, selectedMonth, token));
+    // async function fetchData() {
+    //   const [selectedYear, selectedMonth] = month.split("-");
 
-      // dispatch(fetchTools(selectedYear, selectedMonth, token));
-      try {
-        const response = await axios.get(
-          `https://rabs.alvision.in/get_daily_tool_management_sheets/${selectedYear}/${selectedMonth}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/json",
-            },
-          }
-        );
-        console.log(response.data); // Axios handles JSON parsing
-        setData(response.data);
-      } catch (error) {
-        console.error("There was a problem with the fetch operation:", error);
-      }
-    }
-    fetchData();
-  }, [isOpen, month, edit]);
+      
+    //   try {
+    //     const response = await axios.get(
+    //       `${BACKEND_API}/get_daily_tool_management_sheets/${selectedYear}/${selectedMonth}`,
+    //       {
+    //         headers: {
+    //           Authorization: `Bearer ${token}`,
+    //           Accept: "application/json",
+    //         },
+    //       }
+    //     );
+    //     console.log(response.data); // Axios handles JSON parsing
+    //     setData(response.data);
+    //   } catch (error) {
+    //     console.error("There was a problem with the fetch operation:", error);
+    //   }
+    // }
+    // fetchData();
+  }, [month]);
 
   const handleUpdate = async () => {
+    dispatch(updateTool(edit.id, edit, token,
+      (successMsg)=>{setEdit({}); enqueueSnackbar(successMsg, { variant: 'success' })},
+      (errorMsg)=> enqueueSnackbar(errorMsg, { variant: 'error' })
+     ));
     
-    try {
-      const response = await axios.put(
-        `https://rabs.alvision.in/update_tool_management_sheet_entry/${edit.id}`,
-        edit,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    // try {
+    //   const response = await axios.put(
+    //     `${BACKEND_API}/update_tool_management_sheet_entry/${edit.id}`,
+    //     edit,
+    //     {
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     }
+    //   );
 
-      console.log(response.data);
-      if (
-        response.data.message === "Tool management entry updated successfully"
-      ) {
-        setEdit({});
-      }
-    } catch (error) {
-      console.error("Error updating data:", error);
-    }
+    //   console.log(response.data);
+    //   if (
+    //     response.data.message === "Tool management entry updated successfully"
+    //   ) {
+    //     setEdit({});
+    //   }
+    // } catch (error) {
+    //   console.error("Error updating data:", error);
+    // }
   };
   return (
-    <Box minHeight={"89vh"} position={"relative"}>
+    <Box maxHeight={"89vh"} minHeight={'89vh'} position={"relative"}>
       {isOpen && (
         <Box
           bgcolor={"rgba(0, 0, 0, 0.6)"}
@@ -114,10 +124,20 @@ const ToolManage = () => {
         }}
       >
         <Box width={"25rem"} height={"95%"} display={'flex'} flexWrap={'wrap'} p={'0.4rem'}>
-          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>PM PLAN</Box>
-          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>MODIFICATIONS</Box>
-          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>PM ACTUAL</Box>
-          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>REPAIR</Box>
+          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'start'} border={'1px solid black'}>
+            <Box height={'17px'} width={'17px'} bgcolor={'red'} ml={'0.8rem'} borderRadius={'50%'}></Box> <Typography ml={'0.5rem'} fontSize={'0.8rem'}>PM PLAN</Typography></Box>
+
+            <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'start'} border={'1px solid black'}>
+            <Box height={'17px'} width={'17px'} bgcolor={'blue'} ml={'0.8rem'} borderRadius={'50%'}></Box> <Typography ml={'0.5rem'}  fontSize={'0.8rem'}>MODIFICATIONS</Typography></Box>
+
+            <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'start'} border={'1px solid black'}>
+            <Box height={'17px'} width={'17px'} bgcolor={'green'} ml={'0.8rem'} borderRadius={'50%'}></Box> <Typography ml={'0.5rem'} fontSize={'0.8rem'}>PM ACTUAL</Typography></Box>
+
+            <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'start'} border={'1px solid black'}>
+            <Box height={'17px'} width={'17px'} bgcolor={'grey'} ml={'0.8rem'} borderRadius={'50%'}></Box> <Typography ml={'0.5rem'} fontSize={'0.8rem'}>REPAIR</Typography></Box>
+          {/* <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>MODIFICATIONS</Box>
+          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={white'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>PM ACTUAL</Box>
+          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>REPAIR</Box> */}
         </Box>
         <Typography fontSize={"1.8rem"}>
           Tool Management Board - Monthly
@@ -155,120 +175,154 @@ const ToolManage = () => {
         </Button>
       </Box>
 
-      <Paper sx={{ maxHeight: "75vh", overflow: "auto"}}>
-        <TableContainer>
-          <Table aria-label="simple table" border={1}>
-            <TableHead sx={{ bgcolor: "grey", border: "1px solid black" }}>
-              <TableRow
-                sx={{
-                  bgcolor: "rgb(164, 182, 211)",
-                  boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                }}
-              >
-                <TableCell align="center" sx={{fontSize: "1rem", minWidth: '1.4rem', maxWidth: '1.4rem', width: '1.4rem'}}>Sr No</TableCell>
-
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontSize: "1.2rem",
-                    width: "8rem",
-                    minWidth: "8rem",
-                    maxWidth: "8rem",
-                  }}
-                >
-                  Machine
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontSize: "1.2rem",
-                    width: "10rem",
-                    minWidth: "10rem",
-                    maxWidth: "10rem",
-                  }}
-                >
-                  Mould Name
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontSize: "1.2rem",
-                    width: "7rem",
-                    minWidth: "7rem",
-                    maxWidth: "7rem",
-                  }}
-                >
-                  Last PM Date/Cum
-                </TableCell>
-                {/* <TableCell align="center" sx={{fontSize: '1.2rem'}}>Count</TableCell> */}
-                <TableCell
-                  align="center"
-                  style={{
-                    fontSize: "1.2rem",
-                    width: "7rem",
-                    minWidth: "7rem",
-                    maxWidth: "7rem",
-                  }}
-                >
-                  Next PM Date/Cum
-                </TableCell>
-                <TableCell align="center" sx={{ fontSize: "1.2rem", width: "7rem", maxWidth: "7rem", minWidth: '7rem'}} >
-                  Month End CUM
-                </TableCell>
-                <TableCell align="center" sx={{ fontSize: "1.2rem", width: "7rem", maxWidth: "7rem", minWidth: '7rem'}}>
-                  Status
-                </TableCell>
-                <TableCell align="center" sx={{ fontSize: "1.2rem", width: "10rem", maxWidth: "10rem", minWidth: '10rem' }}>
-                  Remark
-                </TableCell>
-
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontSize: "1.2rem",
-                    width: "5rem",
-                    minWidth: "5rem",
-                    maxWidth: "5rem",
-                  }}
-                >
-                  Edit
-                </TableCell>
-                
-                {/* {[...Array(31)].map((elem, index) => (
-                  <TableCell align="center" key={index} style={{width: '1rem', minWidth: '1rem', maxWidth: '1rem', backgroundColor: 'green'}}>{index + 1}</TableCell>
-                ))} */}
-                {[...Array(31)].map((_, index) => (
-      <TableCell
-        align="center"
-        key={index}
+      <Box
+        position="relative"
+        p="0.7rem"
+        borderRadius="6px"
+        display="flex"
+        flexDirection="column"
+        alignItems="start"
         sx={{
-          width: "1.5rem",
-          minWidth: "1.1rem",
-          maxWidth: "1.1rem",
-          fontSize: "0.7rem",
-          padding: "0.2rem",
+          // bgcolor: "red",
+          p: '1rem 0rem',
+          height: "87vh",
+          width: "100%",
+          overflow: "auto",
+          scrollbarWidth: "thin",
+          "&::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#888",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#555",
+          },
         }}
       >
-        {index + 1}
-      </TableCell>
-    ))}
+        <Paper sx={{ width: "100%", overflow: "hidden" }}>
+          <TableContainer sx={{ maxHeight: "100%" }}>
+            <Table stickyHeader aria-label="sticky table" border={1}>
+              <TableHead>
+                <TableRow sx={{ bgcolor: "#f5f5f5", borderBottom: "1px solid #ddd" }}>
+                  <TableCell align="center" sx={{fontSize: "1rem", minWidth: '1.4rem', maxWidth: '1.4rem', width: '1.4rem', backgroundColor: "inherit"}}>Sr No</TableCell>
 
-               
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {data.length > 0 ? (
-                data.map((elem, index) => (
-                  <TableRow
+                  <TableCell
+                    align="center"
                     sx={{
-                      bgcolor: elem.id == edit.id && "rgb(188, 196, 209)",
-                      transition: "0.4s",
-                      // boxShadow:
-                      //   elem.id == edit.id && "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                      fontSize: "1.2rem",
+                      width: "8rem",
+                      minWidth: "8rem",
+                      maxWidth: "8rem",
+                      backgroundColor: "inherit",
                     }}
                   >
-                    <TableCell>{index + 1}</TableCell>
+                    Machine
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: "1.2rem",
+                      width: "10rem",
+                      minWidth: "10rem",
+                      maxWidth: "10rem",
+                      backgroundColor: "inherit",
+                    }}
+                  >
+                    Mould Name
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: "1.2rem",
+                      width: "7rem",
+                      minWidth: "7rem",
+                      maxWidth: "7rem",
+                      backgroundColor: "inherit",
+                    }}
+                  >
+                    Last PM Date/Cum
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: "1.2rem",
+                      width: "7rem",
+                      minWidth: "7rem",
+                      maxWidth: "7rem",
+                      backgroundColor: "inherit",
+                    }}
+                  >
+                    Plan Pm Date
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: "1.2rem",
+                      width: "7rem",
+                      minWidth: "7rem",
+                      maxWidth: "7rem",
+                      backgroundColor: "inherit",
+                    }}
+                  >
+                    Actual Pm Date
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "7rem", maxWidth: "7rem", minWidth: '7rem', backgroundColor: "inherit"}} >
+                    Month End CUM
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "7rem", maxWidth: "7rem", minWidth: '7rem', backgroundColor: "inherit"}}>
+                    Status
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "10rem", maxWidth: "10rem", minWidth: '10rem', backgroundColor: "inherit" }}>
+                    Remark
+                  </TableCell>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: "1.2rem",
+                      width: "5rem",
+                      minWidth: "5rem",
+                      maxWidth: "5rem",
+                      backgroundColor: "inherit",
+                    }}
+                  >
+                    Edit
+                  </TableCell>
+                  
+                  {[...Array(31)].map((_, index) => (
+                    <TableCell
+                      align="center"
+                      key={index}
+                      sx={{
+                        width: "1.5rem",
+                        minWidth: "1.1rem",
+                        maxWidth: "1.1rem",
+                        fontSize: "0.7rem",
+                        padding: "0.2rem",
+                        backgroundColor: "inherit",
+                      }}
+                    >
+                      {index + 1}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {tools.length > 0 ? (
+                  tools.map((elem, index) => (
+                    <TableRow
+                      key={elem.id || index}
+                      hover
+                      sx={{
+                        bgcolor: elem.id == edit.id && "rgb(188, 196, 209)",
+                        transition: "0.4s",
+                      }}
+                    >
+                      <TableCell>{index + 1}</TableCell>
                     <TableCell align="center">
                       {elem.id == edit.id ? (
                         <TextField
@@ -411,16 +465,79 @@ sx={{ height: "100%", width: '100%' }}
                                 // value={lastPmDate}
                                 // onChange={(e) => setDate(e.target.value)}
                                 InputLabelProps={{ shrink: true }}
-                                defaultValue={elem.next_pm_date}
+                                defaultValue={elem.plan_pm_date}
                                 onChange={(e) =>
                                   setEdit({
                                     ...edit,
-                                    next_pm_date: e.target.value,
+                                    plan_pm_date: e.target.value,
                                   })
                                 }
                               />
                             ) : (
-                              <Typography>{elem.next_pm_date}</Typography>
+                              <Typography>{elem.plan_pm_date}</Typography>
+                            )}
+                          </Box>
+                        </Box>
+                        <Box
+                          width="100%"
+                          p={"0.4rem"}
+                          textAlign={"center"}
+                          sx={{ height: "2.5rem", maxHeight: "2.5rem" }}
+                        >
+                          -
+                        </Box>
+                      </Box>
+                    </TableCell>
+
+                    <TableCell sx={{ p: 0, width: "7rem", minWidth: '7rem', maxWidth: '7rem' }}>  
+                      <Box
+                        display="flex"
+                        flexDirection="column"
+                        // bgcolor="red"
+                        width="100%"
+                        height={"100%"}
+                        alignItems={"center"}
+                      >
+                        <Box
+                          width="100%"
+                          //   bgcolor="green"
+                          borderBottom="1px solid rgb(92, 92, 92)"
+                          p={"0.4rem"}
+                          textAlign={"center"}
+                        >
+                          <Box
+                            sx={{
+                              height: "2.5rem",
+                              maxHeight: "2.5rem",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              minWidth: '7rem',
+                              maxWidth: '7rem',   
+                              width: '7rem',
+
+                            }}
+                          >
+                            {elem.id == edit.id ? (
+                              <TextField
+                                size="small"
+                                // label="Last PM Date"
+                                // sx={{ width: '45rem' }}
+sx={{ height: "100%", width: '100%' }}
+                                type="date"
+                                // value={lastPmDate}
+                                // onChange={(e) => setDate(e.target.value)}
+                                InputLabelProps={{ shrink: true }}
+                                defaultValue={elem.actual_pm_date}
+                                onChange={(e) =>
+                                  setEdit({
+                                    ...edit,
+                                    actual_pm_date: e.target.value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              <Typography>{elem.actual_pm_date}</Typography>
                             )}
                           </Box>
                         </Box>
@@ -553,7 +670,7 @@ sx={{ height: "100%", width: '100%' }}
                         />
                       </TableCell>
                     ))} */}
-{[...Array(31)].map((_, index) => (
+{/* {[...Array(31)].map((_, index) => (
   <TableCell
     key={index}
     align="center"
@@ -564,17 +681,97 @@ sx={{ height: "100%", width: '100%' }}
       padding: '0.2rem', // Reduce padding for smaller size
     }}
   >
+    <Box >
     <Checkbox
       sx={{
         width: '0.5rem', // Adjust checkbox size
         height: '0.5rem', // Adjust checkbox size
         padding: '0', // Remove extra padding
+        color: 'red', // Unchecked color
+    '&.Mui-checked': {
+      color: 'red', // Checked color
+    },
       }}
       size="small"
+      // checked={
+      //   elem?.last_pm_date?.split("-")[2] === String(index + 1).padStart(2, "0") || false
+      // }
       checked={
-        elem?.last_pm_date?.split("-")[2] === String(index + 1).padStart(2, "0") || false
+        typeof elem?.plan_pm_date === 'string' &&
+        elem.plan_pm_date.split('-')[2] === String(index + 1).padStart(2, '0')
       }
     />
+
+<Checkbox
+      sx={{
+        width: '0.5rem', // Adjust checkbox size
+        height: '0.5rem', // Adjust checkbox size
+        padding: '0', // Remove extra padding
+        color: 'green', // Unchecked color
+    '&.Mui-checked': {
+      color: 'green', // Checked color
+    },
+      }}
+      size="small"
+      // checked={
+      //   elem?.last_pm_date?.split("-")[2] === String(index + 1).padStart(2, "0") || false
+      // }
+      checked={
+        typeof elem?.actual_pm_date === 'string' &&
+        elem.actual_pm_date.split('-')[2] === String(index + 1).padStart(2, '0')
+      }
+    />
+    </Box>
+  </TableCell>
+))} */}
+{[...Array(31)].map((_, index) => (
+  <TableCell
+    key={index}
+    align="center"
+    sx={{
+      width: '1rem',
+      minWidth: '1rem',
+      maxWidth: '1rem',
+      padding: '0.2rem',
+    }}
+  >
+    <Box>
+      {/* Red checkbox (planned PM date) */}
+      {typeof elem?.plan_pm_date === 'string' &&
+        elem.plan_pm_date.split('-')[2] === String(index + 1).padStart(2, '0') && (
+          <Checkbox
+            sx={{
+              width: '0.5rem',
+              height: '0.5rem',
+              padding: '0',
+              color: 'red',
+              '&.Mui-checked': {
+                color: 'red',
+              },
+            }}
+            size="small"
+            checked
+          />
+        )}
+
+      {/* Green checkbox (actual PM date) */}
+      {typeof elem?.actual_pm_date === 'string' &&
+        elem.actual_pm_date.split('-')[2] === String(index + 1).padStart(2, '0') && (
+          <Checkbox
+            sx={{
+              width: '0.5rem',
+              height: '0.5rem',
+              padding: '0',
+              color: 'green',
+              '&.Mui-checked': {
+                color: 'green',
+              },
+            }}
+            size="small"
+            checked
+          />
+        )}
+    </Box>
   </TableCell>
 ))}
                     
@@ -582,7 +779,7 @@ sx={{ height: "100%", width: '100%' }}
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ border: "none" }} align="center">
+                  <TableCell colSpan={40} sx={{ border: "none" }} align="center">
                     No Data Found
                   </TableCell>
                 </TableRow>
@@ -656,14 +853,18 @@ sx={{ height: "100%", width: '100%' }}
           TOOL MAINTAINANCE CHECK SHEET
         </Box>
       </Box>
-{
+      {
   isShowingImg && 
+  <>
   <Box onClick={()=> {setIsShowImg(false)}} bgcolor={'rgba(24, 24, 24, 0.77)'} sx={{overflowY: 'auto'}} position={'fixed'} height={'100%'} width={'100%'} zIndex={'77'} top={0} left={'0'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
           <img onClick={(e)=> {e.stopPropagation()}} style={{width: '70%', marginTop: '1rem', cursor: 'pointer', boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'}} src={selectedImg} alt="" />
-          {/* <Button sx={{position: 'absolute', top: '1rem', right: '1rem'}} onClick={()=> setIsShowImg(false)}>Delete</Button> */}
+            {/* <Button sx={{position: 'absolute', top: '1rem', right: '1rem'}} onClick={()=> setIsShowImg(false)}>Delete</Button> */}
+          </Box>
       
-         </Box>
+         {/* </Box> */}
+         </>
 }
+</Box>
       
     </Box>
   );

@@ -14,6 +14,9 @@ import { validatePassword } from '../../utils/passwordValidation'; // Adjust the
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 
+const BACKEND_API= import.meta.env.VITE_BACKEND_API;
+
+
 const PasswordReset = ({ user }) => {
   const {token}= useSelector((state)=> state.auth);
   const [formData, setFormData] = useState({
@@ -61,7 +64,7 @@ const PasswordReset = ({ user }) => {
     setIsLoading(true);
 
     try {
-      const response= await axios.post(`https://rabs.alvision.in/change-temp-password`,
+      const response= await axios.post(`${BACKEND_API}/change-temp-password`,
         {
           email: user.email,
           temp_password: formData.oldPassword,

@@ -9,7 +9,7 @@ const BACKEND_API= import.meta.env.VITE_BACKEND_API;
 
 export const loginSuccess=(token, userData)=>({type:LOGIN_SUCCESS, payload: {token, userData}});
 
-export const login=(username, password, navigate)=> async(dispatch)=>{
+export const login=(username, password, navigate, onSuccess, onError)=> async(dispatch)=>{
     try {
         const response = await axios.post(`${BACKEND_API}/token`,
             qs.stringify({
@@ -23,11 +23,14 @@ export const login=(username, password, navigate)=> async(dispatch)=>{
             }
           );
 
+
+
           localStorage.setItem('rabsToken', JSON.stringify(response.data.access_token));
           let token= JSON.parse(localStorage.getItem('rabsToken'));
           let userData= jwtDecode(token);
           localStorage.setItem('rabsUser', JSON.stringify(userData));
           dispatch(loginSuccess(token, userData));
+          if (onSuccess) onSuccess(response?.data?.message || 'Successfully LoggedIn'); // clear form or close modal
               // ✅ Set auto logout based on token expiry
     const currentTime = Date.now() / 1000; // in seconds
     const expiresIn = userData.exp - currentTime;
@@ -41,13 +44,16 @@ export const login=(username, password, navigate)=> async(dispatch)=>{
     } else {
       dispatch(logout());
       navigate('/auth');
+      
     }
 
     navigate('/');
           // alert('Login Success');
     } catch (error) {
         if(error.response){
-            alert(error.response.data.message)
+            // alert(error.response.data.message)
+            // if (onError) onError(error?.response?.data?.message || 'Session expired. Please log in again.');
+            if(onError) onError(error?.response?.data?.message || 'Failed to login');
           }else{
             console.log(error.message)
           }

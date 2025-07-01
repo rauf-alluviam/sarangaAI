@@ -1,11 +1,16 @@
 import React from "react";
 import colors from "../../../utils/colors";
 import { Box, Button, TextField, Typography } from "@mui/material";
-import axios from "axios";
+
 import { useDispatch, useSelector } from "react-redux";
 import { addTool } from "../../../Redux/Actions/toolManagementActions";
+import { enqueueSnackbar } from "notistack";
 
-const AddTools = ({setIsOpen, setSelectedBoard}) => {
+// const BACKEND_API = import.meta.env.VITE_BACKEND_API;
+const BACKEND_API= import.meta.env.VITE_BACKEND_API;
+
+
+const AddTools = ({ setIsOpen }) => {
     const {token} = useSelector((state)=> state.auth)
     const [machine, setMachine] = React.useState("");
   const [mouldName, setMouldName] = React.useState("");
@@ -13,7 +18,9 @@ const AddTools = ({setIsOpen, setSelectedBoard}) => {
     const [status, setStatus] = React.useState("");
     const [remarks, setRemarks] = React.useState("");
     const [lastPmDate, setLastPmDate] = React.useState("");
-    const [nextPmDate, setNextPmDate] = React.useState("");
+    const [planPmDate, setPlanPmDate] = React.useState("");
+    const [actualPmDate, setActualPmDate] = React.useState("");
+    const [respPerson, setRespPerson] = React.useState("");
     const dispatch = useDispatch();
 
   const handleSubmit = async(e) => {
@@ -25,41 +32,77 @@ const AddTools = ({setIsOpen, setSelectedBoard}) => {
                     status,
                     remarks,
                     last_pm_date: lastPmDate,
-                    next_pm_date: nextPmDate
+                    plan_pm_date: planPmDate,
+                  actual_pm_date: actualPmDate,
+                  resp_person: respPerson,
+                  timestamp: new Date().toISOString()
                 }
+                
     // Handle form submission logic here
     // console.log(machine, mouldName, monthEndCum, status, remarks, lastPmDate, nextPmDate);
-    // dispatch(addTool(formData, token));
-    try {
-        const response= await axios.post(
-            `https://rabs.alvision.in/submit_tool_management_sheet_entry`,
-            {
-                machine,
-                mould_name: mouldName,
-                month_end_CUM: monthEndCum,
-                status,
-                remarks,
-                last_pm_date: lastPmDate,
-                next_pm_date: nextPmDate
-            },
-            {
-                headers: {
-                    'accept': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                }
-            }
-        )
-        console.log(response)
-        if(response.data.message == 'Entry submitted') {
-            setIsOpen(false);
-            // setSelectedBoard('none')
-            alert("Tool added successfully");
+    // dispatch(addTool(formData, token, 
+    //     (successMessage) => {
+    //         setIsOpen(false);
+    //         enqueueSnackbar(successMessage || 'Tool added successfully', { variant: 'success' });
+    //         setSelectedBoard('none');
+    //     }, 
+    //     (errorMessage) => {
+    //         enqueueSnackbar(errorMessage || 'Failed to add Tool', { variant: 'error' });
+    //     }
+    // ));
+    dispatch(
+      addTool(
+        formData,
+        token,
+        (successMessage) => {
+          // Success callback
+          setIsOpen(false);
+          enqueueSnackbar(successMessage || "Tool added successfully", { variant: "success" });
+          // setSelectedBoard("none");
+        },
+        (errorMessage) => {
+          // Error callback
+          enqueueSnackbar(errorMessage || "Failed to add Tool", { variant: "error" });
         }
-    } catch (error) {
-      console.error("Error submitting form:", error);
+      )
+    );
+    // try {
+    //     const response= await axios.post(
+    //         `${BACKEND_API}/submit_tool_management_sheet_entry`,
+    //         {
+    //             machine,
+    //             mould_name: mouldName,
+    //             month_end_CUM: monthEndCum,
+    //             status,
+    //             remarks,
+    //             last_pm_date: lastPmDate,
+    //             plan_pm_date: planPmDate,
+//             actual_pm_date: actualPmDate,
+//             resp_person: respPerson,
+    //         },
+    //         {
+    //             headers: {
+    //                 'accept': 'application/json',
+    //                 'Authorization': `Bearer ${token}`,
+    //                 'Content-Type': 'application/json',
+    //             }
+    //         }
+    //     )
+    //     console.log(response)
+    //     if(response.data.message == 'Entry submitted') {
+    //         setIsOpen(false);
+    //         // enqueueSnackbar(response?.data?.message, { variant: 'success' })
+    //         enqueueSnackbar(response?.data?.message || 'Tool added successfully', { variant: 'success' })
+    //         // setSelectedBoard('none')
+    //         // alert("Tool added successfully");
+          
+    //     }
+    // } catch (error) {
+    //   console.error("Error submitting form:", error);
+    //   // enqueueSnackbar(error?.data?.message, { variant: 'error' })
+    //   enqueueSnackbar(error?.response?.data?.message || 'Failed to add Tool', { variant: 'error' })
         
-    }
+    // }
   };
   return (
     <Box
@@ -158,14 +201,34 @@ const AddTools = ({setIsOpen, setSelectedBoard}) => {
 
           <TextField
             size="small"
-            label="Next PM Date"
+            label="Plan PM Date"
             // sx={{ width: '45rem' }}
             sx={{ mt: "1rem" }}
             type="date"
-            value={nextPmDate}
+            value={planPmDate}
             // onChange={(e) => setDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
-            onChange={(e) => setNextPmDate(e.target.value)}
+            onChange={(e) => setPlanPmDate(e.target.value)}
+          />
+
+          <TextField
+            size="small"
+            label="Actual PM Date"
+            sx={{ mt: "1rem" }}
+            type="date"
+            value={actualPmDate}
+            InputLabelProps={{ shrink: true }}
+            onChange={(e) => setActualPmDate(e.target.value)}
+          />
+
+          <TextField
+            fullWidth
+            label="Responsible Person"
+            type="text"
+            value={respPerson}
+            onChange={(e) => setRespPerson(e.target.value)}
+            sx={{ mt: "1rem" }}
+            size="small"
           />
 
           <Button
@@ -219,10 +282,10 @@ const AddTools = ({setIsOpen, setSelectedBoard}) => {
             // sx={{ width: '45rem' }}
             sx={{ mt: "1rem" }}
             type="date"
-            value={nextPmDate}
+            value={planPmDate}
             // onChange={(e) => setDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
-            onChange={(e) => setNextPmDate(e.target.value)}
+            onChange={(e) => setPlanPmDate(e.target.value)}
           />
 
           <Button

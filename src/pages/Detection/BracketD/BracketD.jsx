@@ -130,6 +130,7 @@ const createCroppedImage = async () => {
     return null;
   }
 };
+
 function base64ToFile(base64String, filename) {
   const arr = base64String.split(',');
   const mimeMatch = arr[0].match(/:(.*?);/);

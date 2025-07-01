@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { login, loginSuccess } from "../../Redux/Actions/authAction";
 import TempPasswordGenerator from "../UserProfile/TempPasswordGenerator";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { enqueueSnackbar } from "notistack";
 
 const BACKEND_API= import.meta.env.VITE_BACKEND_API;
 
@@ -27,7 +28,10 @@ const Login=({setFlag})=> {
   const handleSubmit= async(e)=>{
     e.preventDefault();
     // console.log({username, password})
-    dispatch(login(username, password, navigate))
+    dispatch(login(username, password, navigate, 
+      (successMsg)=> {enqueueSnackbar(successMsg, { variant: 'success' })},
+      (errorMsg)=> enqueueSnackbar(errorMsg, { variant: 'error' })
+    ))
     // navigate('/')
   //   try {
      
@@ -64,13 +68,16 @@ const Login=({setFlag})=> {
     // setSuccess(false);
 
     try {
-        const response= await axios.post(`https://rabs.alvision.in/reset_password?email=${resetPassMail}`, {})
+        const response= await axios.post(`${BACKEND_API}/reset_password?email=${resetPassMail}`, {})
         // setSuccess(true);
     setOpenReset(false);
         console.log('Temporary password generation response:', response.data);
+        enqueueSnackbar(response?.data?.message || 'Temporary password sent', { variant: 'success' })
+        
     } catch (error) {
         console.error('Error generating temporary password:', error);
         // setError('Failed to send temporary password. Please try again.');
+        enqueueSnackbar(error?.data?.message || 'Fail to send temporary password', { variant: 'error' })
         console.log(error)
     }finally {
           // setIsGenerating(false);

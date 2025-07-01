@@ -55,7 +55,7 @@ const Navbar = ({setIsOpen, setIsSliderOpen, isSliderOpen}) => {
           <Button variant='contained' onClick={()=> setIsOpen('open-add')} sx={{bgcolor: 'rgb(241, 92, 109)', color: 'white', p: '0.4rem 0.9rem', fontSize: '0.8rem', mr: '0.8rem' }}>Add Camera</Button>
           <Button variant='contained'  onClick={()=> setIsOpen('open-remove')} sx={{bgcolor: 'rgb(241, 92, 109)', color: 'white', p: '0.4rem 0.9rem', fontSize: '0.8rem', mr: '0.8rem'  }}>Remove Camera</Button>
           </Box>} */}
-          
+          {/* -----------common selector to add any form data------------------ */}
           {/* <FormControl sx={{width: '10rem', mr: '1rem'}} size='small'>
   <InputLabel id="demo-simple-select-label">Boards</InputLabel>
   <Select
@@ -71,13 +71,13 @@ const Navbar = ({setIsOpen, setIsSliderOpen, isSliderOpen}) => {
     <MenuItem value={'store-stock'}>Store Stock</MenuItem>
     <MenuItem value={'tool-manage'}>Tool Management</MenuItem>
     <MenuItem value={'complaint'}>Complaint</MenuItem>
-  </Select>
+  </Select> 
 </FormControl> */}
 
-          <Box>
+          {/* <Box>
           <Button variant='contained' onClick={()=> setIsOpen('open-add')} sx={{bgcolor: 'rgb(241, 92, 109)', color: 'white', p: '0.4rem 0.9rem', fontSize: isLargerThan1000? '0.8rem': '0.6rem', mr: '0.8rem' }}>Add Camera</Button>
           <Button variant='contained'  onClick={()=> setIsOpen('open-remove')} sx={{bgcolor: 'rgb(241, 92, 109)', color: 'white', p: '0.4rem 0.9rem', fontSize: isLargerThan1000? '0.8rem': '0.6rem', mr: '0.8rem'  }}>Remove Camera</Button>
-          </Box>
+          </Box> */}
           
           <Box onClick={()=> navigate('/my-profile')} sx={{bgcolor: 'white', width: '2.5rem', height: '2.5rem', borderRadius: '50%',ml: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer'}}>
             <FaCircleUser style={{height: '100%', width: '100%', backgroundColor: 'white'}} />

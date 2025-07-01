@@ -3,13 +3,15 @@ $primary-color: rgb(241, 92, 109);
 
 .sidebar {
   background-image: url("../../assets/images/sidebar-bg.png");
-  background-color: rgb(37, 46, 62);
+  // background-color: rgb(37, 46, 62);
+  // background: linear-gradient(#5c6b7c 0%, #344557 15%, rgb(37, 46, 62) 40%, #1E2A3A 100%);
+  background: linear-gradient(#4b5c70 0%, #344557 15%, rgb(37, 46, 62) 40%, #1E2A3A 100%);
   display: flex;
   flex-direction: column;
   height: 100vh;
   background-attachment: fixed;
   background-position: left 0 bottom 0 !important;
-  background-size: 250px !important;
+  background-size: 250px !important;  
   background-repeat: no-repeat;
   overflow-y: auto;
 }

@@ -33,7 +33,7 @@ export const fetchComplaints = (selectedYear, selectedMonth) => async (dispatch,
     }
 }
 
-export const addComplaint = (complaintData, onSuccess) => async (dispatch, getState) => {
+export const addComplaint = (complaintData, onSuccess, onError) => async (dispatch, getState) => {
     dispatch({ type: ADD_COMPLAINT_REQUEST });
     try {
         const token = getState().auth.token;
@@ -45,16 +45,17 @@ export const addComplaint = (complaintData, onSuccess) => async (dispatch, getSt
                 },
             }
         );
-        if (onSuccess) onSuccess();
-        alert(response.data.message);
+        if (onSuccess) onSuccess(response?.data?.message || 'Complaint added successfully');
+        // alert(response.data.message);
         dispatch({ type: ADD_COMPLAINT_SUCCESS, payload: {id: response.data.id, ...complaintData} });
     } catch (error) {
         console.log(error);
         dispatch({ type: ADD_COMPLAINT_FAILURE, payload: error.message });
+        if (onError) onError(error?.response?.data?.message || 'Failed to add complaint');
     }
 }
 
-export const updateComplaint = (complaintId, complaintData, onSuccess) => async (dispatch, getState) => {
+export const updateComplaint = (complaintId, complaintData, onSuccess, onError) => async (dispatch, getState) => {
     dispatch({ type: UPDATE_COMPLAINT_REQUEST });
     try {
         const token = getState().auth.token;
@@ -66,11 +67,12 @@ export const updateComplaint = (complaintId, complaintData, onSuccess) => async 
                 },
             }
         );
-        if (onSuccess) onSuccess();
+        if (onSuccess) onSuccess(response?.data?.message || 'Complaint updated successfully');
         dispatch({ type: UPDATE_COMPLAINT_SUCCESS, payload: {id: response.data.id, ...complaintData} });
     } catch (error) {
         console.log(error);
         dispatch({ type: UPDATE_COMPLAINT_FAILURE, payload: error.message });
+        if(onError) onError(error?.response?.data?.message || 'Failed to update complaint');
     }
 }
 

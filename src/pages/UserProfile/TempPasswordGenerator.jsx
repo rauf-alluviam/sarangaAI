@@ -17,6 +17,9 @@ import {
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 
+const BACKEND_API= import.meta.env.VITE_BACKEND_API;
+
+
 const TempPasswordGenerator = ({ user }) => {
     const {token}= useSelector((state)=> state.auth);
   // Dummy user details for fallback
@@ -49,7 +52,7 @@ const TempPasswordGenerator = ({ user }) => {
     setSuccess(false);
 
     try {
-        const response= await axios.post(`https://rabs.alvision.in/reset_password`, {},
+        const response= await axios.post(`${BACKEND_API}/reset_password`, {},
             {
             headers: {
                 Authorization: `Bearer ${token}`

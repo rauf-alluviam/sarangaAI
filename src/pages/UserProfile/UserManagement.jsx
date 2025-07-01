@@ -7,6 +7,9 @@ import TempPasswordGenerator from './TempPasswordGenerator';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 
+const BACKEND_API= import.meta.env.VITE_BACKEND_API;
+
+
 function TabPanel({ children, value, index, ...other }) {
   return (
     <div
@@ -42,7 +45,7 @@ const UserManagement = () => {
 
 useEffect(()=>{
     async function fetchUserData() {
-        const response= await axios.get(`https://rabs.alvision.in/get_my_details`, 
+        const response= await axios.get(`${BACKEND_API}/get_my_details`, 
             {
                 headers: {
                 'Authorization': `Bearer ${token}`

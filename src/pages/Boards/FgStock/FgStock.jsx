@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Chip,
+  Dialog,
   FormControl,
   IconButton,
   InputLabel,
@@ -28,23 +29,41 @@ import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
 import { editFgStock, getAllFgStock } from "../../../Redux/Actions/fgStockActions";
 import { IoPersonSharp } from "react-icons/io5";
+import { enqueueSnackbar } from "notistack";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const FgStock = () => {
-  // const { userData, token } = useSelector((state) => state.auth);
+  const { userData, token } = useSelector((state) => state.auth);
   const {fgStockArr}= useSelector((state)=> state.fgStock)
   console.log(fgStockArr)
   const dispatch= useDispatch();
+  const navigate= useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isMonthlyUpdateOpen, setIsMonthlyUpdateOpen] = React.useState(false);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  console.log(date)
   const [stock, setStock] = useState([]);
   console.log(stock);
   // const [isLoading, setIsLoading] = useState(false);
   const [edit, setEdit] = useState({});
   console.log(edit);
-const [status, setStatus]= useState('all');
+  const [status, setStatus]= useState('all');
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState({
+    status: '',
+    color: '',
+    message: ''
+  });
 
+  // Monthly Update form states
+  const [monthlyUpdateData, setMonthlyUpdateData] = useState({
+    item_code: '',
+    schedule: '',
+    maximum: ''
+  });
 
   // useEffect(() => {
   //   const [year, month, day] = date.split("-");
@@ -75,22 +94,77 @@ const [status, setStatus]= useState('all');
   }, [date])
 
   const handleSubmit = async () => {
-    try {
-      // const response = await axios.put(
-      //   `${BACKEND_API}/update_fg_stock_monitoring_sheet_entry/${edit._id}`,
-      //   edit,
-      //   {
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   }
-      // );
-      dispatch(editFgStock(edit))
+    // Calculate status based on current stock value
+    const currentStock = Number(edit.current) || 0;
+    let status = '';
+    let color = '';
+    let message = '';
+
+    if (currentStock < edit.minimum) {
+      status = 'Critical';
+      color = 'red';
+      message = `Current stock is below ${edit.minimum} - Critical level!`;
+    } else if (currentStock >= edit.minimum && currentStock < 400) {
+      status = 'Alert';
+      color = 'orange';
+      message = 'Current stock is between minimum-400 - Alert level!';
+    } else if (currentStock >= 400) {
+      status = 'Sufficient';
+      color = 'green';
+      message = 'Current stock is above 400 - Sufficient level!';
+    }
+
+    setUpdateStatus({ status, color, message });
+    setUpdateDialogOpen(true);
+  };
+
+  const confirmUpdate = () => {
+    dispatch(editFgStock(edit, date, (successMsg) => {
       setEdit({});
+      setUpdateDialogOpen(false);
+      enqueueSnackbar(successMsg, { variant: 'success' });
+    },
+    (errorMsg) => {
+      setUpdateDialogOpen(false);
+      enqueueSnackbar(errorMsg, { variant: 'error' });
+    }));
+  };
+
+  const handleMonthlyUpdateSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const data = {
+        item_description: monthlyUpdateData.item_description,
+        schedule: Number(monthlyUpdateData.schedule),
+        maximum: Number(monthlyUpdateData.maximum)
+      };
+
+      console.log('Monthly Update Data:', data);
+      // TODO: Add API call to submit monthly update data
+      // dispatch(monthlyUpdateAction(data, onSuccess, onError));
+
+      const response= await axios.post(`${BACKEND_API}/set_monthly_schedule_and_maximum_quantity_in_fgstock`, data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+       )
+
+       console.log(response)
       
+      // For now, show success message
+      enqueueSnackbar(response?.data?.message || 'Monthly update submitted successfully', { variant: 'success' });
+      setIsMonthlyUpdateOpen(false);
+      setMonthlyUpdateData({
+        item_description: '',
+        schedule: '',
+        maximum: ''
+      });
     } catch (error) {
       console.log(error);
+      enqueueSnackbar('Failed to submit monthly update', { variant: 'error' });
     }
   };
 
@@ -137,7 +211,7 @@ const [status, setStatus]= useState('all');
           padding: "0.5rem",
           // bgcolor: 'red'
         }}
-      >
+      > 
         {/* <Box bgcolor={'white'} color={'#282828'} display={'flex'} alignItems={'center'} fontSize={'1.2rem'} padding={'0.5rem 0.8rem'} borderRadius={'8px'} boxShadow={'rgba(56, 56, 56, 0.4) 0px 2px 8px 0px;'} mr={'auto'}>
         <IoPersonSharp style={{color: '#282828'}} />
         <Typography ml={'1rem'} display={'flex'} >Responsible Person- 
@@ -177,8 +251,8 @@ const [status, setStatus]= useState('all');
       <>
         <TextField
           type="text"
-          defaultValue={fgStockArr[0]?.resp}
-          onChange={(e) => setEdit({ ...edit, resp: e.target.value })}
+          defaultValue={fgStockArr[0]?.resp_person}
+          onChange={(e) => setEdit({ ...edit, resp_person: e.target.value })}
           sx={{ width: "7rem" }}
           size="small"
         />
@@ -213,7 +287,7 @@ const [status, setStatus]= useState('all');
           boxShadow: "rgba(0, 0, 0, 0.17) 0px 3px 8px",
         }}
       >
-        {fgStockArr[0]?.resp || "Not mentioned"}
+        {fgStockArr[0]?.resp_person || "Not mentioned"}
       </div>
     )
   ) : (
@@ -247,6 +321,9 @@ const [status, setStatus]= useState('all');
         >
           Add New Item  
         </Button>
+
+        <Button variant="contained" sx={{mr: '0.8rem', bgcolor: colors.primary}} onClick={() => setIsMonthlyUpdateOpen(true)}>Monthly Update</Button>
+        <Button variant="contained" sx={{mr: '0.8rem', bgcolor: colors.primary}} onClick={()=> navigate('/monthly-fg-stock')}>Monthly Sheet</Button>
         <TextField
           size="small"
           label="Date"
@@ -297,6 +374,210 @@ const [status, setStatus]= useState('all');
         </Box>
       )}
 
+      {/* Monthly Update Dialog */}
+      {isMonthlyUpdateOpen && (
+        <Box
+          bgcolor={"rgba(0, 0, 0, 0.6)"}
+          position={"fixed"}
+          top={0}
+          left={0}
+          height={"100vh"}
+          width={"100vw"}
+          display={"flex"}
+          justifyContent={"center"}
+          alignItems={"center"}
+          zIndex={9}
+          onClick={() => setIsMonthlyUpdateOpen(false)}
+        >
+          <Box
+            onClick={(e) => e.stopPropagation()}
+            height={"auto"}
+            borderRadius={"8px"}
+            width={"35rem"}
+            bgcolor={"white"}
+            display={"flex"}
+            flexDirection={"column"}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+            p={"2rem"}
+          >
+            <Typography fontSize={"1.8rem"} textAlign={"center"} mb={2}>
+              Monthly Update
+            </Typography>
+
+            <form
+              onSubmit={handleMonthlyUpdateSubmit}
+              style={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+              }}
+            >
+              <TextField
+                fullWidth
+                label="Item Description"
+                type="text"
+                value={monthlyUpdateData.item_description}
+                onChange={(e) =>
+                  setMonthlyUpdateData({
+                    ...monthlyUpdateData,
+                    item_description: e.target.value,
+                  })
+                }
+                size="small"
+                required
+              />
+
+              <TextField
+                fullWidth
+                label="Schedule"
+                type="number"
+                value={monthlyUpdateData.schedule}
+                onChange={(e) =>
+                  setMonthlyUpdateData({
+                    ...monthlyUpdateData,
+                    schedule: e.target.value,
+                  })
+                }
+                size="small"
+                required
+              />
+
+              <TextField
+                fullWidth
+                label="Maximum"
+                type="number"
+                value={monthlyUpdateData.maximum}
+                onChange={(e) =>
+                  setMonthlyUpdateData({
+                    ...monthlyUpdateData,
+                    maximum: e.target.value,
+                  })
+                }
+                size="small"
+                required
+              />
+
+              <Box display="flex" gap={2} mt={2}>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setIsMonthlyUpdateOpen(false);
+                    setMonthlyUpdateData({
+                      item_description: '',
+                      schedule: '',
+                      maximum: ''
+                    });
+                  }}
+                  sx={{ flex: 1 }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  sx={{ bgcolor: colors.primary, flex: 1 }}
+                >
+                  Submit
+                </Button>
+              </Box>
+            </form>
+          </Box>
+        </Box>
+      )}
+
+      {/* Update Status Dialog */}  
+      {updateDialogOpen && (
+        <Box
+          bgcolor={"rgba(0, 0, 0, 0.6)"}
+          position={"fixed"}
+          top={0}
+          left={0}
+          height={"100vh"}
+          width={"100vw"}
+          display={"flex"}
+          justifyContent={"center"}
+          alignItems={"center"}
+          zIndex={10}
+          onClick={() => setUpdateDialogOpen(false)}
+        > 
+          <Box
+            onClick={(e) => e.stopPropagation()}
+            height={"auto"}
+            borderRadius={"8px"}
+            width={"33rem"}
+            bgcolor={"white"}
+            display={"flex"}
+            flexDirection={"column"}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+            p={"2rem"}
+          >
+            <Typography fontSize={"1.5rem"} textAlign={"center"} mb={2}>
+              Stock Status Update
+            </Typography>
+
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
+              mb={2}
+            >
+              <Box
+                width={"25px"}
+                height={"25px"}
+                bgcolor={updateStatus.color}
+                borderRadius={"50%"}
+                mr={1}
+              />
+              <Typography fontSize={"1.2rem"} fontWeight={"bold"}>
+                {updateStatus.status}
+              </Typography>
+            </Box>
+
+            <Typography
+              fontSize={"1rem"}
+              textAlign={"center"}
+              color={"textSecondary"}
+              mb={3}
+            >
+              {updateStatus.message}
+            </Typography>
+
+            <Typography fontSize={"0.9rem"} textAlign={"center"} mb={3}>
+              Current Stock: <strong>{edit.current || 0}</strong>
+            </Typography>
+
+            <Box display="flex" gap={2} width="100%">
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setUpdateDialogOpen(false);
+                  setEdit({});
+                }}
+                sx={{ flex: 1 }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                onClick={confirmUpdate}
+                sx={{ 
+                  bgcolor: colors.primary, 
+                  flex: 1,
+                  '&:hover': {
+                    backgroundColor: colors.buttonHover || colors.primary
+                  }
+                }}
+              >
+                Confirm Update
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      )}
+
       {/* --------------Table------------------- */}
       <Box
         position={"relative"}
@@ -309,8 +590,9 @@ const [status, setStatus]= useState('all');
         alignItems={"start"}
         overflow={'auto'}
         sx={{
-          height: "80vh", // or a fixed height like "600px"
+          minHeight: "77vh", // or a fixed height like "600px"
           width: "100%",  // Make sure it's not constrained by parent
+        //  bgcolor: 'lightblue',
           overflow: "auto", // Enables both vertical & horizontal scroll
           scrollbarWidth: "thin", // Firefox
           "&::-webkit-scrollbar": {
@@ -326,61 +608,60 @@ const [status, setStatus]= useState('all');
           },
         }}
         // minHeight={'74vh'}
-        
-        
       >
         {/* <Typography position={'absolute'} top={'-1rem'} left={0}>0 Records found</Typography> */}
         {/* <Typography fontSize={'1.6rem'} sx={{borderBottom: '1px solid grey', mb: '1rem'}}>Fire Report</Typography> */}
-        <Paper sx={{ maxHeight: "75vh", overflow: 'auto' }} >
+        <Paper sx={{ maxHeight: "100%", overflow: 'hidden'}} >
         {/* , marginLeft: 'auto', mr: 'auto', width: '100%' */}
-          <TableContainer>
-            <Table aria-label="simple table" border={1} >
-              <TableHead sx={{ bgcolor: "grey", border: "1px solid black" }}>
+          <TableContainer  sx={{ maxHeight: "100%" }} >
+            <Table  stickyHeader aria-label="sticky table"  border={1}>
+              <TableHead sx={{ bgcolor: "grey", border: "1px solid black"}}>
                 
-                <TableRow sx={{bgcolor: 'rgb(164, 182, 211)', boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'}}>
-                  <TableCell sx={{ fontSize: "1.2rem" }}>Sr No</TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                <TableRow sx={{ bgcolor: "#f5f5f5 !important", borderBottom: "1px solid #ddd" }}>
+                  <TableCell sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>Sr No</TableCell>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Item Description
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Item Code
                   </TableCell>
                   {/* <TableCell align="center" sx={{fontSize: '1.2rem'}}>Count</TableCell> */}
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Minimum
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Maximum
                   </TableCell>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Schedule
+                  </TableCell>
                   
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit", minWidth: '8rem', width: '8rem', maxWidth: '8rem' }}> 
                     Current Stock
                   </TableCell>
                   
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Schedule
-                  </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Dispatched
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Balance
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Next Action
                   </TableCell>
 
-                  {/* <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Resp Tos
-                  </TableCell> */}
-                 
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                    Next Day Target
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit"  }}>
+                    Today's Planning
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", minWidth: '6rem', width: '6rem', maxWidth: '6rem' }}>
+                 
+                  {/* <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Next Day Target
+                  </TableCell> */}
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", minWidth: '5rem', width: '5rem', maxWidth: '5rem', backgroundColor: "inherit" }}>
                     Status
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit"}}>
                     Edit
                   </TableCell>
                 </TableRow>
@@ -410,6 +691,26 @@ const [status, setStatus]= useState('all');
                       <TableCell  sx={{ width: "4rem", maxWidth: '4rem', minWidth: '4rem' }} align="center">
                         {elem.maximum}
                       </TableCell>
+                      <TableCell  sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center">
+                        {elem.schedule}
+                        {/* {edit._id == elem._id ? (
+                          
+                          <TextField
+                            fullWidth
+                            // label="Schedule"
+                            // placeholder='rtsp://192.168.1.100:554/stream1'
+                            type="text"
+                            defaultValue={elem.schedule}
+                            onChange={(e) =>
+                              setEdit({ ...edit, schedule: e.target.value })
+                            }
+                            sx={{ width: "100%" }}
+                            size="small"
+                          />
+                        ) : (
+                          elem.schedule
+                        )} */}
+                      </TableCell>
 
                       
                       <TableCell  sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center">
@@ -432,25 +733,7 @@ const [status, setStatus]= useState('all');
                       </TableCell>
 
                       
-                      <TableCell  sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center">
-                        {edit._id == elem._id ? (
-                          
-                          <TextField
-                            fullWidth
-                            // label="Schedule"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="text"
-                            defaultValue={elem.schedule}
-                            onChange={(e) =>
-                              setEdit({ ...edit, schedule: e.target.value })
-                            }
-                            sx={{ width: "100%" }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.schedule
-                        )}
-                      </TableCell>
+                     
                       {/* <TableCell align="center">
                   {edit._id ==elem._id? <TextField
                                 fullWidth
@@ -530,7 +813,7 @@ const [status, setStatus]= useState('all');
                         )}
                       </TableCell>
 
-                      {/* <TableCell  sx={{ width: "4rem", maxWidth: '4rem', minWidth: '4rem' }} align="center">
+                      <TableCell  sx={{ width: "4rem", maxWidth: '4rem', minWidth: '4rem' }} align="center">
                         {edit._id == elem._id ? (
                           <TextField
                             fullWidth
@@ -539,7 +822,7 @@ const [status, setStatus]= useState('all');
                             type="number"
                             defaultValue={elem.todays_planning}
                             onChange={(e) =>
-                              setEdit({ ...edit, todays_target: e.target.value })
+                              setEdit({ ...edit, todays_planning: e.target.value })
                             }
                             sx={{ width: "100%", height: '100%' }}
                             size="small"
@@ -547,9 +830,9 @@ const [status, setStatus]= useState('all');
                         ) : (
                           elem.todays_planning
                         )}
-                      </TableCell> */}
+                      </TableCell>
                      
-                      <TableCell sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center"> 
+                      {/* <TableCell sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center"> 
                         {edit._id == elem._id ? (
                           <TextField
                             fullWidth
@@ -569,7 +852,7 @@ const [status, setStatus]= useState('all');
                           elem.next_day_target
 
                         )}
-                      </TableCell>
+                      </TableCell> */}
                       {/* <TableCell>{elem.todays_target * 2 <= elem.current ? 
                       <Box bgcolor={'green'}  height={'3rem'} width={'4rem'}></Box>: <Box  bgcolor={'red'} height={'3rem'} width={'4rem'}></Box> }</TableCell> */}
                      <TableCell>
@@ -632,6 +915,9 @@ const [status, setStatus]= useState('all');
           </TableContainer>
         </Paper>
       </Box>
+{/* 
+      <Dialog open={true} onClose={false}>
+      </Dialog> */}
     </Box>
   );
 };

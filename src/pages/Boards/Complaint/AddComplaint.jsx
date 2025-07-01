@@ -17,6 +17,7 @@ import {
   getAllFgStock,
 } from "../../../Redux/Actions/fgStockActions";
 import { addComplaint } from "../../../Redux/Actions/complaintAction";
+import { enqueueSnackbar } from "notistack";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -171,12 +172,38 @@ const AddComplaint = ({ setIsOpen }) => {
 const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('first')
+    // const data = {
+    //   customer,
+    //   part_name: partName,
+    //   complaint,
+    //   complaint_date: complaintDate,
+    //   part_recieved_date: partRecievedDate,
+    //   problem_description: problemDescription,
+    //   quantity,
+    //   line_name: lineName,
+    //   tracebility,
+    //   first_repeat: firstRepeat,
+    //   supplier,
+    //   process,
+    //   temporary_action: temporaryAction,
+    //   temporary_target_date: temporaryTargetDate,
+    //   root_cause: rootCause,
+    //   permanent_action: permanentAction,
+    //   permanent_target_date: permanentTargetDate,
+    //   responsibility,
+    //   status,
+    //   standerdization,
+    //   horizental_deployment: horizentalDeployment,
+    //   timestamp,
+    //   part_received_date: partReceivedDate,
+    // };
+
     const data = {
       customer,
       part_name: partName,
       complaint,
       complaint_date: complaintDate,
-      part_recieved_date: partRecievedDate,
+      part_received_date: partReceivedDate, // ✅ correct key
       problem_description: problemDescription,
       quantity,
       line_name: lineName,
@@ -193,14 +220,17 @@ const handleSubmit = async (e) => {
       status,
       standerdization,
       horizental_deployment: horizentalDeployment,
+      resp_person: responsibility, // ✅ this was missing from your code
       timestamp,
-      part_received_date: partReceivedDate,
     };
     console.log(data);
-    dispatch(addComplaint(data, ()=>{
-      setIsOpen(false);
-    }));
-    // try {
+    dispatch(addComplaint(data, 
+      (successMsg)=>{setIsOpen(false); enqueueSnackbar(successMsg, { variant: 'success' }) },
+      (errorMsg)=> enqueueSnackbar(errorMsg, { variant: 'error' })
+    
+    ));
+    
+      // try {
     //   const response = await axios.post(
     //     `${BACKEND_API}/submit_customer_complaint_sheet_entry`,
     //     data,
@@ -335,15 +365,18 @@ const handleSubmit = async (e) => {
           size="small"
         />
   
-        <TextField
-          fullWidth
-          label="First Repeat"
-          type="text"
-          value={firstRepeat}
-          onChange={(e) => setFirstRepeat(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
+        <FormControl fullWidth sx={{ mt: "1rem" }} size="small">
+          <InputLabel id="first-repeat-label">First / Repeat</InputLabel>
+          <Select
+            labelId="first-repeat-label"
+            value={firstRepeat}
+            label="First / Repeat"
+            onChange={(e) => setFirstRepeat(e.target.value)}
+          >
+            <MenuItem value="first">First</MenuItem>
+            <MenuItem value="repeat">Repeat</MenuItem>
+          </Select>
+        </FormControl>
 
 <TextField
           fullWidth
@@ -431,25 +464,31 @@ const handleSubmit = async (e) => {
           size="small"
         />
   
-        <TextField
-          fullWidth
-          label="Status"
-          type="text"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
+        <FormControl fullWidth sx={{ mt: "1rem" }} size="small">
+          <InputLabel id="status-label">Status</InputLabel>
+          <Select
+            labelId="status-label"
+            value={status}
+            label="Status"
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <MenuItem value="yes">Yes</MenuItem>
+            <MenuItem value="no">No</MenuItem>
+          </Select>
+        </FormControl>
   
-        <TextField
-          fullWidth
-          label="Standardization"
-          type="text"
-          value={standerdization}
-          onChange={(e) => setStanderdization(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
+        <FormControl fullWidth sx={{ mt: "1rem" }} size="small">
+          <InputLabel id="standardization-label">Standardization</InputLabel>
+          <Select
+            labelId="standardization-label"
+            value={standerdization}
+            label="Standardization"
+            onChange={(e) => setStanderdization(e.target.value)}
+          >
+            <MenuItem value="yes">Yes</MenuItem>
+            <MenuItem value="no">No</MenuItem>
+          </Select>
+        </FormControl>
 <FormControl fullWidth sx={{ mt: "1rem" }} size="small">
   <InputLabel id="horizental-deployment-label">Horizontal Deployment</InputLabel>
   <Select

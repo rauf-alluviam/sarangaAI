@@ -10,6 +10,7 @@ const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const AddStoreStock = ({setIsOpen, setSelectedBoard}) => {
   const {token} = useSelector((state)=> state.auth)
+  const {storeStockArr}= useSelector((state)=> state.storeStock)
   const [itemDescription, setItemDescription]= React.useState('');
   // const [minimum, setMinimum]= React.useState('');
   // const [maximum, setMaximum]= React.useState('');
@@ -19,10 +20,10 @@ const AddStoreStock = ({setIsOpen, setSelectedBoard}) => {
   console.log(status)
   const [plan, setPlan]= useState('');
   const [actual, setActual]= useState('')
+  const [resp, setResp]= React.useState('');
   // const [dispatched, setDispatched]= React.useState('');
   // const [balance, setBalance]= React.useState('');
   // const [nextAction, setNextAction]= React.useState('');
-  // const [resp, setResp]= React.useState('');
   // const [target, setTarget]= React.useState('');
   const [timestamp, setTimestamp]= React.useState('2025-05-22T13:20:56.257Z');
   const dispatch= useDispatch();
@@ -45,39 +46,31 @@ const handleSubmit= async(e)=>{
   e.preventDefault();
   const data= {
     item_description: itemDescription,
-    minimum_STOCK: 200,
-    maximum_STOCK: 2500,
-    current_STOCK: current,
+    minimum_STOCK: 200, // Default value
+    maximum_STOCK: 2500, // Default value
+    current_STOCK: Number(current) || 0,
     location: location,
-  //  status: current< this.minimum_STOCK? 'critical': current> this.maximum_STOCK? 'ok': 'excess', 
-  status: current< 200? 'critical': current< 2500? 'ok': 'excess', 
-   plan: plan,
-   actual: actual,
-    timestamp: timestamp
+    status: "", // Will be calculated on backend or left empty
+    plan: plan,
+    actual: actual,
+    timestamp: new Date().toISOString(), // Generate current timestamp
+    resp_person: resp || '', // Responsible person, optional
   }
-  dispatch(addStoreStock(data, token, 
-    (successMessage)=> {setIsOpen(false); 
-      enqueueSnackbar(successMessage, { variant: 'success' })},
-    (errorMessage)=> enqueueSnackbar(errorMessage, { variant: 'error' })
-    ))
-// try {
-//   const response= await axios.post(`${BACKEND_API}/submit_store_stock_monitoring_sheet_entry`, data,
-//     {
-//       headers: {
-//         'accept': 'application/json',
-//         'Authorization': `Bearer ${token}`,
-//         'Content-Type': 'application/json',
-//       }
-//     }
-//   );
-//   setIsOpen(false);
-//   // setSelectedBoard('none')
-//   alert(response.data.message)
-// } catch (error) {
-//   console.log(error)
   
-// }
-  // axios.post('http://
+  
+  // Add responsible person only if this is the first entry (same logic as FG Stock)
+  // if (storeStockArr?.length <= 0) {
+  //   data.resp_person = resp;
+  // }
+  
+  dispatch(addStoreStock(data, token, 
+    (successMessage)=> {
+      setIsOpen(false); 
+      enqueueSnackbar(successMessage, { variant: 'success' });
+      // window.location.reload(); // Reload page after successful addition
+    },
+    (errorMessage)=> enqueueSnackbar(errorMessage, { variant: 'error' })
+  ))
 }
   return (
     <Box
@@ -207,11 +200,21 @@ const handleSubmit= async(e)=>{
               size='small'
             />
 
+{
+              storeStockArr?.length <= 0 && 
+              <TextField
+                fullWidth
+                label="Responsible Person"
+                type="text"
+                value={resp}
+                onChange={(e) => setResp(e.target.value)}
+                sx={{ mt: '1rem' }}
+                size='small'
+                required
+              />
+            }
 
-
-
-
-<Button
+            <Button
               type="submit"
               variant="contained"
               sx={{ bgcolor: colors.primary, mt: 2 }}

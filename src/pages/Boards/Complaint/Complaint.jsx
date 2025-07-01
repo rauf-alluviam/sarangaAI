@@ -28,6 +28,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import axios from "axios";
 import AddComplaint from "./AddComplaint";
 import { fetchComplaints, updateComplaint } from "../../../Redux/Actions/complaintAction";
+import { enqueueSnackbar } from "notistack";
+import { IoPersonSharp } from "react-icons/io5";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -162,9 +164,11 @@ console.log(complaintsLoading, complaints)
   }, [month])
 
   const handleUpdate = async () => {
-    dispatch(updateComplaint(edit.id, edit, ()=>{
-      setEdit({}); // Clear the edit state after updating
-    }));
+    dispatch(updateComplaint(edit.id, edit, 
+      (successMsg)=>{setEdit({}); enqueueSnackbar(successMsg, { variant: 'success' })},
+      (errorMsg)=> enqueueSnackbar(errorMsg, { variant: 'error' })
+  
+  ));
     // try {
     //   const response = await axios.put(
     //     `${BACKEND_API}/update_customer_complaint_sheet_entry/${edit.id}`,
@@ -229,7 +233,7 @@ console.log(complaintsLoading, complaints)
 
       <Box
         sx={{
-          width: "25rem",
+          width: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -240,8 +244,101 @@ console.log(complaintsLoading, complaints)
           // bgcolor: 'red'
         }}
       >
+         <Box
+         
+  ml="1rem"
+  display="flex"
+  alignItems="center"
+  sx={{
+    bgcolor: "#FAFAFA",
+    borderRadius: "8px",
+    padding: "0.5rem 1rem",
+    boxShadow: "0px 3px 8px rgba(0,0,0,0.1)",
+    // width: "100%",
+    maxWidth: "600px",
+    flexWrap: "wrap", // for responsiveness
+  }}
+>
+  {/* Label Section */}
+  <Box
+    display="flex"
+    width="12rem"
+    alignItems="center"
+    sx={{ mr: "1rem" }}
+  >
+    <IoPersonSharp style={{ color: "#282828", fontSize: "1.5rem", marginRight: "0.5rem" }} />
+    <Typography fontWeight={500}>Responsible Person-</Typography>
+  </Box>
+
+  {/* Conditional Render */}
+  {complaints.length > 0 ? (
+    edit.id === complaints[0].id ? (
+      <>
+        <TextField
+          type="text"
+          defaultValue={complaints[0]?.responsibility || ""}
+          onChange={(e) => setEdit({ ...edit, responsibility: e.target.value })}
+          sx={{ width: "7rem" }}
+          size="small"
+        />
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            ml: "1rem",
+          }}
+        >
+          <IconButton onClick={() => setEdit({})}>
+            <CloseIcon sx={{ color: "#CC7C7C" }} />
+          </IconButton>
+          <IconButton onClick={handleUpdate}>
+            <MdDone style={{ color: "green" }} />
+          </IconButton>
+        </Box>
+      </>
+    ) : (
+      <Box
+        sx={{
+          backgroundColor: "#FFCDD2",
+          height: "2rem",
+          borderRadius: "4px",
+          padding: "0 0.5rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          ml: "0.5rem",
+          color: "#282828",
+          boxShadow: "rgba(0, 0, 0, 0.17) 0px 3px 8px",
+        }}
+      >
+        {complaints[0]?.responsibility || "Not mentioned"}
+      </Box>
+    )
+  ) : (
+    <Typography
+      sx={{
+        marginLeft: "1rem",
+        color: "#888",
+        fontStyle: "italic",
+      }}
+    >
+      No data available
+    </Typography>
+  )}
+
+  {/* Edit Icon */}
+  {complaints.length > 0 && edit.id !== complaints[0]?.id && (
+    <IconButton
+      onClick={() => setEdit(complaints[0])}
+      sx={{ color: "rgb(201, 162, 56)", ml: "1rem" }}
+    >
+      <EditIcon />
+    </IconButton>
+  )}
+</Box>
+
         <Button
-          sx={{ bgcolor: colors.primary, width: "10rem" }}
+          sx={{ bgcolor: colors.primary, width: "10rem", ml: 'auto' }}
           variant="contained"
           onClick={() => setIsOpen(true)}
         >
@@ -251,7 +348,7 @@ console.log(complaintsLoading, complaints)
                 size="small"
                 label="Select Month and Year"
                 // sx={{ width: '45rem' }}
-                sx={{ width: "12rem" }}
+                sx={{ width: "12rem", ml: '1rem' }}
                 // fullWidth
                 type="month"
                 value={month}
@@ -298,126 +395,120 @@ console.log(complaintsLoading, complaints)
 
       {/* --------------Table------------------- */}
       <Box
-  position="relative"
-  mr="1rem"
-  p="0.7rem"
-  borderRadius="6px"
-  display="flex"
-  flexDirection="column"
-  alignItems="start"
-  sx={{
-    height: "80vh", // or a fixed height like "600px"
-    width: "100%",  // Make sure it's not constrained by parent
-    overflow: "auto", // Enables both vertical & horizontal scroll
-    scrollbarWidth: "thin", // Firefox
-    "&::-webkit-scrollbar": {
-      width: "8px",
-      height: "8px",
-    },
-    "&::-webkit-scrollbar-thumb": {
-      backgroundColor: "#888",
-      borderRadius: "4px",
-    },
-    "&::-webkit-scrollbar-thumb:hover": {
-      backgroundColor: "#555",
-    },
-  }}
->
-        {/* <Typography position={'absolute'} top={'-1rem'} left={0}>0 Records found</Typography> */}
-        {/* <Typography fontSize={'1.6rem'} sx={{borderBottom: '1px solid grey', mb: '1rem'}}>Fire Report</Typography> */}
-        <Paper sx={{ maxHeight: "75vh", overflow: 'auto' }}>
-          <TableContainer>
-            <Table aria-label="simple table" border={1} >
-              <TableHead sx={{ bgcolor: "grey", border: "1px solid black" }}>
-                
-                <TableRow sx={{bgcolor: 'rgb(164, 182, 211)', boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'}}>
-                  <TableCell sx={{ fontSize: "1.2rem" }}>Sr No</TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+        position="relative"
+        mr="1rem"
+        p="0.7rem"
+        borderRadius="6px"
+        display="flex"
+        flexDirection="column"
+        alignItems="start"
+        sx={{
+          height: "80vh",
+          width: "100%",
+          overflow: "auto",
+          scrollbarWidth: "thin",
+          "&::-webkit-scrollbar": {
+            width: "8px",
+            height: "8px",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#888",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#555",
+          },
+        }}
+       
+      >
+        <Paper sx={{overflow: "hidden" }}>
+          <TableContainer sx={{ maxHeight: "65vh" }}>
+            <Table stickyHeader aria-label="sticky table"  border={1} >
+              <TableHead>
+                <TableRow sx={{ bgcolor: "#f5f5f5", borderBottom: "1px solid #ddd" }}>
+                  <TableCell sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>Sr No</TableCell>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Customer
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Part Name
                   </TableCell>
-                  {/* <TableCell align="center" sx={{fontSize: '1.2rem'}}>Count</TableCell> */}
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Complaint
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Complaint Date
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Part Received Date
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Problem Description
                   </TableCell>
-                  
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Quantity
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Line Name
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Tracability
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     First/ Repeat
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Supplier/ Inhouse
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
-                   Process
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Process
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Temporary Action
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                   Target Date
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Target Date
                   </TableCell>
-
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                   Root Cause
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Root Cause
                   </TableCell>
-
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                   Parmanant Action
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Permanent Action
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                   Target Date
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Target Date
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                   Responsibility
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Responsibility
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                  Status
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Status
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                  Standardization
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Standardization
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                   Horizontal Deployment (Y/N)
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Horizontal Deployment (Y/N)
                   </TableCell>
-
-                  <TableCell align="center" sx={{ fontSize: "1.2rem"}}>
-                  Edit
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                    Edit
                   </TableCell>
                 </TableRow>
               </TableHead>
 
               <TableBody>
-  {complaints.length > 0 ? (
-    complaints.map((elem, index) => (
-      <TableRow
-        key={elem.id || index}
-        sx={{
-          bgcolor: elem.id === edit.id && "rgb(188, 196, 209)",
-          transition: "0.4s",
-          position: "relative",
-        }}
-      >
-        <TableCell align="center">{index + 1}</TableCell>
+                {complaints.length > 0 ? (
+                  complaints.map((elem, index) => (
+                    <TableRow
+                      key={elem.id || index}
+                      hover
+                      sx={{
+                        bgcolor: elem.id === edit.id && "rgb(188, 196, 209)",
+                        transition: "0.4s",
+                        position: "relative",
+                      }}
+                    >
+                      <TableCell align="center">{index + 1}</TableCell>
         <TableCell align="center">
           {edit.id === elem.id ? (
             <TextField
@@ -440,7 +531,7 @@ console.log(complaintsLoading, complaints)
             />
           ) : (
             elem.part_name
-          )}
+          )}    
         </TableCell>
         <TableCell align="center">
           {edit.id === elem.id ? (
@@ -665,14 +756,34 @@ console.log(complaintsLoading, complaints)
         </TableCell>
         <TableCell align="center">
           {edit.id === elem.id ? (
-            <TextField
-              fullWidth
+            // <TextField
+            //   fullWidth
+            //   value={edit.status || ""}
+            //   onChange={(e) => setEdit({ ...edit, status: e.target.value })}
+            //   size="small"
+            // />
+            <FormControl fullWidth size="small">
+            <InputLabel id="status-label">
+              Status
+            </InputLabel>
+            <Select
+              labelId="status-label"
               value={edit.status || ""}
-              onChange={(e) => setEdit({ ...edit, status: e.target.value })}
-              size="small"
-            />
+              onChange={(e) =>
+                setEdit({ ...edit, status: e.target.value })
+              }
+              label="Status"
+            >
+              <MenuItem value="yes">Yes</MenuItem>
+              <MenuItem value="no">No</MenuItem>
+            </Select>
+          </FormControl>
+
           ) : (
-            elem.status
+            <Box>
+            {elem.status == 'yes'&& <Box m={'auto'} bgcolor={'green'} width={'22px'} height={'22px'} borderRadius={'50%'}></Box>}
+           { elem.status == 'no' && <Box m={'auto'} bgcolor={'red'} width={'22px'} height={'22px'} borderRadius={'50%'}></Box>}
+            </Box>
           )}
         </TableCell>
         <TableCell align="center">
@@ -727,12 +838,16 @@ console.log(complaintsLoading, complaints)
             </IconButton>
           )}
         </TableCell>
-      </TableRow>
-    ))
-  ) : (
-    <Typography p={"1rem"}>No Result Found</Typography>
-  )}
-</TableBody>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={23} align="center">
+                      <Typography>No complaints available</Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
             </Table>
           </TableContainer>
         </Paper>

@@ -34,15 +34,15 @@ const handleSubmit= async(e)=>{
     item_description: itemDescription,
     item_code: itemCode,
     minimum: 200,
-    maximum: 2500,
-    // todays_planning: todaysTarget,
+    // maximum: 2500,
+    todays_planning: todaysTarget,
     current: current,
-    schedule: schedule,
+    // schedule: schedule,
     dispatched: dispatched,
     balance: schedule-dispatched,
     next_action: nextAction,
-    resp: resp,
-    next_day_target: nextDayTarget,
+    resp_person : resp,
+    // next_day_target: nextDayTarget,
     timestamp: timestamp
   }
 // try {
@@ -62,12 +62,16 @@ const handleSubmit= async(e)=>{
   
 // }
 
-dispatch(addFgStock({data, 
-  onSuccess: () => {
-  setIsOpen(false);
-  // setSelectedBoard('none');
-  enqueueSnackbar('Store Stock Added successfully!', { variant: 'success' });
-}}
+dispatch(addFgStock(data, 
+  (successMsg) => {
+    setIsOpen(false); 
+    enqueueSnackbar(successMsg, { variant: 'success' });
+    setTimeout(()=>{
+      window.location.reload();
+    }, 800)
+  },
+  (errorMsg) => {enqueueSnackbar(errorMsg, { variant: 'error' });}
+ 
 ));
   // axios.post('http://
 }
@@ -109,7 +113,7 @@ dispatch(addFgStock({data,
               onChange={(e) => setItemCode(e.target.value)}
               sx={{ mt: '1rem' }}
               size='small'
-              required
+              // required
             />
 
 {/* <TextField
@@ -134,9 +138,9 @@ dispatch(addFgStock({data,
               size='small'
             /> */}
 
-{/* <TextField
+<TextField
               fullWidth
-              label="Resp Tos"
+              label="Todays Planning"
               // placeholder='rtsp://192.168.1.100:554/stream1'
               type="number"
               value={todaysTarget}
@@ -144,11 +148,11 @@ dispatch(addFgStock({data,
               sx={{ mt: '1rem' }}
               size='small'
               required
-            /> */}
+            />
 
 <TextField
               fullWidth
-              label="Current"
+              label="Current Stock"
               // placeholder='rtsp://192.168.1.100:554/stream1'
               type="number"
               value={current}
@@ -159,7 +163,7 @@ dispatch(addFgStock({data,
             />
           
 
-<TextField
+{/* <TextField
               // fullWidth
               label="Schedule"
               // placeholder='rtsp://192.168.1.100:554/stream1'
@@ -169,7 +173,7 @@ dispatch(addFgStock({data,
               sx={{ mt: '1rem' }}
               size='small'
               required
-            />
+            /> */}
             </Box>
 
             <Box display={'flex'} flexDirection={'column'} width={'49%'}>
@@ -217,7 +221,7 @@ dispatch(addFgStock({data,
                                                   // onChange={(e) => setDate(e.target.value)}
                                                   InputLabelProps={{ shrink: true }}
                                                   onChange={(e) => setNextAction(e.target.value)}
-                                                  required
+                                                  // required
                                                 />
 {
   fgStockArr?.length <= 0 && 
@@ -235,7 +239,7 @@ dispatch(addFgStock({data,
 }
 
 
-<TextField
+{/* <TextField
               fullWidth
               label="Next Day Target"
               // placeholder='rtsp://192.168.1.100:554/stream1'
@@ -245,7 +249,7 @@ dispatch(addFgStock({data,
               sx={{ mt: '1rem' }}
               size='small'
               required
-            />
+            /> */}
 
 <Button
               type="submit"

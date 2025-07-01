@@ -24,6 +24,8 @@ import AddStoreStock from "./AddStoreStock";
 import { fetchStoreStock, updateStoreStock } from "../../../Redux/Actions/storeStockAction";
 import store from "../../../Redux/store";
 import { enqueueSnackbar } from "notistack";
+import { IoPersonSharp } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -31,24 +33,9 @@ const StoreStock = () => {
   const { storeStockArr}= useSelector((state) => state.storeStock);
   console.log(storeStockArr);
 
-  // Get current date
-  const currentDate = new Date();
-
-  // Get ISO week number
-  const getWeekNumber = (date) => {
-    const tempDate = new Date(date.getTime());
-    tempDate.setUTCDate(
-      tempDate.getUTCDate() + 4 - (tempDate.getUTCDay() || 7)
-    );
-    const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
-    const weekNo = Math.ceil(((tempDate - yearStart) / 86400000 + 1) / 7);
-    return { week: weekNo, year: tempDate.getUTCFullYear() };
-  };
-
-  const { week, year } = getWeekNumber(currentDate);
-  const initialWeekValue = `${year}-W${week.toString().padStart(2, "0")}`;
-
-  const [date, setDate] = useState(initialWeekValue);
+  // Use date instead of week
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  
 
   const { userData, token } = useSelector((state) => state.auth);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -60,6 +47,13 @@ const StoreStock = () => {
   const [edit, setEdit] = useState({});
   console.log(edit);
   const dispatch = useDispatch();
+  const navigate= useNavigate();
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState({
+    status: '',
+    color: '',
+    message: ''
+  });
 
   // let stock= [
   //   {
@@ -121,34 +115,39 @@ const StoreStock = () => {
   // ]
 
   useEffect(() => {
-    const [year, week] = date.split("-W");
+    const [year, month, day] = date.split("-");
     console.log(date);
-    dispatch(fetchStoreStock(year, week, token ));
-    // async function fetchData() {
-    //   try {
-    //     setIsLoading(true);
-    //     const response = await axios.get(
-    //       `${BACKEND_API}/get_weekly_store_stock_monitoring_sheets/${year}/${week}`,
-    //       {
-    //         headers: {
-    //           "Content-Type": "application/json",
-    //           Authorization: `Bearer ${token}`,
-    //         }, 
-    //       }
-    //     );
-    //     setIsLoading(false);
-    //     setStock(response.data);
-    //     console.log(response.data);
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // }
-    // fetchData();
-  }, [date]);
+    dispatch(fetchStoreStock(year, month, day, token));
+  }, [date, isOpen]);
   // }, [date, isOpen, edit]);
 
 
   const handleSubmit = async () => {
+    // Calculate status based on current stock value
+    const currentStock = Number(edit.current_STOCK) || 0;
+    let status = '';
+    let color = '';
+    let message = '';
+
+    if (currentStock < 200) {
+      status = 'Critical';
+      color = 'red';
+      message = 'Current stock is below 200 - Critical level!';
+    } else if (currentStock >= 200 && currentStock <= 400) {
+      status = 'Alert';
+      color = 'orange';
+      message = 'Current stock is between 200-400 - Alert level!';
+    } else if (currentStock > 400) {
+      status = 'Sufficient';
+      color = 'green';
+      message = 'Current stock is above 400 - Sufficient level!';
+    }
+
+    setUpdateStatus({ status, color, message });
+    setUpdateDialogOpen(true);
+  };
+
+  const confirmUpdate = () => {
     dispatch(updateStoreStock(
       edit, 
       token, 
@@ -156,29 +155,14 @@ const StoreStock = () => {
         // Success callback
         enqueueSnackbar(successMessage, { variant: "success" });
         setEdit({}); // Clear the edit state
+        setUpdateDialogOpen(false);
       },
       (errorMessage) => {
         // Error callback
         enqueueSnackbar(errorMessage, { variant: "error" });
+        setUpdateDialogOpen(false);
       }
     ));
-    // try {
-    //   const response = await axios.put(
-    //     `${BACKEND_API}/update_store_stock_monitoring_sheet_entry/${edit._id}`,
-    //     edit,
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     }
-    //   );
-    //   setEdit({});
-
-    //   console.log(response.data);
-    // } catch (error) {
-    //   console.log(error);
-    // }
   };
 
   return (
@@ -227,7 +211,7 @@ const StoreStock = () => {
           width: "100%",
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "space-evenly",
           mt: "1.6rem",
           // ml: "auto",
           // mr: "auto",
@@ -235,12 +219,105 @@ const StoreStock = () => {
           // bgcolor: 'red'
         }}
       >
-        <Box display={'flex'}  width={'15rem'} justifyContent={'space-between'} mr={'1rem'}>
+        <Box
+          bgcolor={"#f9f9f9"} // Light background color for highlighting
+          color={"#282828"}
+          display={"flex"}
+          alignItems={"center"}
+          fontSize={"1.2rem"}
+          padding={"0.5rem 0.8rem"}
+          borderRadius={"8px"}
+          boxShadow={"rgba(56, 56, 56, 0.4) 0px 2px 8px 0px"}
+          mr={"auto"}
+          
+          sx={{
+            cursor: "pointer", // Pointer cursor for hover effect
+            transition: "0.3s ease-in-out", // Smooth transition for hover effect
+            "&:hover": {
+              boxShadow: "0px 4px 12px rgba(10, 12, 10, 0.38)", // Stronger shadow on hover
+            },
+          }}
+        >
+          
+        <Box ml={"1rem"} display={"flex"} alignItems={"center"}>
+          <Box display={"flex"} maxWidth={"12rem"} minWidth={"12rem"} width={"12rem"} alignItems={'center'}>
+            <IoPersonSharp style={{ color: "#282828", fontSize: "1.5rem", marginRight: '0.5rem' }} />
+            <Typography>Responsible Person-</Typography>
+          </Box>
+
+          {storeStockArr.length > 0 ? ( // Check if there is at least one item in storeStockArr
+            edit._id === storeStockArr[0]._id ? (
+              <>
+                <TextField
+                  type="text"
+                  defaultValue={storeStockArr[0]?.resp_person}
+                  onChange={(e) => setEdit({ ...edit, resp_person: e.target.value })}
+                  sx={{ width: "7rem" }}
+                  size="small"
+                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    ml: "1rem",
+                  }}
+                >
+                  <IconButton onClick={() => setEdit({})}>
+                    <CloseIcon style={{ color: "#CC7C7C" }} />
+                  </IconButton>
+                  <IconButton onClick={handleSubmit} style={{ color: "green" }}>
+                    <MdDone />
+                  </IconButton>
+                </Box>
+              </>
+            ) : (
+              <div
+                style={{
+                  backgroundColor: "#FFCDD2",
+                  height: "2rem",
+                  borderRadius: "4px",
+                  padding: "0 0.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginLeft: "0.5rem",
+                  color: "#282828",
+                  boxShadow: "rgba(0, 0, 0, 0.17) 0px 3px 8px",
+                }}
+              >
+                {storeStockArr[0]?.resp_person || "Not mentioned"}
+              </div>
+            )
+          ) : (
+            <Typography
+              sx={{
+                marginLeft: "1rem",
+                color: "#888",
+                fontStyle: "italic",
+              }}
+            >
+              No data available
+            </Typography>
+          )}
+
+          {storeStockArr.length > 0 && edit._id !== storeStockArr[0]?._id && ( // Show Edit button only if data exists
+            <IconButton
+              onClick={() => setEdit(storeStockArr[0])}
+              style={{ color: "grey", marginLeft: "1rem" }}
+            >
+              <EditIcon style={{ color: "rgb(201, 162, 56)" }} />
+            </IconButton>
+          )}
+        </Box>
+        </Box>
+
+        {/* <Box display={'flex'}  width={'15rem'} justifyContent={'space-between'} mr={'1rem'}>
           <Box display={'flex'} alignItems={'center'}><Box bgcolor={'red'} height={'15px'} width={'15px'} borderRadius={'50%'} mr={'0.5rem'}></Box><Typography>Critical</Typography></Box>
           <Box display={'flex'} alignItems={'center'}><Box bgcolor={'blue'} height={'15px'} width={'15px'} borderRadius={'50%'} mr={'0.5rem'}></Box><Typography>Excess</Typography></Box>
           <Box display={'flex'} alignItems={'center'}><Box bgcolor={'green'} height={'15px'} width={'15px'} borderRadius={'50%'} mr={'0.5rem'}></Box><Typography>Ok</Typography></Box>
 
-        </Box>
+        </Box> */}
 
         <Box display={'flex'}>
         <Button
@@ -250,29 +327,17 @@ const StoreStock = () => {
         >
           Add New Item
         </Button>
-        {/* <TextField
+        <Button variant="contained" sx={{mr: '0.8rem', bgcolor: colors.primary}} onClick={()=> navigate('/monthly-store-stock')}>Monthly Sheet</Button>
+        
+        <TextField
           size="small"
-          label="Date"
-          // sx={{ width: '45rem' }}
+          label="Select Date"
           sx={{ width: "15rem" }}
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
           required
-        /> */}
-
-        <TextField
-        size="small"
-          id="week"
-          name="week"
-          label="Select Week"
-          type="week"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
         />
         </Box>
       </Box>
@@ -294,6 +359,97 @@ const StoreStock = () => {
         </Box>
       )}
 
+      {/* Update Status Dialog */}
+      {updateDialogOpen && (
+        <Box
+          bgcolor={"rgba(0, 0, 0, 0.6)"}
+          position={"fixed"}
+          top={0}
+          left={0}
+          height={"100vh"}
+          width={"100vw"}
+          display={"flex"}
+          justifyContent={"center"}
+          alignItems={"center"}
+          zIndex={10}
+          onClick={() => setUpdateDialogOpen(false)}
+        >
+          <Box
+            onClick={(e) => e.stopPropagation()}
+            height={"auto"}
+            borderRadius={"8px"}
+            width={"33rem"}
+            bgcolor={"white"}
+            display={"flex"}
+            flexDirection={"column"}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+            p={"2rem"}
+          >
+            <Typography fontSize={"1.5rem"} textAlign={"center"} mb={2}>
+              Stock Status Update
+            </Typography>
+
+            <Box
+              display={"flex"}
+              alignItems={"center"}
+              justifyContent={"center"}
+              mb={2}
+            >
+              <Box
+                width={"25px"}
+                height={"25px"}
+                bgcolor={updateStatus.color}
+                borderRadius={"50%"}
+                mr={1}
+              />
+              <Typography fontSize={"1.2rem"} fontWeight={"bold"}>
+                {updateStatus.status}
+              </Typography>
+            </Box>
+
+            <Typography
+              fontSize={"1rem"}
+              textAlign={"center"}
+              color={"textSecondary"}
+              mb={3}
+            >
+              {updateStatus.message}
+            </Typography>
+
+            <Typography fontSize={"0.9rem"} textAlign={"center"} mb={3}>
+              Current Stock: <strong>{edit.current_STOCK || 0}</strong>
+            </Typography>
+
+            <Box display="flex" gap={2} width="100%">
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setUpdateDialogOpen(false);
+                  setEdit({});
+                }}
+                sx={{ flex: 1 }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                onClick={confirmUpdate}
+                sx={{ 
+                  bgcolor: colors.primary, 
+                  flex: 1,
+                  '&:hover': {
+                    bgcolor: colors.buttonHover || colors.primary
+                  }
+                }}
+              >
+                Confirm Update
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+      )}
+
       {/* --------------Table------------------- */}
       <Box
         position={"relative"}
@@ -304,8 +460,9 @@ const StoreStock = () => {
         display={"flex"}
         flexDirection={"column"}
         alignItems={"center"}
-        sx={{
-          height: "80vh", // or a fixed height like "600px"
+        sx={{ 
+          // bgcolor: 'lightblue',
+          minHeight: "64vh", // or a fixed height like "600px"
           width: "100%",  // Make sure it's not constrained by parent
           overflow: "auto", // Enables both vertical & horizontal scroll
           scrollbarWidth: "thin", // Firefox
@@ -324,10 +481,12 @@ const StoreStock = () => {
       >
         {/* <Typography position={'absolute'} top={'-1rem'} left={0}>0 Records found</Typography> */}
         {/* <Typography fontSize={'1.6rem'} sx={{borderBottom: '1px solid grey', mb: '1rem'}}>Fire Report</Typography> */}
-        <Paper sx={{ maxHeight: "75vh", overflow: "auto",  marginLeft: 'auto', mr: 'auto', width: '100%' }}>
-          <TableContainer>
-            <Table aria-label="simple table" border={1}>
-              <TableHead sx={{ bgcolor: "#A4B6D3", border: "1px solid black" }}>
+        <Paper sx={{ maxHeight: "100%", overflow: "hidden",  mr: 'auto'}}>
+          <TableContainer sx={{ maxHeight: "100%" }} >
+            {/* <Table aria-label="simple table" border={1} stickyHeader> */}
+            <Table stickyHeader aria-label="sticky table"  border={1} >
+            
+              <TableHead >
                 {/* {
       "item_description": "DATA",
       "item_code": "1234567",
@@ -340,39 +499,39 @@ const StoreStock = () => {
       "next_action": "3hfhjvkj",
       "resp": "rohit",
       "target": 780,
-      "timestamp": "2025-05-20T10:45:50.624000"
+      "timestamp": "2025-05-20T10:45:50.624000" 
     } */}
-                <TableRow>
-                  <TableCell sx={{ fontSize: "1.2rem", maxWidth: '1.4rem', width: '1.4rem', minWidth: '1.4rem' }}>Sr No</TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "20rem",
-                          maxWidth: "20rem",
-                          minWidth: "20rem" }}>
+                <TableRow  sx={{ bgcolor: "#f5f5f5 !important", borderBottom: "1px solid #ddd" }}>
+                  <TableCell sx={{ fontSize: "1.2rem", maxWidth: '4rem', width: '4rem', minWidth: '4rem', backgroundColor: "inherit" }}>Sr No</TableCell>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "23rem",
+                          maxWidth: "23rem",
+                          minWidth: "23rem", backgroundColor: "inherit", }}>
                     Item Description
                   </TableCell>
                   {/* <TableCell align="center" sx={{fontSize: '1.2rem'}}>Count</TableCell> */}
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Minimum
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Maximum
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit",  maxWidth: '9rem', width: '9rem', minWidth: '9rem' }}>
                     Current Stock
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit"  }}>
                     Location
                   </TableCell>
                   
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem",backgroundColor: "inherit", maxWidth: '16rem', width: '16rem', minWidth: '16rem' }}>
                     Plan
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "14rem", minWidth: '14rem', maxWidth: '14rem' }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "14rem", minWidth: '14rem', maxWidth: '14rem', backgroundColor: "inherit" }}>
                     Actual
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Status
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem" }}>
+                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Edit
                   </TableCell>
                 </TableRow>
@@ -394,7 +553,7 @@ const StoreStock = () => {
                         {elem.item_description}
                       </TableCell>
                       <TableCell sx={{ width: "6rem" }} align="center">
-                        {elem.minimum_STOCK}
+                      {elem.minimum}
                       </TableCell>
                       <TableCell sx={{ width: "6rem" }} align="center">
                         {elem.maximum_STOCK}
@@ -491,92 +650,11 @@ const StoreStock = () => {
                         sx={{ width: "7rem", height: "100%", padding: 0 }}
                         align="center"
                       >
- {elem.current_STOCK< elem.minimum_STOCK &&  <Box width={'25px'} height={'25px'} bgcolor={'red'} borderRadius={'50%'} margin={'auto'}></Box>}
-                        {elem.current_STOCK> elem.minimum_STOCK && elem.current_STOCK < elem.maximum_STOCK &&  <Box width={'25px'} height={'25px'} bgcolor={'green'} borderRadius={'50%'} margin={'auto'}></Box>}
-                        {elem.current_STOCK> elem.maximum_STOCK &&  <Box width={'25px'} height={'25px'} bgcolor={'blue'} borderRadius={'50%'} margin={'auto'}></Box>}
-                        {/* <Box
-                          display="grid"
-                          gridTemplateColumns="repeat(3, 1fr)"
-                          // gap={1}
-                          bgcolor="pink"
-                          width="100%"
-                          height="5rem"
-                        >
-                          <Box
-  bgcolor="red"
-  onClick={() => {
-    if (elem._id === edit._id) {
-      setEdit({ ...edit, status: "critical" });
-    }
-  }}
-  height="100%"
-  display="flex"
-  alignItems="center"
-  justifyContent="center"
-  sx={{ cursor: "pointer" }}
->
-  {
-    (
-      (elem._id === edit._id && edit.status === "critical") ||
-      (elem._id !== edit._id && elem.status === "critical")
-    ) && (
-      <IconButton style={{ color: "#282828", fontSize: "1.9rem" }}>
-        <MdDone />
-      </IconButton>
-    )
-  }
-</Box>
-
-<Box
-  bgcolor="green"
-  onClick={() => {
-    if (elem._id === edit._id) {
-      setEdit({ ...edit, status: "excess" });
-    }
-  }}
-  height="100%"
-  display="flex"
-  alignItems="center"
-  justifyContent="center"
-  sx={{ cursor: "pointer" }}
->
-  {
-    (
-      (elem._id === edit._id && edit.status === "excess") ||
-      (elem._id !== edit._id && elem.status === "excess")
-    ) && (
-      <IconButton style={{ color: "#282828", fontSize: "1.9rem" }}>
-        <MdDone />
-      </IconButton>
-    )
-  }
-</Box>
-
-<Box
-  bgcolor="blue"
-  onClick={() => {
-    if (elem._id === edit._id) {
-      setEdit({ ...edit, status: "ok" });
-    }
-  }}
-  height="100%"
-  display="flex"
-  alignItems="center"
-  justifyContent="center"
-  sx={{ cursor: "pointer" }}
->
-  {
-    (
-      (elem._id === edit._id && edit.status === "ok") ||
-      (elem._id !== edit._id && elem.status === "ok")
-    ) && (
-      <IconButton style={{ color: "#282828", fontSize: "1.9rem" }}>
-        <MdDone />
-      </IconButton>
-    )
-  }
-</Box>
-                        </Box> */}
+                        {elem.current_STOCK < elem.minimum_STOCK && <Box width={'25px'} height={'25px'} bgcolor={'red'} borderRadius={'50%'} margin={'auto'}></Box>}
+                        {(elem.current_STOCK >= elem.minimum_STOCK && elem.current_STOCK < elem.maximum_STOCK) && (
+                          <Box width={'25px'} height={'25px'} bgcolor={'orange'} borderRadius={'50%'} margin={'auto'}></Box>
+                        )}
+                        {elem.current_STOCK >= elem.maximum_STOCK && <Box width={'25px'} height={'25px'} bgcolor={'green'} borderRadius={'50%'} margin={'auto'}></Box>}
                       </TableCell>
                       <TableCell
                         sx={{ width: "6rem", maxWidth: "6rem" }}
@@ -661,8 +739,8 @@ const StoreStock = () => {
                 </Box>
               </TableCell>
               <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'red'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Critical ({'<'}MIN)</Typography></Box></TableCell>
-              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'blue'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Excess ({'>'}MAX)</Typography></Box></TableCell>
-              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'green'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Ok (MIN-MAX)</Typography></Box></TableCell>
+              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'orange'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Normal (MIN To 200)</Typography></Box></TableCell>
+              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'green'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Ok ({'≥'}400)</Typography></Box></TableCell>
 
             </TableRow>
           </Table>

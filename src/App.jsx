@@ -38,6 +38,9 @@ import PasswordReset from './pages/UserProfile/PasswordReset'
 import TempPasswordGenerator from './pages/UserProfile/TempPasswordGenerator'
 import UserManagement from './pages/UserProfile/UserManagement'
 import MidSidebar from './component/Sidebar/MidSidebar'
+import { MdMenu } from 'react-icons/md'
+import MonthlyFgStock from './pages/Boards/FgStock/MonthlyFgStock'
+import MonthlyStoreStock from './pages/Boards/StoreStock/MonthlyStoreStock'
 // import Dashboard2 from './pages/Dashboard/Dashboard2'
 
 // import Sidebar from './component/Sidebar/Sidebar'
@@ -153,10 +156,14 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
       {/* </Box> */}
 
       {/* Main Content Area */}
-      <Box flex={1} sx={{ overflowY: "scroll", bgcolor: 'white', backgroundColor: '#F0F7FF' }}>
+      <Box flex={1} sx={{ overflowY: "scroll", bgcolor: 'white', backgroundColor: '#F3F4F6' }}>
         {/* Fixed Navbar */}
         {/* <Box flex={1} bgcolor={'red'}>dd */}
-        {path !== 'auth' && <Navbar setIsOpen={setIsOpen} setIsSliderOpen={setIsSliderOpen} />}
+        {/* {isLargerThan1000 && path !== 'auth' && <Navbar setIsOpen={setIsOpen} setIsSliderOpen={setIsSliderOpen} />} */}
+        {
+          !isLargerThan1000 && path !== 'auth' && <MdMenu style={{fontSize: '1.5rem', marginRight: '1rem', position: 'fixed', left: '1rem', top: '1rem'}} onClick={()=> setIsSliderOpen(true)} />
+        }
+        
         
         {/* </Box> */}
 
@@ -192,6 +199,9 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
   <Route path="/store-stock" element={<ProtectedRoute><StoreStock /></ProtectedRoute>} />
   <Route path="/tool-management" element={<ProtectedRoute><ToolManage /></ProtectedRoute>} />
   <Route path="/complaint-board" element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
+
+  <Route path="/monthly-fg-stock" element={<ProtectedRoute><MonthlyFgStock /></ProtectedRoute>} />
+  <Route path="/monthly-store-stock" element={<ProtectedRoute><MonthlyStoreStock /></ProtectedRoute>} />
   {/* <Route path="/4m-change" element={<ProtectedRoute><FourM /></ProtectedRoute>} /> */}
   <Route path="*" element={<ProtectedRoute><UnderConstruction /></ProtectedRoute>} />
           </Routes>

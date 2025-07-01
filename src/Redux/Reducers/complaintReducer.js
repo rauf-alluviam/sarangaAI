@@ -31,6 +31,7 @@ export const complaintReducer=(state= initialState, action)=>{
               };
         case "UPDATE_COMPLAINT_FAILURE":
             return {...state, complaintsLoading: false, complaintError: action.payload};
+        
         // case GET_FG_STOCK:
         //     return {...state, fgStockArr: action.payload}
         // case ADD_FG_STOCK:

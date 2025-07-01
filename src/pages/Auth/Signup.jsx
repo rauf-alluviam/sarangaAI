@@ -7,6 +7,7 @@ import "./login.scss";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { enqueueSnackbar } from "notistack";
 // import dotenv from 'dotenv';
 // import axios from "axios";
 // dotenv.config();
@@ -35,7 +36,8 @@ const Signup=({setFlag})=> {
         }
       );
       console.log(response.data)
-      alert('Registration successful');
+      // alert('Registration successful');
+      enqueueSnackbar(response?.data?.message || 'User Registered Successfully', { variant: 'success' }) ;
       setName('');
       setEmail('');
       setPassword('');
@@ -47,7 +49,8 @@ const Signup=({setFlag})=> {
       
     } catch (error) {
       console.log(error)
-      alert(error.message)
+      // alert(error.message)
+      enqueueSnackbar(error?.data?.message || 'Fail To Register User', { variant: 'error' }) ;
     }
 
   }

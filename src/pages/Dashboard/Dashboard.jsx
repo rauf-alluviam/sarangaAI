@@ -1,4 +1,4 @@
-import { Box, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery } from '@mui/material'
+import { Box, Button, Card, CardContent, CardHeader, Chip, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { BsCameraReelsFill, BsCheck2Square, BsGraphUp, BsQrCodeScan } from 'react-icons/bs';
 import { FaClipboardList, FaFire, FaTools, FaTruckLoading } from 'react-icons/fa';
@@ -9,11 +9,31 @@ import { useNavigate } from 'react-router-dom';
 import { GiSmokeBomb } from 'react-icons/gi';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
+// import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { deleteCamera, fetchCameras } from '../../Redux/Actions/cameraAction';
 import { useSnackbar } from 'notistack';
 import { Camera, CheckCircle, QrCode } from '@mui/icons-material';
-// import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import {
+  BarChart as BarChartIcon,
+  CameraAlt as CameraIcon,
+  LocalFireDepartment as FlameIcon,
+  Security as ShieldIcon,
+  LocalShipping as TruckIcon,
+  Inventory as PackageIcon,
+  Store as StoreIcon,
+  Build as WrenchIcon,
+  Message as MessageSquareIcon,
+  LocationOn as MapPinIcon,
+  CalendarToday as CalendarIcon,
+  TrendingUp as TrendingUpIcon,
+  EmojiObjects as ActivityIcon,
+  Visibility as EyeIcon,
+  ChevronRight as ChevronRightIcon,
+  QrCode as QrCodeIcon,
+  CameraAlt as CameraAltIcon,
+  Assignment as TaskManagementIcon,
+} from '@mui/icons-material';
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 
 
 const Dashboard = ({setIsOpen}) => {
@@ -29,6 +49,7 @@ const Dashboard = ({setIsOpen}) => {
   // const [cameras, setCameras]= useState([]);
   // const [token, setToken]= useState(''); // ✅ State to hold the token
    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  //  const [isOpen, setIsOpen] = useState('');
   // console.log(cameras);
   console.log(date);
 
@@ -206,140 +227,302 @@ try {
     { title: 'QR Locker', description: 'Secure QR code management system', icon: QrCode, color: '#818CF8', onClick: () => console.log('QR Locker clicked') },
   ];
 
+    const categories = [
+    {
+      title: 'Detection Systems',
+      items: [
+        { icon: FlameIcon, title: 'Fire Detection', path: '/fire', count: 23, status: 'active' },
+        { icon: ActivityIcon, title: 'Smoke Detection', path: '/smoke', count: 18, status: 'active' },
+        { icon: ShieldIcon, title: 'PPE Detection', path: '/ppe-kit', count: 43, status: 'active' },
+        { icon: TruckIcon, title: 'Loading/Unloading', path: '/truck', count: 12, status: 'active' },
+      ],
+    },
+    {
+      title: 'Inventory Management',
+      items: [
+        { icon: PackageIcon, title: 'FG Stock', path: '/fg-stock', count: 156, status: 'active' },
+        { icon: StoreIcon, title: 'Store Stock', path: '/store-stock', count: 89, status: 'active' },
+        { icon: WrenchIcon, title: 'Tool Management', path: '/tool-management', count: 34, status: 'active' },
+        { icon: MessageSquareIcon, title: 'Complaint Board', path: '/complaint-board', count: 7, status: 'warning' },
+      ],
+    },
+    {
+      title: 'Positioning Systems',
+      items: [
+        { icon: MapPinIcon, title: 'Bracket-D', path: '/bracket-d', count: 28, status: 'active' },
+        { icon: MapPinIcon, title: 'Bracket-E', path: 'http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login', count: 15, status: 'active' },
+      ],
+    },
+  ];
+
+  let redirectLinks= [
+    {
+      title: 'External Tools',
+      items: [
+        { icon: QrCodeIcon, title: 'Qr Locker', path: 'http://qrlocker.s3-website.ap-south-1.amazonaws.com/login', count: 23, status: 'active' },
+        { icon: CameraAltIcon, title: 'Snapcheck', path: 'http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login', count: 18, status: 'active' },
+        { icon: TaskManagementIcon, title: 'Task Management', path: '#', count: 18, status: 'active' }
+
+      ],
+    }
+  ]
+
+
+
+  
+  const statusColor = (status) => {
+    switch (status) {
+      case 'active':
+        return 'success';
+      case 'warning':
+        return 'warning';
+      case 'error':
+        return 'error';
+      case 'info':
+        return 'info';
+      default:
+        return 'default';
+    }
+  };
+
+  const handleCategoryClick = path => {
+    console.log('Navigate to', path);
+    navigate(path);
+  };
+
 
   // --------screen sizes----------
   const isLargerThan1390= useMediaQuery('(min-width: 1390px)');
+  const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
 
   return (
     <Box sx={{minHeight: '88vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
       <Box display={'flex'} width={'100%'} height={'auto'} flexDirection={'column'} justifyContent={'space-between'} alignItems={'start'} mb={'auto'} p={'0rem 1rem'} >
-        <Box bgcolor={'white'} width={'100%'} mt={'0.4rem'} height={'100%'} p={'1.3rem'} display={'flex'} flexDirection={'column'} justifyContent={'space-between'} alignItems={'center'} mb={'auto'} borderRadius={'19px'} boxShadow={'rgba(0, 0, 0, 0.24) 0px 3px 8px'}>
-          <Typography fontSize={'1.8rem'} mb={'1rem'}>
-            {/* <span style={{color: colors.primary}}> Hi {userData?.sub?.split('@')[0].replace(/^./, c => c.toUpperCase())}...</span>  */}
-            Welcome To the Rabs Industries</Typography>
-         {/* <Typography  color='grey'>Advanced AI-powered monitoring and detection system</Typography> */}
-          {/* <Box bgcolor={'blue'} width={'100%'} height={'14rem'} display={'flex'} justifyContent={'space-between'} gap={'0.5rem'}>
-              {
-                [
-                  {icon: <BsGraphUp />, count: 0, title: 'Camera Count'},
-                  {icon: <MdSpatialTracking />, count: 0, title: 'Total Detection'},
-                  {icon: <FaFire />, count: 0, title: 'Smoke Detection'},
-                  {icon: <MdSmokeFree />, count: 0, title: 'Smoke Detection'},
-                  {icon: <FaTruckLoading />, count: 0, title: 'Load-unload'},
-                  {icon: <IoMedkit />, count: 0, title: 'PPE Detection'}
-                ].map((elem, index)=>(
-                  <Box bgcolor={'white'} width={'15rem'} borderRadius={'13px'} display={'flex'} flexDirection={'column'} justifyContent={'space-between'} p={'1rem'} alignItems={'center'} boxShadow={'rgba(149, 157, 165, 0.2) 0px 8px 24px'}>
-                    <span style={{backgroundColor: 'green',fontSize: '1.7rem', color: colors.primary, padding: '0.5rem', borderRadius: '50%', width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>{elem.icon}</span>
-                    
-                    <Typography fontSize={'3rem'}>{elem.count}</Typography>
-                    <Typography fontSize={'1.1rem'}>{elem.title}</Typography>
-                  </Box>
-                ))
-              }
-          </Box> */}
+       
 
-
-<Box width={'100%'} height={'8rem'} display={'flex'} justifyContent={'space-between'} gap={'0.5rem'}  >
-              {
-                [
-                  {icon: <FaFire />, title: 'Fire Detection', path: '/fire', color: '#81A493'},
-                  {icon: <GiSmokeBomb />, title: 'Smoke Detection', path: '/smoke', color: '#A38181'},
-                  {icon: <IoMedkit />, title: 'PPE Detection', path: '/ppe-kit', color: '#767794'},
-                  {icon: <FaTruckLoading />, title: 'Loading-unloading', path: '/truck', color: 'rgb(155, 131, 119)'},
-                  {icon: <FaClipboardList />, title: 'Fg Stock', path: '/fg-stock', color: '#7C99AE'},
-                  {icon: <IoStorefront />, title: 'Store Stock Board', path: '/store-stock', color: 'rgb(128, 116, 128)'},
-                  {icon: <MdOutlineManageHistory />, title: 'Complaint', path: '/complaint-board', color: 'rgb(112, 152, 155)'},
-                  {icon: <FaTools />, title: 'Tool Manage Board', path: 'tool-management', color: '#A5A06B'},
-                  {icon: <FaTools />, title: 'BracketD', path: 'bracket-d', color: 'rgb(80, 105, 88)'},
-                  // {icon: <FaTools />, title: 'BracketD', path: 'bracket-d', color: 'rgb(80, 105, 88)'},
-                ].map((elem, index)=>(
-                  <Box key={index} onClick={()=> navigate(elem.path)} bgcolor={elem.color} width={'24%'} borderRadius={'13px'} display={'flex'} flexDirection={'column'}  justifyContent={'space-between'} p={'1rem'}  alignItems={'center'} sx={{
-                    cursor: 'pointer',
-                    transition: '0.3s',
-                    '&:hover': {
-                      boxShadow: 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px',
-                    },
-                  }}>
-                    <span
-  style={{
-    backgroundColor: 'rgba(202, 202, 202, 0.83)', // lightgrey with opacity
-    backdropFilter: 'blur(8px)', // blur effect for translucent background
-    WebkitBackdropFilter: 'blur(8px)', // Safari support
-    fontSize: '1.7rem',
-    color: colors.primary,
-    padding: '0.5rem',
-    borderRadius: '50%',
-    width: '3rem',
-    height: '3rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: 'rgba(50, 50, 93, 0.12) 0px 13px 27px -5px, rgba(0, 0, 0, 0.1) 0px 8px 16px -8px'
+        {/* Category Panels */}
+       {/* <Grid container spacing={4} mb={4}>
+         {categories.map((cat, i) => (
+          <Grid item xs={12}>
+            <Card>
+              <CardHeader title={cat.title} subheader={cat.description || ''} />
+              <CardContent>
+                <Grid container spacing={2}>
+                  {cat.items.map((item, idx) => {
+                    const Icon = item.icon;
+                    return (
+                      <Grid item xs={12} sm={6} md={3} key={idx}>
+                        <Card variant="outlined" onClick={() => handleCategoryClick(item.path)} sx={{ cursor: 'pointer' }}>
+                          <CardContent>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                              <Icon color="action" />
+                              <Chip label={item.count} color={statusColor(item.status)} size="small" />
+                            </Box>
+                            <Typography variant="subtitle1" gutterBottom>{item.title}</Typography>
+                            <Box display="flex" alignItems="center" color="textSecondary">
+                              <Typography variant="body2">View details</Typography>
+                              <ChevronRightIcon fontSize="small" />
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid> */}
+<Box
+  display="flex"
+  flexDirection="column"
+  alignItems="center"
+  justifyContent="center"
+  width="100%"
+  sx={{
+    my: 4,
+    textAlign: 'center',
+   
   }}
 >
-  {elem.icon}
-</span>
-                    <Typography fontSize={'3rem'}>{elem.count}</Typography>
-                    <Typography fontSize={'1rem'} textAlign={'center'}>{elem.title}</Typography>
-                  </Box>
-                ))
-              }
-          </Box>
+  <Typography
+    variant="h4"
+    component="h1"
+    sx={{
+      fontWeight: 600,
+      color: colors.primary,
+      mb: 1,
+    }}
+  >
+    Welcome to Rabs Industries
+  </Typography>
 
-{/* <Box width={'100%'} height={'11rem'} display={'flex'} justifyContent={'space-between'} gap={'0.5rem'}  >
-              {
-                [
-                  {icon: <FaFire />, title: 'Compliance', path: '/fire', color: '#1AAF51', backColor: '#F0FDF4' },
-                  {icon: <GiSmokeBomb />, title: 'Positioning', path: '/smoke', color: '#EC5B0D', backColor: '#FFF7ED'},
-                  {icon: <IoMedkit />, title: 'Inventory Management', path: '/ppe-kit', color: '#2A6AEE', backColor: '#E5EBF3'},
-                ].map((elem, index)=>(
-                  <Box key={index} onClick={()=> navigate(elem.path)} bgcolor={elem.backColor}  width={'32%'} borderRadius={'13px'} display={'flex'} flexDirection={'column'}  justifyContent={'space-between'} p={'1rem'}  alignItems={'center'} sx={{
-                    cursor: 'pointer',
-                    transition: '0.3s',
-                    '&:hover': {
-                      boxShadow: 'rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px',
-                    },
-                  }}>
-                    <Box display={'flex'} alignItems={'center'} mr={'auto'}>
-                    <span
-  style={{
-    backgroundColor: elem.color, // lightgrey with opacity
-    backdropFilter: 'blur(8px)', // blur effect for translucent background
-    WebkitBackdropFilter: 'blur(8px)', // Safari support
-    fontSize: '1.7rem',
-    color: 'white',
-    padding: '0.5rem',
-    borderRadius: '50%',
-    width: '3rem',
-    height: '3rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: 'rgba(50, 50, 93, 0.12) 0px 13px 27px -5px, rgba(0, 0, 0, 0.1) 0px 8px 16px -8px'
-  }}
->
-  {elem.icon}
-</span>
-<Box display={'flex'} flexDirection={'column'} ml={'0.5rem'} alignItems={'start'}>
-                    <Typography fontSize={'1.1rem'} textAlign={'center'} >{elem.title}</Typography>
-                    <Typography>Fire, smoke and PPE Detection</Typography>
-                    </Box>
-                    </Box>
+  <Typography
+    variant="subtitle1"
+    sx={{ color: 'text.secondary' }}
+  >
+    Advanced AI-powered monitoring and detection system
+  </Typography>
+</Box>
 
-                    <Box display={'flex'} flexDirection={'column'} mr={'auto'}>
-                      <span>- Fire</span>
-                      <span>- Smoke</span>
-                      <span>- PPE</span>
-                      <span>- Truck</span>
-                    </Box>
-                  </Box>
-                ))
-              }
-          </Box> */}
+            {/* <Box width={'22rem'} height={'2.5rem'} bgcolor={'lightblue'} display={'flex'} ml={'auto'}>
+            <Box width={'50%'} >Dashboard</Box>
+            <Box width={'50%'} bgcolor={'pink'}>Analytics</Box>
+            </Box> */}
 
-         
-          
-        </Box>
+<Grid container spacing={4} mb={4}>
+  {categories.map((cat, i) => (
+    <Grid item xs={12} key={i}>
+      <Card sx={{ backgroundColor: '#f9fafb', borderRadius: 2, boxShadow: 2 }}>
+        <CardHeader
+          title={
+            <Typography variant="h6" color="#282828">
+              {cat.title}
+            </Typography>
+          }
+          subheader={
+            cat.description && (
+              <Typography variant="body2" color="textSecondary">
+                {cat.description}
+              </Typography>
+            )
+          }
+        />
+        <CardContent >
+          <Grid container spacing={3}>
+            {cat.items.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <Grid item xs={12} sm={6} md={3} key={idx}>
+                  <Card
+                    variant="outlined"
+                    onClick={() => handleCategoryClick(item.path)}
+                    sx={{
+                      cursor: 'pointer',
+                      borderRadius: 2,
+                      transition: '0.3s',
+                      '&:hover': {
+                        boxShadow: 3,
+                        borderColor: colors.primary,
+                      },
+                    }}
+                  >
+                    <CardContent>
+                      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                        <Icon style={{ color: colors.primary }} />
+                        {/* <Chip
+                          label={item.count}
+                          color={statusColor(item.status)}
+                          size="small"
+                          sx={{ fontWeight: 'bold' }}
+                        /> */}
+                      </Box>
+                      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                        {item.title}
+                      </Typography>
+                      <Box display="flex" alignItems="center" color="text.secondary">
+                        <Typography variant="body2" sx={{ mr: 0.5 }}>
+                          View details
+                        </Typography>
+                        <ChevronRightIcon fontSize="small" />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </CardContent>
+      </Card>
+    </Grid>
+  ))}
+
+
+</Grid>
+{/* ------------------------------ */}
+
+<Grid container spacing={4} mb={4}>
+  {redirectLinks.map((cat, i) => (
+    <Grid item xs={12} key={i}>
+      <Card sx={{ backgroundColor: '#f9fafb', borderRadius: 2, boxShadow: 2 }}>
+        <CardHeader
+          title={
+            <Typography variant="h6" color="#282828">
+              {cat.title}
+            </Typography>
+          }
+          subheader={
+            cat.description && (
+              <Typography variant="body2" color="textSecondary">
+                {cat.description}
+              </Typography>
+            )
+          }
+        />
+        <CardContent >
+          <Grid container spacing={3}>
+            {cat.items.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <Grid item xs={12} sm={6} md={3} key={idx}>
+                  <Card
+                    variant="outlined"
+                    onClick={() => window.open(item.path, '_blank')}
+                    // onClick={() => handleCategoryClick(item.path)}
+                    sx={{
+                      cursor: 'pointer',
+                      borderRadius: 2,
+                      transition: '0.3s',
+                      '&:hover': {
+                        boxShadow: 3,
+                        borderColor: colors.primary,
+                      },
+                    }}
+                  >
+                    <CardContent>
+                      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                        <Icon style={{ color: colors.primary }} />
+                        {/* <Chip
+                          label={item.count}
+                          color={statusColor(item.status)}
+                          size="small"
+                          sx={{ fontWeight: 'bold' }}
+                        /> */}
+                      </Box>
+                      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                        {item.title}
+                      </Typography>
+                      <Box display="flex" alignItems="center" color="text.secondary">
+                        <Typography variant="body2" sx={{ mr: 0.5 }}>
+                          View details
+                        </Typography>
+                        <ChevronRightIcon fontSize="small" />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        </CardContent>
+      </Card>
+    </Grid>
+  ))}
+
+
+</Grid>
+
+
+
+
+
+
+
+      
+
+        {/* Analytics */}
+      
 
 {/* -------------------------graph visualization----------------------------- */}
 <Box display={'flex'} flexDirection={isLargerThan1390?'row': 'column'} justifyContent={'space-between'} alignItems={'start'} width={'100%'} mt={'1.4rem'} >
@@ -551,7 +734,12 @@ try {
 </Box>
 {/* ---------------camera details--------------- */}
      <Box width={'100%'}  mt={isLargerThan1390? '0rem':'2rem'} bgcolor={'white'}  p={'0.7rem'} borderRadius={'6px'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
-          <Typography fontSize={'1.4rem'} mb={'1rem'} borderBottom={'1px solid grey'}>Camera Details:</Typography>
+         
+          <Box display={'flex'} alignItems={'center'} width={'100%'} justifyContent={'space-between'} mb={'0.5rem'} >
+          <Typography fontSize={'1.4rem'} borderBottom={'1px solid grey'}>Camera Details:</Typography>
+                      <Button variant='outlined' size='small' onClick={()=> setIsOpen('open-add')} sx={{p: '0.4rem 0.9rem', fontSize: isLargerThan1000? '0.8rem': '0.6rem', ml: 'auto'}}>Add Camera</Button>
+                      {/* <Button variant='contained'  onClick={()=> setIsOpen('open-remove')} sx={{bgcolor: 'rgb(0, 0, 0)', color: 'white', p: '0.4rem 0.9rem', fontSize: isLargerThan1000? '0.8rem': '0.6rem', ml: '0.8rem'  }}>Remove Camera</Button> */}
+                      </Box>
         <Paper sx={{ width: '100%',maxHeight: '25.3rem', overflow: 'auto' }}>
         <TableContainer component={Paper} sx={{ maxHeight: '25rem'}}>
         <Table aria-label="simple table">
@@ -643,8 +831,14 @@ export default Dashboard;
 //   Button,
 //   Link,
 // } from '@mui/material';
+// import { useNavigate } from 'react-router-dom';
+// import { useSelector } from 'react-redux';
 
 // const Dashboard = ({ setIsOpen }) => {
+//   const {cameras}= useSelector((state)=> state.cameras);
+//   console.log(cameras);
+ 
+//   const navigate = useNavigate();
 //   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 //   const [graphData, setGraphData] = useState([]);
 //   const [allCameras, setAllCameras] = useState([]);
@@ -705,6 +899,7 @@ export default Dashboard;
 
 //   const handleCategoryClick = path => {
 //     console.log('Navigate to', path);
+//     navigate(path);
 //   };
 
 //   return (
@@ -754,10 +949,12 @@ export default Dashboard;
 //         ))}
 //       </Grid>
 
+      
+
 //       <Grid container spacing={4}>
 //         {/* Analytics */}
 //         <Grid item xs={12} lg={8}>
-//           <Card>
+//           <Card sx={{bgcolor: 'pink'}}>
 //             <CardHeader
 //               avatar={<BarChartIcon color="primary" />}
 //               title="Detection Analytics"
@@ -888,6 +1085,8 @@ export default Dashboard;
 //           </Card>
 //         </Grid>
 //       </Grid>
+
+      
 //     </Box>
 //   );
 // };
