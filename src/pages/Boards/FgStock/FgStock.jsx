@@ -94,6 +94,17 @@ const FgStock = () => {
   }, [date])
 
   const handleSubmit = async () => {
+    if(!edit.current){
+      enqueueSnackbar('Please enter a valid current stock value', { variant: 'error' });
+      // setUpdateDialogOpen(false);
+      return;
+    }
+
+    if(!edit.dispatched){
+      enqueueSnackbar('Please enter a valid dispatched value', { variant: 'error' });
+      // setUpdateDialogOpen(false);
+      return;
+    }
     // Calculate status based on current stock value
     const currentStock = Number(edit.current) || 0;
     let status = '';
@@ -119,6 +130,7 @@ const FgStock = () => {
   };
 
   const confirmUpdate = () => {
+    
     dispatch(editFgStock(edit, date, (successMsg) => {
       setEdit({});
       setUpdateDialogOpen(false);

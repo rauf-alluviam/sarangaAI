@@ -134,9 +134,8 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
   {/* <Box className={`asideBack ${isSliderOpen? 'open': ''}`} onClick={()=> setIsSliderOpen(false)} > */}
     {/* <Box> */}
     {
-      (path !== 'auth') && <Box className={`aside ${isSliderOpen? 'open': ''}`} width={'15rem'} onClick={(e)=> e.stopPropagation()}>
+      (path !== 'auth' && !isLargerThan1000) && <Box className={`aside ${isSliderOpen? 'open': ''}`} width={'15rem'} onClick={(e)=> e.stopPropagation()}>
         <Box sx={{position: 'absolute', top: '1rem',right: '0', zIndex: '1000', color: 'white', bgcolor: 'red', width: '2rem', height: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center'}} onClick={()=> setIsSliderOpen(false)}><IoMdClose /></Box>
-        {/* <Sidebar setIsSliderOpen={setIsSliderOpen} /> */}
         <MidSidebar setIsSliderOpen={setIsSliderOpen} />
         </Box>
     }

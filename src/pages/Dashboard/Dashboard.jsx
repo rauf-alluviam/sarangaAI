@@ -672,66 +672,7 @@ try {
     rel="noopener noreferrer" href='http://qrlocker.s3-website.ap-south-1.amazonaws.com/login?redirect=%2F' width={'48%'} bgcolor={'rgba(150, 73, 115, 0.29)'}  sx={{cursor: 'pointer', textDecoration: 'none', color: 'black'}} height={'3.9rem'} display={'flex'} alignItems={'center'} justifyContent={'center'}  boxShadow={'rgba(0, 0, 0, 0.1) 0px 4px 12px;'} borderRadius={'8px'}>QR Locker</Box>
       </Box> */}
 
-<Box display={'flex'} justifyContent={'space-between'} margin={'1rem'}>
-
-<Box
-    component={'a'}
-    target="_blank"
-    rel="noopener noreferrer"
-    href='http://qrlocker.s3-website.ap-south-1.amazonaws.com/login'
-    width={'48%'}
-    height={'3.9rem'}
-    display={'flex'}
-    alignItems={'center'}
-    justifyContent={'center'}
-    borderRadius={'8px'}
-    sx={{
-      cursor: 'pointer',
-      textDecoration: 'none',
-      color: 'black',
-      boxShadow: 'rgba(0, 0, 0, 0.1) 0px 4px 12px',
-      background: 'linear-gradient(135deg, rgba(150,73,115,0.5), rgba(161, 42, 42, 0.2))',
-      display: 'flex',
-      justifyContent: 'center',
-    }}
-  >
-    {/* <FiCheckCircle /> */}
-    <BsQrCodeScan style={{fontSize: '1.5rem', position: 'relative', right: '2.3rem'}} />
-    <Typography >QR Locker</Typography>
-   
-  </Box>
-  
-  <Box
-    component={'a'}
-    target="_blank"
-    rel="noopener noreferrer"
-    href='http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login'
-    width={'48%'}
-    height={'3.9rem'}
-    display={'flex'}
-    alignItems={'center'}
-    justifyContent={'center'}
-    borderRadius={'8px'}
-    sx={{
-      cursor: 'pointer',
-      textDecoration: 'none',
-      color: 'black',
-      boxShadow: 'rgba(0, 0, 0, 0.1) 0px 4px 12px',
-      background: 'linear-gradient(135deg, rgba(73,104,150,0.5), rgba(97, 96, 160, 0.2))',
-      display: 'flex',
-      justifyContent: 'center',
-    }}
-  >
-    <BsCheck2Square  style={{fontSize: '1.5rem', position: 'relative', right: '2.3rem'}} />
-    {/* <BsQrCodeScan style={{fontSize: '1.5rem', position: 'relative', right: '2.3rem'}} /> */}
-    <Typography>Snapcheck</Typography>
-   
-  </Box>
-
-  
-
- 
-</Box>
+        
 {/* ---------------camera details--------------- */}
      <Box width={'100%'}  mt={isLargerThan1390? '0rem':'2rem'} bgcolor={'white'}  p={'0.7rem'} borderRadius={'6px'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
          
