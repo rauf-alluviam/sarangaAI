@@ -63,7 +63,7 @@ export const updateStoreStock = (stockData, token, onSuccess, onError) => async 
     try {
         const updatedStock = {
             item_description: stockData.item_description,
-            minimum_STOCK: stockData.minimum || 200,
+            minimum_STOCK: 200,
             maximum_STOCK: stockData.maximum,
             current_STOCK: stockData.current || 0,
             resp_person: stockData.resp_person || "",
@@ -74,6 +74,38 @@ export const updateStoreStock = (stockData, token, onSuccess, onError) => async 
             timestamp: new Date().toISOString(),
             _id: stockData._id // Include the ID to update the specific stock entry
         };
+
+        const updatedStock2 = {
+            item_description: stockData.item_description,
+            minimum: 200,
+            maximum: stockData.maximum,
+            current: stockData.current || 0,
+            resp_person: stockData.resp_person || "",
+            location: stockData.location || "",
+            status: stockData.status || "",
+            plan: stockData.plan || "",
+            actual: stockData.actual || "",
+            timestamp: new Date().toISOString(),
+            _id: stockData._id // Include the ID to update the specific stock entry
+        };
+
+        // {
+        //     "_id": "6863bd4734808737a60be94b",
+        //     "item_description": "PC - 10% DIFFUSION WHITE(CLEAR)",
+        //     "minimum": 200,
+        //     "maximum": 2000,
+        //     "current": null,
+        //     "location": "",
+        //     "actual": "",
+        //     "plan": "",
+        //     "status": "",
+        //     "resp_person": "",
+        //     "timestamp": "2025-07-01T10:49:43.611000",
+        //     "year": 2025,
+        //     "month": 7,
+        //     "day": 2
+        //   }
+
 
         const response = await axios.put(
             `${BACKEND_API}/update_store_stock_monitoring_sheet_entry/${stockData._id}`,
@@ -105,7 +137,7 @@ export const updateStoreStock = (stockData, token, onSuccess, onError) => async 
         //   }
 
         console.log(response.data);
-        dispatch({ type: UPDATE_STORE_STOCK_SUCCESS, payload: updatedStock });
+        dispatch({ type: UPDATE_STORE_STOCK_SUCCESS, payload: updatedStock2 });
         if(onSuccess) onSuccess(response?.data?.message || 'Stock Updated Successfully'); // clear form or close modal
     } catch (error) {
         console.log(error)

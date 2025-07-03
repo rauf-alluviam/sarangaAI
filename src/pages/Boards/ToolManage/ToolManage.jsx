@@ -13,16 +13,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import axios from "axios";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import colors from "../../../utils/colors";
 import AddTools from "./AddTools";
 import { MdDone } from "react-icons/md";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import { addTool, fetchTools, updateTool } from "../../../Redux/Actions/toolManagementActions";
+import { fetchTools, updateTool } from "../../../Redux/Actions/toolManagementActions";
 import { enqueueSnackbar } from "notistack";
+import { IoPersonSharp } from "react-icons/io5";
 
 const BACKEND_API= import.meta.env.VITE_BACKEND_API;
 
@@ -32,41 +32,19 @@ const ToolManage = () => {
   const { tools } = useSelector((state) => state.toolManagement);
   console.log(tools);
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
-  const [data, setData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [edit, setEdit] = useState({});
   const dispatch = useDispatch();
   const [isShowingImg, setIsShowImg] = useState(false);
-  const [selectedImg, setSelectedImg] = useState("https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg");
+  const [selectedImg] = useState("https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg");
   console.log(month);
   useEffect(() => {
     const [selectedYear, selectedMonth] = month.split("-");
     dispatch(fetchTools(selectedYear, selectedMonth, token));
-    // async function fetchData() {
-    //   const [selectedYear, selectedMonth] = month.split("-");
-
-      
-    //   try {
-    //     const response = await axios.get(
-    //       `${BACKEND_API}/get_daily_tool_management_sheets/${selectedYear}/${selectedMonth}`,
-    //       {
-    //         headers: {
-    //           Authorization: `Bearer ${token}`,
-    //           Accept: "application/json",
-    //         },
-    //       }
-    //     );
-    //     console.log(response.data); // Axios handles JSON parsing
-    //     setData(response.data);
-    //   } catch (error) {
-    //     console.error("There was a problem with the fetch operation:", error);
-    //   }
-    // }
-    // fetchData();
-  }, [month]);
+  }, [month, dispatch, token]);
 
   const handleUpdate = async () => {
-    dispatch(updateTool(edit.id, edit, token,
+    dispatch(updateTool(edit._id, edit,  token,
       (successMsg)=>{setEdit({}); enqueueSnackbar(successMsg, { variant: 'success' })},
       (errorMsg)=> enqueueSnackbar(errorMsg, { variant: 'error' })
      ));
@@ -113,79 +91,324 @@ const ToolManage = () => {
         </Box>
       )}
 
+       <Typography
+                    sx={{
+                      fontSize: "2rem",
+                      textAlign: "center",
+                      // borderBottom: "1px solid #282828",
+                      width: "100%",
+                      // marginLeft: "auto",
+                      mr: "auto",
+                      // padding: "1rem 0rem",
+                      // bgcolor: 'white',
+                      borderRadius: '12px',
+                      // boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
+                    }}
+                  >
+                    STORE STOCK MONITORING BOARD
+                  </Typography>
+
       <Box
         sx={{
           height: "6rem",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          p: "0rem 1rem",
-          border: "1px solid black",
+          p: "1rem 1.5rem",
+          backgroundColor: "white",
+          borderRadius: "12px",
+          boxShadow: colors.boxShadows.header,
+          mb: "1rem",
+          border: "1px solid rgba(0, 0, 0, 0.08)",
+          // bgcolor: 'red'
         }}
       >
-        <Box width={"25rem"} height={"95%"} display={'flex'} flexWrap={'wrap'} p={'0.4rem'}>
-          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'start'} border={'1px solid black'}>
-            <Box height={'17px'} width={'17px'} bgcolor={'red'} ml={'0.8rem'} borderRadius={'50%'}></Box> <Typography ml={'0.5rem'} fontSize={'0.8rem'}>PM PLAN</Typography></Box>
-
-            <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'start'} border={'1px solid black'}>
-            <Box height={'17px'} width={'17px'} bgcolor={'blue'} ml={'0.8rem'} borderRadius={'50%'}></Box> <Typography ml={'0.5rem'}  fontSize={'0.8rem'}>MODIFICATIONS</Typography></Box>
-
-            <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'start'} border={'1px solid black'}>
-            <Box height={'17px'} width={'17px'} bgcolor={'green'} ml={'0.8rem'} borderRadius={'50%'}></Box> <Typography ml={'0.5rem'} fontSize={'0.8rem'}>PM ACTUAL</Typography></Box>
-
-            <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'start'} border={'1px solid black'}>
-            <Box height={'17px'} width={'17px'} bgcolor={'grey'} ml={'0.8rem'} borderRadius={'50%'}></Box> <Typography ml={'0.5rem'} fontSize={'0.8rem'}>REPAIR</Typography></Box>
-          {/* <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>MODIFICATIONS</Box>
-          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={white'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>PM ACTUAL</Box>
-          <Box width={'40%'} height={'2rem'} bgcolor={'white'} m={'auto'} display={'flex'} alignItems={'center'} justifyContent={'center'} border={'1px solid black'}>REPAIR</Box> */}
-        </Box>
-        <Typography fontSize={"1.8rem"}>
-          Tool Management Board - Monthly
-        </Typography>
-        <Box
-          display={"flex"}
-          flexDirection={"column"}
-          p={"0.4rem"}
-          border={"1px solid black"}
+        {/* Left Side - Responsible Person */}
+        <Box 
+          display={"flex"} 
+          alignItems={"center"} 
+          bgcolor={'white'} 
+          sx={{
+            padding: '0.8rem 1rem',
+            borderRadius: '10px',
+            boxShadow: colors.boxShadows.light,
+            border: "1px solid rgba(0, 0, 0, 0.08)",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              boxShadow: colors.hoverShadows.light
+            }
+          }}
         >
-          <span>CUM- Cumulative</span>
-          <span>PRO- Production</span>
-          <span>PM- Preventive Maintainance</span>
+          <Box display={"flex"} alignItems={'center'} minWidth={"12rem"}>
+            <IoPersonSharp style={{ color: colors.primary, fontSize: "1.4rem", marginRight: '0.6rem' }} />
+            <Typography fontWeight={500} color="#374151">Responsible Person:</Typography>
+          </Box>
+        
+          {tools.length > 0 ? (
+            edit._id === tools[0]._id ? (
+              <>
+                <TextField
+                  type="text"
+                  defaultValue={tools[0]?.resp_person}
+                  onChange={(e) => setEdit({ ...edit, resp_person: e.target.value })}
+                  sx={{ 
+                    width: "8rem",
+                    ml: "0.5rem",
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: "6px",
+                      fontSize: "0.9rem"
+                    }
+                  }}
+                  size="small"
+                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    ml: "0.8rem",
+                  }}
+                >
+                  <IconButton 
+                    onClick={() => setEdit({})}
+                    sx={{
+                      color: "#ef4444",
+                      "&:hover": { backgroundColor: "rgba(239, 68, 68, 0.1)" }
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                  <IconButton 
+                    onClick={handleUpdate} 
+                    sx={{
+                      color: "#22c55e",
+                      "&:hover": { backgroundColor: "rgba(34, 197, 94, 0.1)" }
+                    }}
+                  >
+                    <MdDone />
+                  </IconButton>
+                </Box>
+              </>
+            ) : (
+              <Box
+                sx={{
+                  backgroundColor: "#f3f4f6",
+                  height: "2.2rem",
+                  borderRadius: "6px",
+                  padding: "0 0.8rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginLeft: "0.8rem",
+                  color: "#374151",
+                  fontWeight: 500,
+                  boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.05)",
+                  border: "1px solid rgba(0, 0, 0, 0.08)"
+                }}
+              >
+                {tools[0]?.resp_person || "Not mentioned"}
+              </Box>
+            )
+          ) : (
+            <Typography
+              sx={{
+                marginLeft: "0.8rem",
+                color: "#9ca3af",
+                fontStyle: "italic",
+                fontSize: "0.9rem"
+              }}
+            >
+              No data available
+            </Typography>
+          )}
+        
+          {tools.length > 0 && edit._id !== tools[0]?._id && (
+            <IconButton
+              onClick={() => setEdit(tools[0])}
+              sx={{ 
+                color: "#f59e0b", 
+                marginLeft: "0.8rem",
+                "&:hover": { backgroundColor: "rgba(245, 158, 11, 0.1)" }
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          )}
         </Box>
 
-       
-        <TextField
-          size="small"
-          label="Select Month and Year"
-          // sx={{ width: '45rem' }}
-          sx={{ width: "10rem" }}
-          // fullWidth
-          type="month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-
-<Button
-          onClick={() => setIsOpen(true)}
-          variant="contained"
-          sx={{ bgcolor: colors.primary, width: "9rem" }}
+        {/* Middle - Legend */}
+        <Box 
+          width={"45rem"} 
+          height={"95%"} 
+          display={'flex'} 
+          // flexWrap={'wrap'} 
+          p={'0.5rem'}
+          sx={{
+            backgroundColor: "rgba(248, 249, 250, 0.8)",
+            borderRadius: "8px",
+            border: "1px solid rgba(0, 0, 0, 0.05)"
+          }}
         >
-          Add New Item
-        </Button>
+          <Box 
+            width={'48%'} 
+            height={'2rem'} 
+            bgcolor={'white'} 
+            m={'0.1rem'} 
+            display={'flex'} 
+            alignItems={'center'} 
+            justifyContent={'start'} 
+            sx={{
+              borderRadius: "6px",
+              boxShadow: "rgba(0, 0, 0, 0.08) 0px 1px 3px",
+              border: "1px solid rgba(0, 0, 0, 0.05)"
+            }}
+          >
+            <Box 
+              height={'12px'} 
+              width={'12px'} 
+              bgcolor={'#ef4444'} 
+              ml={'0.6rem'} 
+              borderRadius={'50%'}
+            />
+            <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
+              PM PLAN
+            </Typography>
+          </Box>
+
+          <Box 
+            width={'48%'} 
+            height={'2rem'} 
+            bgcolor={'white'} 
+            m={'0.1rem'} 
+            display={'flex'} 
+            alignItems={'center'} 
+            justifyContent={'start'} 
+            sx={{
+              borderRadius: "6px",
+              boxShadow: "rgba(0, 0, 0, 0.08) 0px 1px 3px",
+              border: "1px solid rgba(0, 0, 0, 0.05)"
+            }}
+          >
+            <Box 
+              height={'12px'} 
+              width={'12px'} 
+              bgcolor={'#3b82f6'} 
+              ml={'0.6rem'} 
+              borderRadius={'50%'}
+            />
+            <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
+              MODIFICATIONS
+            </Typography>
+          </Box>
+
+          <Box 
+            width={'48%'} 
+            height={'2rem'} 
+            bgcolor={'white'} 
+            m={'0.1rem'} 
+            display={'flex'} 
+            alignItems={'center'} 
+            justifyContent={'start'} 
+            sx={{
+              borderRadius: "6px",
+              boxShadow: "rgba(0, 0, 0, 0.08) 0px 1px 3px",
+              border: "1px solid rgba(0, 0, 0, 0.05)"
+            }}
+          >
+            <Box 
+              height={'12px'} 
+              width={'12px'} 
+              bgcolor={'#22c55e'} 
+              ml={'0.6rem'} 
+              borderRadius={'50%'}
+            />
+            <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
+              PM ACTUAL
+            </Typography>
+          </Box>
+
+          <Box 
+            width={'48%'} 
+            height={'2rem'} 
+            bgcolor={'white'} 
+            m={'0.1rem'} 
+            display={'flex'} 
+            alignItems={'center'} 
+            justifyContent={'start'} 
+            sx={{
+              borderRadius: "6px",
+              boxShadow: "rgba(0, 0, 0, 0.08) 0px 1px 3px",
+              border: "1px solid rgba(0, 0, 0, 0.05)"
+            }}
+          >
+            <Box 
+              height={'12px'} 
+              width={'12px'} 
+              bgcolor={'#6b7280'} 
+              ml={'0.6rem'} 
+              borderRadius={'50%'}
+            />
+            <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
+              REPAIR
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Right Side - Date Selector and Add Button */}
+        <Box display="flex" alignItems="center" gap={2}>
+          <TextField
+            size="small"
+            label="Select Month and Year"
+            sx={{ 
+              width: "11rem",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "8px",
+                backgroundColor: "white",
+                boxShadow: colors.boxShadows.minimal
+              }
+            }}
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <Button
+            onClick={() => setIsOpen(true)}
+            variant="contained"
+            sx={{ 
+              bgcolor: colors.primary,
+              width: "10rem",
+              height: "2.5rem",
+              borderRadius: "8px",
+              boxShadow: colors.boxShadows.light,
+              fontWeight: 500,
+              textTransform: "none",
+              fontSize: "0.95rem",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                bgcolor: colors.primary,
+                boxShadow: colors.hoverShadows.light,
+                transform: "translateY(-1px)"
+              }
+            }}
+          >
+            Add New Item
+          </Button>
+        </Box>
       </Box>
 
       <Box
         position="relative"
-        p="0.7rem"
+        // p="0.7rem"
         borderRadius="6px"
         display="flex"
         flexDirection="column"
         alignItems="start"
         sx={{
           // bgcolor: "red",
-          p: '1rem 0rem',
-          height: "87vh",
+          // p: '1rem 0rem',
+          height: "81.5vh",
           width: "100%",
           overflow: "auto",
           scrollbarWidth: "thin",
@@ -315,16 +538,16 @@ const ToolManage = () => {
                 {tools.length > 0 ? (
                   tools.map((elem, index) => (
                     <TableRow
-                      key={elem.id || index}
+                      key={elem._id || index}
                       hover
                       sx={{
-                        bgcolor: elem.id == edit.id && "rgb(188, 196, 209)",
+                        bgcolor: elem._id == edit._id && "rgb(188, 196, 209)",
                         transition: "0.4s",
                       }}
                     >
                       <TableCell>{index + 1}</TableCell>
                     <TableCell align="center">
-                      {elem.id == edit.id ? (
+                      {elem._id == edit._id ? (
                         <TextField
                           fullWidth
                           // label="Schedule"
@@ -343,7 +566,7 @@ const ToolManage = () => {
                     </TableCell>
 
                     <TableCell align="center" style={{width: '10rem', minWidth: '10rem', maxWidth: '10rem'}}>
-                      {elem.id == edit.id ? (
+                      {elem._id == edit._id ? (
                         <TextField
                           fullWidth
                           // label="Schedule"
@@ -392,7 +615,7 @@ const ToolManage = () => {
                               
                             }}
                           >
-                            {elem.id == edit.id ? (
+                            {elem._id == edit._id ? (
                               <TextField
                                 size="small"
                                 // label="Last PM Date"
@@ -455,7 +678,7 @@ const ToolManage = () => {
 
                             }}
                           >
-                            {elem.id == edit.id ? (
+                            {elem._id == edit._id ? (
                               <TextField
                                 size="small"
                                 // label="Last PM Date"
@@ -518,7 +741,7 @@ sx={{ height: "100%", width: '100%' }}
 
                             }}
                           >
-                            {elem.id == edit.id ? (
+                            {elem._id == edit._id ? (
                               <TextField
                                 size="small"
                                 // label="Last PM Date"
@@ -553,7 +776,7 @@ sx={{ height: "100%", width: '100%' }}
                     </TableCell>
 
                     <TableCell  align="center">
-                      {elem.id == edit.id ? (
+                      {elem._id == edit._id ? (
                         <TextField
                           fullWidth
                           // label="Schedule"
@@ -571,7 +794,7 @@ sx={{ height: "100%", width: '100%' }}
                       )}
                     </TableCell>
                     <TableCell  align="center">
-                      {elem.id == edit.id ? (
+                      {elem._id == edit._id ? (
                         <TextField
                           fullWidth
                           // label="Schedule"
@@ -590,7 +813,7 @@ sx={{ height: "100%", width: '100%' }}
                     </TableCell>
 
                     <TableCell  align="center">
-                      {elem.id == edit.id ? (
+                      {elem._id == edit._id ? (
                         <TextField
                           fullWidth
                           // label="Schedule"
@@ -612,7 +835,7 @@ sx={{ height: "100%", width: '100%' }}
                     {/* <TableCell>{elem.remarks}</TableCell> */}
                     <TableCell style={{width: '5rem', minWidth: '5rem', maxWidth: '5rem'}} align="center">
                       {/* {edit.id == elem.id ? <Button onClick={handleUpdate}>Submit</Button>:<Button onClick={()=> setEdit(elem)}>Edit</Button>}  */}
-                      {edit.id == elem.id ? (
+                      {edit._id == elem._id ? (
                         <Box
                           sx={{
                             display: "flex",
@@ -774,6 +997,8 @@ sx={{ height: "100%", width: '100%' }}
     </Box>
   </TableCell>
 ))}
+
+
                     
                   </TableRow>
                 ))
@@ -798,7 +1023,7 @@ sx={{ height: "100%", width: '100%' }}
         p={"0.5rem 0.4rem"}
         position={"sticky"}
         bottom={0}
-        mt={"2rem"}
+        // mt={"2rem"}
         bgcolor={"white"}
         // zIndex={100} // Ensure it's above other elements
       >

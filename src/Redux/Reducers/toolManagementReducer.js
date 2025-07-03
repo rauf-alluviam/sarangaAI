@@ -39,7 +39,7 @@ import {
           ...state,
           loading: false,
           tools: state.tools.map((tool) =>
-            tool.id === action.payload.id ? action.payload : tool
+            tool._id === action.payload._id ? action.payload : tool
           ),
           error: null,
         };

@@ -23,7 +23,7 @@ export const fetchTools = (year, month, token) => async (dispatch) => {
   dispatch({ type: FETCH_TOOLS_REQUEST });
   try {
     const response = await axios.get(
-      `${BACKEND_API}/get_daily_tool_management_sheets/${year}/${month}`,
+      `${BACKEND_API}/get_monthly_tool_management_sheets/${year}/${month}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -98,10 +98,27 @@ export const addTool = (toolData, token, onSuccess, onError) => async (dispatch)
 // Update Tool
 export const updateTool = (toolId, toolData, token, onSuccess, onError) => async (dispatch) => {
   dispatch({ type: UPDATE_TOOL_REQUEST });
+
+  const updatedToolData = {
+    machine: toolData.machine,
+    mould_name: toolData.mould_name,
+    last_pm_date: toolData.last_pm_date,
+    plan_pm_date: toolData.plan_pm_date,
+    actual_pm_date: toolData.actual_pm_date,
+    month_end_CUM: toolData.month_end_CUM,
+    status: toolData.status,
+    remarks: toolData.remarks,
+    resp_person: toolData.resp_person, // Optional field
+    timestamp: toolData.timestamp, // Use provided timestamp or current date
+    _id: toolData._id // Include the ID to update the specific tool entry
+  }
+
+  
+  
   try {
     const response = await axios.put(
       `${BACKEND_API}/update_tool_management_sheet_entry/${toolId}`,
-      toolData,
+      updatedToolData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -110,7 +127,7 @@ export const updateTool = (toolId, toolData, token, onSuccess, onError) => async
       }
     );
     console.log(response)
-    dispatch({ type: UPDATE_TOOL_SUCCESS, payload: {id: response.data.id, ...toolData} });
+    dispatch({ type: UPDATE_TOOL_SUCCESS, payload: updatedToolData });
     if(onSuccess) onSuccess(response?.data?.message || 'Tool Updated Successfully'); // clear form or close modal
   } catch (error) {
     dispatch({ type: UPDATE_TOOL_FAILURE, payload: error.message });

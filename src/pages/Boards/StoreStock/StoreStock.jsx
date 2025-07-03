@@ -124,7 +124,7 @@ const StoreStock = () => {
 
   const handleSubmit = async () => {
     // Calculate status based on current stock value
-    const currentStock = Number(edit.current_STOCK) || 0;
+    const currentStock = Number(edit.current) || 0;
     let status = '';
     let color = '';
     let message = '';
@@ -418,7 +418,7 @@ const StoreStock = () => {
             </Typography>
 
             <Typography fontSize={"0.9rem"} textAlign={"center"} mb={3}>
-              Current Stock: <strong>{edit.current_STOCK || 0}</strong>
+              Current Stock: <strong>{edit.current || 0}</strong>
             </Typography>
 
             <Box display="flex" gap={2} width="100%">
@@ -556,7 +556,7 @@ const StoreStock = () => {
                       {elem.minimum}
                       </TableCell>
                       <TableCell sx={{ width: "6rem" }} align="center">
-                        {elem.maximum_STOCK}
+                        {elem.maximum}
                       </TableCell>
                       <TableCell sx={{ width: "6rem", minWidth: '6rem', maxWidth: '6rem' }} align="center">
                         {edit._id == elem._id ? (
@@ -565,15 +565,15 @@ const StoreStock = () => {
                             // label="Current Stock"
                             // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="number"
-                            defaultValue={elem.current_STOCK}
+                            defaultValue={elem.current}
                             onChange={(e) =>
-                              setEdit({ ...edit, current_STOCK: e.target.value })
+                              setEdit({ ...edit, current: e.target.value })
                             }
                             sx={{ width: "100%" }}
                             size="small"
                           />
                         ) : (
-                          elem.current_STOCK
+                          elem.current
                         )}
                       </TableCell>
 
@@ -650,11 +650,11 @@ const StoreStock = () => {
                         sx={{ width: "7rem", height: "100%", padding: 0 }}
                         align="center"
                       >
-                        {elem.current_STOCK < elem.minimum_STOCK && <Box width={'25px'} height={'25px'} bgcolor={'red'} borderRadius={'50%'} margin={'auto'}></Box>}
-                        {(elem.current_STOCK >= elem.minimum_STOCK && elem.current_STOCK < elem.maximum_STOCK) && (
+                        {Number(elem.current) < elem.minimum && <Box width={'25px'} height={'25px'} bgcolor={'red'} borderRadius={'50%'} margin={'auto'}></Box>}
+                        {(Number(elem.current) >= elem.minimum && Number(elem.current) < 400) && (
                           <Box width={'25px'} height={'25px'} bgcolor={'orange'} borderRadius={'50%'} margin={'auto'}></Box>
                         )}
-                        {elem.current_STOCK >= elem.maximum_STOCK && <Box width={'25px'} height={'25px'} bgcolor={'green'} borderRadius={'50%'} margin={'auto'}></Box>}
+                        {Number(elem.current) >= 400 && <Box width={'25px'} height={'25px'} bgcolor={'green'} borderRadius={'50%'} margin={'auto'}></Box>}
                       </TableCell>
                       <TableCell
                         sx={{ width: "6rem", maxWidth: "6rem" }}
