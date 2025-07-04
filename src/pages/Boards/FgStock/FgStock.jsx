@@ -4,6 +4,9 @@ import {
   Button,
   Chip,
   Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
   IconButton,
   InputLabel,
@@ -43,6 +46,7 @@ const FgStock = () => {
   const navigate= useNavigate();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isMonthlyUpdateOpen, setIsMonthlyUpdateOpen] = React.useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date().toISOString().split("T")[0].split('-')[2]);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   console.log(date)
   const [stock, setStock] = useState([]);
@@ -57,6 +61,27 @@ const FgStock = () => {
     color: '',
     message: ''
   });
+  const [message, setMessage] = useState('');
+
+  // Item description options for monthly update
+  const itemDescriptionOptions = [
+    'ALTROZ BRACKET-D RH',
+    'ALTROZ BRACKET-D LH',
+    'ALTROZ BRACKET-E LH',
+    'ALTROZ BRACKET-E RH',
+    'ALTROZ PES COVER A RH',
+    'ALTROZ PES COVER A LH',
+    'ALTROZ PES COVER B RH',
+    'ALTROZ PES COVER B LH',
+    'ALTROZ SHADE A MG RH',
+    'ALTROZ SHADE A MG LH',
+    'ALTROZ INNER LENS A RH',
+    'ALTROZ INNER LENS A LH',
+    'ALTROZ BACK COVER A RH',
+    'ALTROZ BACK COVER A LH',
+    'ALTROZ BACK COVER B RH',
+    'ALTROZ BACK COVER B LH'
+  ];
 
   // Monthly Update form states
   const [monthlyUpdateData, setMonthlyUpdateData] = useState({
@@ -64,6 +89,7 @@ const FgStock = () => {
     schedule: '',
     maximum: ''
   });
+  
 
   // useEffect(() => {
   //   const [year, month, day] = date.split("-");
@@ -90,8 +116,8 @@ const FgStock = () => {
   // }, [date, isOpen, edit]);
 
   useEffect(()=>{
-    dispatch(getAllFgStock(date))
-  }, [date])
+    dispatch(getAllFgStock(date, setMessage))
+  }, [date, monthlyUpdateData])
 
   const handleSubmit = async () => {
     if(!edit.current){
@@ -148,7 +174,9 @@ const FgStock = () => {
       const data = {
         item_description: monthlyUpdateData.item_description,
         schedule: Number(monthlyUpdateData.schedule),
-        maximum: Number(monthlyUpdateData.maximum)
+        maximum: Number(monthlyUpdateData.maximum),
+        month: date.split('-')[1],
+        year: date.split('-')[0],
       };
 
       console.log('Monthly Update Data:', data);
@@ -172,12 +200,18 @@ const FgStock = () => {
       setMonthlyUpdateData({
         item_description: '',
         schedule: '',
-        maximum: ''
+        maximum: '',
+        month: date.split('-')[1],
+        year: date.split('-')[0],
       });
     } catch (error) {
       console.log(error);
       enqueueSnackbar('Failed to submit monthly update', { variant: 'error' });
     }
+  };
+
+  const handleMessageDialogClose = () => {
+    setMessage('');
   };
 
   return (
@@ -439,7 +473,14 @@ const FgStock = () => {
                 }
                 size="small"
                 required
-              />
+                select
+              >
+                {itemDescriptionOptions.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </TextField>
 
               <TextField
                 fullWidth
@@ -497,6 +538,44 @@ const FgStock = () => {
             </form>
           </Box>
         </Box>
+      )}
+
+      {/* Message Dialog */}
+      {message && (
+        <Dialog
+          open={Boolean(message)}
+          onClose={handleMessageDialogClose}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle>
+            <Typography fontSize="1.5rem" fontWeight="bold">
+              Update Required
+            </Typography>
+          </DialogTitle>
+          <DialogContent>
+            <Typography fontSize="1rem" color="textSecondary" mb={2}>
+              {message}
+            </Typography>
+            <Typography fontSize="1rem" color="error">
+              Please first update the monthly schedule and maximum value before proceeding. 
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleMessageDialogClose}
+              variant="contained"
+              sx={{ 
+                bgcolor: colors.primary,
+                '&:hover': {
+                  backgroundColor: colors.buttonHover || colors.primary
+                }
+              }}
+            >
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
       )}
 
       {/* Update Status Dialog */}  

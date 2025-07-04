@@ -110,7 +110,7 @@ const MonthlyFgStock = () => {
     try {
       const response = await axios.get(
         // `${BACKEND_API}/get_fgstock_summary_by_item_description_and_month?item_description`,
-        `${BACKEND_API}/get_store_stock_monthly_summary`,
+        `${BACKEND_API}/get_fgstock_summary_by_item_description_and_month`,
         {
           params: {
             item_description: searchParams.item_description,
@@ -122,7 +122,7 @@ const MonthlyFgStock = () => {
           },
         }
       );
-
+      console.log(response.data);
       setMonthlyData(response.data);
       setHasSearched(true);
       enqueueSnackbar('Data loaded successfully', { variant: 'success' });

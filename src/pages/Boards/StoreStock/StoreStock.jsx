@@ -729,18 +729,18 @@ const StoreStock = () => {
         </Paper>
         
       </Box>
-      <Table sx={{position: 'fixed', bottom: 0, bgcolor: 'lightgrey', width: '100rem'}}>
+      <Table sx={{position: 'fixed', bottom: 0, bgcolor: 'rgba(0, 55, 173, 0.04)', width: '100rem'}}>
             <TableRow>
-              <TableCell sx={{ border: "1px solid black" }}>
+              <TableCell sx={{ border: "1px solid rgba(1, 27, 83, 0.55)" }}>
                 <Box display={'flex'} flexDirection={'column'} >
                   <Typography fontSize={'1.1rem'}>Days Require For Purchase Materials</Typography>
                   <Box width={'100%'} fontSize={'1.1rem'} display={'flex'} justifyContent={'space-between'}><span>Local : Min- 1</span> <span>Max- 10</span></Box>
                   <Box  width={'100%'} fontSize={'1.1rem'} display={'flex'} justifyContent={'space-between'}><span>Import : Min- 0</span> <span>Max- 0</span></Box>
                 </Box>
               </TableCell>
-              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'red'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Critical ({'<'}MIN)</Typography></Box></TableCell>
-              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'orange'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Normal (MIN To 200)</Typography></Box></TableCell>
-              <TableCell sx={{ border: "1px solid black" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'green'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Ok ({'≥'}400)</Typography></Box></TableCell>
+              <TableCell sx={{ border: "1px solid rgba(1, 27, 83, 0.55)" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'red'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Critical ({'<'}MIN)</Typography></Box></TableCell>
+              <TableCell sx={{ border: "1px solid rgba(1, 27, 83, 0.55)" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'orange'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Normal (200 To 400)</Typography></Box></TableCell>
+              <TableCell sx={{ border: "1px solid rgba(1, 27, 83, 0.55)" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'green'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Ok ({'≥'}400)</Typography></Box></TableCell>
 
             </TableRow>
           </Table>

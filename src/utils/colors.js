@@ -1,6 +1,7 @@
 const colors = {
   // primary: '#416F64',
-    primary: "rgb(241, 92, 109)", // pink
+    // primary: "rgb(241, 92, 109)", // pink
+    primary: "#E08272",
     secondary: "#2ecc71", // Green
     background: "#f4f4f4", // Light Grey
     sidebar: "#2c3e50", // Dark Grey

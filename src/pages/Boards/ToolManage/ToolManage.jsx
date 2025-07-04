@@ -292,12 +292,12 @@ const ToolManage = () => {
             <Box 
               height={'12px'} 
               width={'12px'} 
-              bgcolor={'#3b82f6'} 
+              bgcolor={'#22c55e'} 
               ml={'0.6rem'} 
               borderRadius={'50%'}
             />
             <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
-              MODIFICATIONS
+              PM ACTUAL
             </Typography>
           </Box>
 
@@ -318,14 +318,16 @@ const ToolManage = () => {
             <Box 
               height={'12px'} 
               width={'12px'} 
-              bgcolor={'#22c55e'} 
+              bgcolor={'#3b82f6'} 
               ml={'0.6rem'} 
               borderRadius={'50%'}
             />
             <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
-              PM ACTUAL
+              MODIFICATIONS
             </Typography>
           </Box>
+
+          
 
           <Box 
             width={'48%'} 

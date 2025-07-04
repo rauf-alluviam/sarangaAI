@@ -9,7 +9,7 @@ const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 
 
-export const getAllFgStock=(date)=> async(dispatch, getState)=>{
+export const getAllFgStock=(date, setMessage)=> async(dispatch, getState)=>{
     const [year, month, day] = date.split("-");
     try {
         const token = getState().auth.token;
@@ -24,7 +24,10 @@ export const getAllFgStock=(date)=> async(dispatch, getState)=>{
             }
           );
           dispatch({type: GET_FG_STOCK, payload: response.data.entries})
-          console.log(response)
+          console.log(response.data.message)
+          if(response.data.message== 'No monthly config found for 2025-08. Please submit monthly data first.'){
+            setMessage('No monthly config found for this date. Please submit monthly data first.');
+          }
     } catch (error) {
         console.log(error)
     }

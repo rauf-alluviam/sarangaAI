@@ -34,6 +34,7 @@ import {
   Assignment as TaskManagementIcon,
 } from '@mui/icons-material';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { FaRegThumbsDown } from 'react-icons/fa6';
 
 
 const Dashboard = ({setIsOpen}) => {
@@ -244,6 +245,7 @@ try {
         { icon: StoreIcon, title: 'Store Stock', path: '/store-stock', count: 89, status: 'active' },
         { icon: WrenchIcon, title: 'Tool Management', path: '/tool-management', count: 34, status: 'active' },
         { icon: MessageSquareIcon, title: 'Complaint Board', path: '/complaint-board', count: 7, status: 'warning' },
+        { icon: FaRegThumbsDown, title: 'Rejection Board', path: '/rejection', count: 7, status: 'warning' }
       ],
     },
     {
@@ -346,17 +348,32 @@ try {
    
   }}
 >
-  <Typography
+  {/* <Typography
     variant="h4"
     component="h1"
     sx={{
       fontWeight: 600,
-      color: colors.primary,
+      color: 'rgb(63, 63, 63)',
       mb: 1,
     }}
   >
-    Welcome to Rabs Industries
-  </Typography>
+    Welcome To The <span style={{color: colors.primary}}>Rabs Industries</span>
+  </Typography> */}
+
+<Typography
+  variant="h4"
+  component="h1"
+  sx={{
+    fontWeight: 600,
+    mb: 1,
+    background: 'linear-gradient(180deg, #E08272, rgba(138, 44, 55, 0.63))',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    display: 'inline-block',
+  }}
+>
+  Welcome To The <span style={{ color: 'inherit' }}>Rabs Industries</span>
+</Typography>
 
   <Typography
     variant="subtitle1"
@@ -411,6 +428,8 @@ try {
                     <CardContent>
                       <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                         <Icon style={{ color: colors.primary }} />
+
+                        
                         {/* <Chip
                           label={item.count}
                           color={statusColor(item.status)}
@@ -672,7 +691,7 @@ try {
     rel="noopener noreferrer" href='http://qrlocker.s3-website.ap-south-1.amazonaws.com/login?redirect=%2F' width={'48%'} bgcolor={'rgba(150, 73, 115, 0.29)'}  sx={{cursor: 'pointer', textDecoration: 'none', color: 'black'}} height={'3.9rem'} display={'flex'} alignItems={'center'} justifyContent={'center'}  boxShadow={'rgba(0, 0, 0, 0.1) 0px 4px 12px;'} borderRadius={'8px'}>QR Locker</Box>
       </Box> */}
 
-        
+
 {/* ---------------camera details--------------- */}
      <Box width={'100%'}  mt={isLargerThan1390? '0rem':'2rem'} bgcolor={'white'}  p={'0.7rem'} borderRadius={'6px'} display={'flex'} flexDirection={'column'} alignItems={'center'}>
          

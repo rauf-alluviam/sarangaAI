@@ -41,6 +41,7 @@ import MidSidebar from './component/Sidebar/MidSidebar'
 import { MdMenu } from 'react-icons/md'
 import MonthlyFgStock from './pages/Boards/FgStock/MonthlyFgStock'
 import MonthlyStoreStock from './pages/Boards/StoreStock/MonthlyStoreStock'
+import Rejection from './pages/Boards/Rejection/Rejection'
 // import Dashboard2 from './pages/Dashboard/Dashboard2'
 
 // import Sidebar from './component/Sidebar/Sidebar'
@@ -198,6 +199,7 @@ const isLargerThan1000= useMediaQuery('(min-width: 1000px)');
   <Route path="/store-stock" element={<ProtectedRoute><StoreStock /></ProtectedRoute>} />
   <Route path="/tool-management" element={<ProtectedRoute><ToolManage /></ProtectedRoute>} />
   <Route path="/complaint-board" element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
+  <Route path="/rejection" element={<ProtectedRoute><Rejection /></ProtectedRoute>} />
 
   <Route path="/monthly-fg-stock" element={<ProtectedRoute><MonthlyFgStock /></ProtectedRoute>} />
   <Route path="/monthly-store-stock" element={<ProtectedRoute><MonthlyStoreStock /></ProtectedRoute>} />

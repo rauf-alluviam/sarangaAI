@@ -6,7 +6,7 @@ import { MdHome, MdRateReview, MdStorefront } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 // import logo from '../../assets/images/alluvium.png';
 import logo from '../../assets/rabsLogo.png';
-import { FaCircleChevronLeft, FaCircleChevronRight, FaFireFlameCurved, FaHelmetSafety, FaChevronDown, FaChevronRight } from "react-icons/fa6";
+import { FaCircleChevronLeft, FaCircleChevronRight, FaFireFlameCurved, FaHelmetSafety, FaChevronDown, FaChevronRight, FaThumbsDown } from "react-icons/fa6";
 import { useDispatch } from "react-redux";
 import { logout } from "../../Redux/Actions/authAction";
 import { GiFirstAidKit, GiSmokeBomb } from "react-icons/gi";
@@ -67,7 +67,8 @@ const Sidebar = ({ setIsSliderOpen }) => {
         { icon: <RiBox3Fill />, title: 'Fg Stock', path: '/fg-stock' },
         { icon: <MdStorefront />, title: 'Store Stock', path: '/store-stock' },
         { icon: <FaTools />, title: 'Tool Management', path: '/tool-management' },
-        { icon: <MdRateReview />, title: 'Complaint Board', path: '/complaint-board' }
+        { icon: <MdRateReview />, title: 'Complaint Board', path: '/complaint-board' },
+        { icon: <FaThumbsDown />, title: 'Rejection', path: '/rejection' }
       ]
     }
   ];
@@ -172,7 +173,7 @@ const Sidebar = ({ setIsSliderOpen }) => {
               onClick={() => { navigate('/'); setIsSliderOpen(false); }}
               className="sidebar-link"
               style={{
-                borderLeft: (path === '/') && '5px solid rgb(241, 92, 109)',
+                borderLeft: (path === '/') && '5px solid #E08272',
                 borderRadius: '8px'
               }}
             >
@@ -233,7 +234,7 @@ const Sidebar = ({ setIsSliderOpen }) => {
                         className="sidebar-link"
                         style={{
                           marginLeft: isMinimize ? '0' : '2rem',
-                          borderLeft: (path === item.path) && '5px solid rgb(241, 92, 109)',
+                          borderLeft: (path === item.path) && '5px solid #E08272',
                           borderRadius: '8px'
                         }}
                       >
@@ -272,7 +273,7 @@ const Sidebar = ({ setIsSliderOpen }) => {
               onClick={() => { navigate('/my-profile'); setIsSliderOpen(false); }}
               className="sidebar-link"
               style={{
-                borderLeft: (path === '/my-profile') && '5px solid rgb(241, 92, 109)',
+                borderLeft: (path === '/my-profile') && '5px solid #E08272',
                 borderRadius: '8px'
               }}
             >
