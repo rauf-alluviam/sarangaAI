@@ -8,6 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";
+import colors from "../../utils/colors";
 // import dotenv from 'dotenv';
 // import axios from "axios";
 // dotenv.config();
@@ -155,7 +156,7 @@ onChange={(e)=> setPhone_no(e.target.value)}
         variant="contained"
         color="primary"
         size="large"
-        style={{ background: "linear-gradient(to right, #D31027, #EA384D)", borderRadius: "25px" }}
+        style={{ backgroundColor: colors.primary, borderRadius: "25px" }}
       >
         Signup
       </Button>

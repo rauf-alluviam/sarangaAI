@@ -490,7 +490,8 @@ console.log(complaintsLoading, complaints)
                   <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Horizontal Deployment (Y/N)
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                  <TableCell align="center"
+                   sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
                     Edit
                   </TableCell>
                 </TableRow>

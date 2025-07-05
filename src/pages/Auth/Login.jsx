@@ -12,6 +12,7 @@ import { login, loginSuccess } from "../../Redux/Actions/authAction";
 import TempPasswordGenerator from "../UserProfile/TempPasswordGenerator";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";
+import colors from "../../utils/colors";
 
 const BACKEND_API= import.meta.env.VITE_BACKEND_API;
 
@@ -153,7 +154,7 @@ const Login=({setFlag})=> {
       variant="contained"
       color="primary"
       size="large"
-      style={{ background: "linear-gradient(to right, #D31027, #EA384D)", borderRadius: "25px" }}
+      style={{ backgroundColor: colors.primary, borderRadius: "25px" }}
     >
       Login
     </Button>
@@ -189,7 +190,7 @@ const Login=({setFlag})=> {
       variant="contained"
       color="primary"
       size="large"
-      style={{ background: "linear-gradient(to right, #D31027, #EA384D)", borderRadius: "7px" }}
+      style={{ backgroundColor: colors.primary, borderRadius: "7px" }}
     >
       Send Temporary Password
     </Button>

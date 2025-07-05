@@ -40,7 +40,7 @@ const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const FgStock = () => {
   const { userData, token } = useSelector((state) => state.auth);
-  const {fgStockArr}= useSelector((state)=> state.fgStock)
+  const {fgStockArr}= useSelector((state)=> state.fgStock);
   console.log(fgStockArr)
   const dispatch= useDispatch();
   const navigate= useNavigate();
@@ -83,9 +83,10 @@ const FgStock = () => {
     'ALTROZ BACK COVER B LH'
   ];
 
-  // Monthly Update form states
+  
+  // Monthly Update form states   
   const [monthlyUpdateData, setMonthlyUpdateData] = useState({
-    item_code: '',
+    item_code: '',  
     schedule: '',
     maximum: ''
   });
@@ -358,7 +359,7 @@ const FgStock = () => {
   )}
 </Box>
 </Box>
-        <Button
+        {/* <Button
           sx={{ 
             bgcolor: colors.primary,
             width: "10rem", mr: "1rem" }}
@@ -366,7 +367,7 @@ const FgStock = () => {
           onClick={() => setIsOpen(true)} 
         >
           Add New Item  
-        </Button>
+        </Button> */}
 
         <Button variant="contained" sx={{mr: '0.8rem', bgcolor: colors.primary}} onClick={() => setIsMonthlyUpdateOpen(true)}>Monthly Update</Button>
         <Button variant="contained" sx={{mr: '0.8rem', bgcolor: colors.primary}} onClick={()=> navigate('/monthly-fg-stock')}>Monthly Sheet</Button>
