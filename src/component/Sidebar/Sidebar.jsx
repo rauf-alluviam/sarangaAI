@@ -14,6 +14,8 @@ import { FaClipboardList, FaTools, FaUserCircle } from "react-icons/fa";
 import { PiTruckFill } from "react-icons/pi";
 import { IoFileTray } from "react-icons/io5";
 import { RiBox3Fill } from "react-icons/ri";
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+
 
 const Sidebar = ({ setIsSliderOpen }) => {
   const navigate = useNavigate();
@@ -68,8 +70,9 @@ const Sidebar = ({ setIsSliderOpen }) => {
         { icon: <MdStorefront />, title: 'Store Stock', path: '/store-stock' },
         { icon: <FaTools />, title: 'Tool Management', path: '/tool-management' },
         { icon: <MdRateReview />, title: 'Complaint Board', path: '/complaint-board' },
-        { icon: <FaThumbsDown />, title: 'Rejection', path: '/rejection' }
-      ]
+        { icon: <FaThumbsDown />, title: 'Rejection', path: '/rejection' },
+        { icon: <PrecisionManufacturingIcon />, title: 'Production', path: '/production' }
+      ] 
     }
   ];
   

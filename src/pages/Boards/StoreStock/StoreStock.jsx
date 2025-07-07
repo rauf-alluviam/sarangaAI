@@ -320,13 +320,13 @@ const StoreStock = () => {
         </Box> */}
 
         <Box display={'flex'}>
-        <Button
+        {/* <Button
           sx={{ bgcolor: colors.primary, width: "12rem", mr: '1rem' }}
           variant="contained"
           onClick={() => setIsOpen(true)}
         >
           Add New Item
-        </Button>
+        </Button> */}
         <Button variant="contained" sx={{mr: '0.8rem', bgcolor: colors.primary}} onClick={()=> navigate('/monthly-store-stock')}>Monthly Sheet</Button>
         
         <TextField

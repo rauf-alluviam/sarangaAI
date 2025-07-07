@@ -50,6 +50,7 @@ export const login=(username, password, navigate, onSuccess, onError)=> async(di
     navigate('/');
           // alert('Login Success');
     } catch (error) {
+      console.log(error)
         if(error.response){
             // alert(error.response.data.message)
             // if (onError) onError(error?.response?.data?.message || 'Session expired. Please log in again.');

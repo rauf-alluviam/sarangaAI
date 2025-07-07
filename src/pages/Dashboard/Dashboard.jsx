@@ -32,7 +32,10 @@ import {
   QrCode as QrCodeIcon,
   CameraAlt as CameraAltIcon,
   Assignment as TaskManagementIcon,
+  
 } from '@mui/icons-material';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+// import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { FaRegThumbsDown } from 'react-icons/fa6';
 
@@ -228,31 +231,32 @@ try {
     { title: 'QR Locker', description: 'Secure QR code management system', icon: QrCode, color: '#818CF8', onClick: () => console.log('QR Locker clicked') },
   ];
 
-    const categories = [
+  const categories = [
     {
       title: 'Detection Systems',
       items: [
-        { icon: FlameIcon, title: 'Fire Detection', path: '/fire', count: 23, status: 'active' },
-        { icon: ActivityIcon, title: 'Smoke Detection', path: '/smoke', count: 18, status: 'active' },
-        { icon: ShieldIcon, title: 'PPE Detection', path: '/ppe-kit', count: 43, status: 'active' },
-        { icon: TruckIcon, title: 'Loading/Unloading', path: '/truck', count: 12, status: 'active' },
+        { icon: FlameIcon, title: 'Fire Detection', path: '/fire', count: 23, status: 'active', color: '#FF4444', bgColor: '#FFE6E6' },
+        { icon: ActivityIcon, title: 'Smoke Detection', path: '/smoke', count: 18, status: 'active', color: '#FF8C00', bgColor: '#FFF0E6' },
+        { icon: ShieldIcon, title: 'PPE Detection', path: '/ppe-kit', count: 43, status: 'active', color: '#4169E1', bgColor: '#E6EDFF' },
+        { icon: TruckIcon, title: 'Loading/Unloading', path: '/truck', count: 12, status: 'active', color: '#32CD32', bgColor: '#E6FFE6' },
       ],
     },
     {
       title: 'Inventory Management',
       items: [
-        { icon: PackageIcon, title: 'FG Stock', path: '/fg-stock', count: 156, status: 'active' },
-        { icon: StoreIcon, title: 'Store Stock', path: '/store-stock', count: 89, status: 'active' },
-        { icon: WrenchIcon, title: 'Tool Management', path: '/tool-management', count: 34, status: 'active' },
-        { icon: MessageSquareIcon, title: 'Complaint Board', path: '/complaint-board', count: 7, status: 'warning' },
-        { icon: FaRegThumbsDown, title: 'Rejection Board', path: '/rejection', count: 7, status: 'warning' }
+        { icon: PackageIcon, title: 'FG Stock', path: '/fg-stock', count: 156, status: 'active', color: '#8A2BE2', bgColor: '#F0E6FF' },
+        { icon: StoreIcon, title: 'Store Stock', path: '/store-stock', count: 89, status: 'active', color: '#FF6347', bgColor: '#FFE6E0' },
+        { icon: WrenchIcon, title: 'Tool Management', path: '/tool-management', count: 34, status: 'active', color: '#20B2AA', bgColor: '#E6FCFA' },
+        { icon: MessageSquareIcon, title: 'Complaint Board', path: '/complaint-board', count: 7, status: 'warning', color: '#FFD700', bgColor: '#FFFCE6' },
+        { icon: FaRegThumbsDown, title: 'Rejection Board', path: '/rejection', count: 7, status: 'warning', color: '#DC143C', bgColor: '#FFE6EA' },
+        { icon: PrecisionManufacturingIcon, title: 'Production Board', path: '/production', count: 7, status: 'warning', color: '#DC143C', bgColor: '#FFE6EA' }
       ],
     },
     {
       title: 'Positioning Systems',
       items: [
-        { icon: MapPinIcon, title: 'Bracket-D', path: '/bracket-d', count: 28, status: 'active' },
-        { icon: MapPinIcon, title: 'Bracket-E', path: 'http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login', count: 15, status: 'active' },
+        { icon: MapPinIcon, title: 'Bracket-D', path: '/bracket-d', count: 28, status: 'active', color: '#FF1493', bgColor: '#FFE6F0' },
+        { icon: MapPinIcon, title: 'Bracket-E', path: 'http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login', count: 15, status: 'active', color: '#00CED1', bgColor: '#E6FCFD' },
       ],
     },
   ];
@@ -261,14 +265,12 @@ try {
     {
       title: 'External Tools',
       items: [
-        { icon: QrCodeIcon, title: 'Qr Locker', path: 'http://qrlocker.s3-website.ap-south-1.amazonaws.com/login', count: 23, status: 'active' },
-        { icon: CameraAltIcon, title: 'Snapcheck', path: 'http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login', count: 18, status: 'active' },
-        { icon: TaskManagementIcon, title: 'Task Management', path: '#', count: 18, status: 'active' }
-
+        { icon: QrCodeIcon, title: 'Qr Locker', path: 'http://qrlocker.s3-website.ap-south-1.amazonaws.com/login', count: 23, status: 'active', color: '#9932CC', bgColor: '#F3E6FF' },
+        { icon: CameraAltIcon, title: 'Snapcheck', path: 'http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login', count: 18, status: 'active', color: '#FF8C69', bgColor: '#FFF2ED' },
+        { icon: TaskManagementIcon, title: 'Task Management', path: '#', count: 18, status: 'active', color: '#228B22', bgColor: '#E6F7E6' }
       ],
     }
   ]
-
 
 
   
@@ -421,14 +423,30 @@ try {
                       transition: '0.3s',
                       '&:hover': {
                         boxShadow: 3,
-                        borderColor: colors.primary,
+                        borderColor: item.color,
+                        transform: 'translateY(-2px)',
+                        '& .view-details': {
+                          color: item.color,
+                          transform: 'translateX(4px)',
+                        }
                       },
                     }}
                   >
                     <CardContent>
                       <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Icon style={{ color: colors.primary }} />
-
+                        <Box
+                          sx={{
+                            width: 39,
+                            height: 39,
+                            borderRadius: '50%',
+                            backgroundColor: item.bgColor,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Icon style={{ color: item.color, fontSize: '22px' }} />
+                        </Box>
                         
                         {/* <Chip
                           label={item.count}
@@ -440,11 +458,30 @@ try {
                       <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                         {item.title}
                       </Typography>
-                      <Box display="flex" alignItems="center" color="text.secondary">
-                        <Typography variant="body2" sx={{ mr: 0.5 }}>
+                      <Box 
+                        className="view-details"
+                        display="flex" 
+                        alignItems="center" 
+                        color="text.secondary"
+                        sx={{
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            mr: 0.5,
+                            transition: 'color 0.3s ease',
+                          }}
+                        >
                           View details
                         </Typography>
-                        <ChevronRightIcon fontSize="small" />
+                        <ChevronRightIcon 
+                          fontSize="small" 
+                          sx={{
+                            transition: 'transform 0.3s ease',
+                          }}
+                        />
                       </Box>
                     </CardContent>
                   </Card>
@@ -495,13 +532,30 @@ try {
                       transition: '0.3s',
                       '&:hover': {
                         boxShadow: 3,
-                        borderColor: colors.primary,
+                        borderColor: item.color,
+                        transform: 'translateY(-2px)',
+                        '& .view-details': {
+                          color: item.color,
+                          transform: 'translateX(4px)',
+                        }
                       },
                     }}
                   >
                     <CardContent>
                       <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Icon style={{ color: colors.primary }} />
+                        <Box
+                          sx={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: '50%',
+                            backgroundColor: item.bgColor,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Icon style={{ color: item.color, fontSize: '18px' }} />
+                        </Box>
                         {/* <Chip
                           label={item.count}
                           color={statusColor(item.status)}
@@ -512,11 +566,30 @@ try {
                       <Typography variant="subtitle1" fontWeight={600} gutterBottom>
                         {item.title}
                       </Typography>
-                      <Box display="flex" alignItems="center" color="text.secondary">
-                        <Typography variant="body2" sx={{ mr: 0.5 }}>
+                      <Box 
+                        className="view-details"
+                        display="flex" 
+                        alignItems="center" 
+                        color="text.secondary"
+                        sx={{
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            mr: 0.5,
+                            transition: 'color 0.3s ease',
+                          }}
+                        >
                           View details
                         </Typography>
-                        <ChevronRightIcon fontSize="small" />
+                        <ChevronRightIcon 
+                          fontSize="small" 
+                          sx={{
+                            transition: 'transform 0.3s ease',
+                          }}
+                        />
                       </Box>
                     </CardContent>
                   </Card>

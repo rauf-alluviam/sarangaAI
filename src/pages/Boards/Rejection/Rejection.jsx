@@ -31,7 +31,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import { MdDone } from 'react-icons/md';
 import AddIcon from '@mui/icons-material/Add';
-import { add } from 'date-fns';
+import AddRejection from './AddRejection';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -469,7 +469,7 @@ const Rejection = () => {
           // pb: '0.6rem'
         }}
       >
-        REJECTION MONITORING SHEET
+        REJECTION DETAIL BOARD
       </Typography>
       
   
@@ -523,33 +523,76 @@ const Rejection = () => {
         </Box>
       ) : processedData.length > 0 ? (
         <Paper sx={{ overflow: 'hidden', border: `1px solid #e0e0e0`, boxShadow: 3 }}>
-          <TableContainer sx={{ maxHeight: '70vh', overflowX: 'auto' }}>
+          
+          <TableContainer sx={{ 
+            maxHeight: '70vh', 
+            overflowX: 'auto',
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': {
+              height: '12px',
+              width: '12px'
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: '#f1f1f1',
+              borderRadius: '6px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#c1c1c1',
+              borderRadius: '6px',
+              '&:hover': {
+                backgroundColor: '#a8a8a8'
+              }
+            },
+            '&::-webkit-scrollbar-corner': {
+              backgroundColor: '#f1f1f1'
+            }
+          }}>
             <Table stickyHeader>
               <TableHead>
-                <TableRow>
-                  {/* Fixed Columns */}
+                <TableRow  sx={{ backgroundColor: '#f5f5f5 !important', borderBottom: `1px solid #e0e0e0`}}>
+                  {/* Serial Number Column */}
                   <TableCell
                     sx={{
-                      backgroundColor: '#f8f9fa',
+                      backgroundColor: 'inherit',
                       color: '#2c3e50',
                       fontWeight: 'bold',
                       position: 'sticky',
                       left: 0,
                       zIndex: 3,
+                      minWidth: '60px',
+                      maxWidth: '60px',
+                      width: '60px',
+                      borderRight: `1px solid #e0e0e0`,
+                      border: `1px solid #e0e0e0`,
+                      textAlign: 'center'
+                    }}
+                  >
+                    Sr. No.
+                  </TableCell>
+                  {/* Fixed Columns */}
+                  <TableCell
+                    sx={{
+                      backgroundColor: 'inherit',
+                      color: '#2c3e50',
+                      fontWeight: 'bold',
+                      position: 'sticky',
+                      left: 60,
+                      zIndex: 3,
                       minWidth: '150px',
                       borderRight: `1px solid #e0e0e0`,
                       border: `1px solid #e0e0e0`
+
                     }}
                   >
                     Part Description
                   </TableCell>
                   <TableCell
                     sx={{
-                      backgroundColor: '#f8f9fa',
+                      backgroundColor: 'inherit',
                       color: '#2c3e50',
                       fontWeight: 'bold',
                       position: 'sticky',
-                      left: 150,
+                      left: 210,
                       zIndex: 3,
                       minWidth: '120px',
                       borderRight: `1px solid #e0e0e0`,
@@ -560,11 +603,11 @@ const Rejection = () => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      backgroundColor: '#f8f9fa',
+                      backgroundColor: 'inherit',
                       color: '#2c3e50',
                       fontWeight: 'bold',
                       position: 'sticky',
-                      left: 270,
+                      left: 330,
                       zIndex: 3,
                       minWidth: '100px',
                       borderRight: `1px solid #e0e0e0`,
@@ -580,7 +623,7 @@ const Rejection = () => {
                       key={day}
                       align="center"
                       sx={{
-                        backgroundColor: '#f8f9fa',
+                        backgroundColor: 'inherit',
                         color: '#2c3e50',
                         fontWeight: 'bold',
                         minWidth: '60px',
@@ -632,15 +675,31 @@ const Rejection = () => {
               </TableHead>
 
               <TableBody>
-                {processedData.map((partData) => (
+                {processedData.map((partData, index) => (
                   <TableRow key={`${partData.part_description}-${partData.rm}`} hover>
-                    {/* Part Description */}
+                    {/* Serial Number */}
                     <TableCell
                       sx={{
                         fontWeight: 600,
                         backgroundColor: '#fff',
                         position: 'sticky',
                         left: 0,
+                        zIndex: 2,
+                        borderRight: `1px solid #e0e0e0`,
+                        border: `1px solid #e0e0e0`,
+                        textAlign: 'center'
+                      }}
+                    >
+                      {index + 1}
+                    </TableCell>
+
+                    {/* Part Description */}
+                    <TableCell
+                      sx={{
+                        fontWeight: 600,
+                        backgroundColor: '#fff',
+                        position: 'sticky',
+                        left: 60,
                         zIndex: 2,
                         borderRight: `1px solid #e0e0e0`,
                         border: `1px solid #e0e0e0`
@@ -654,7 +713,7 @@ const Rejection = () => {
                       sx={{
                         backgroundColor: '#fff',
                         position: 'sticky',
-                        left: 150,
+                        left: 210,
                         zIndex: 2,
                         borderRight: `1px solid #e0e0e0`,
                         border: `1px solid #e0e0e0`
@@ -668,7 +727,7 @@ const Rejection = () => {
                       sx={{
                         backgroundColor: '#fff',
                         position: 'sticky',
-                        left: 270,
+                        left: 330,
                         zIndex: 2,
                         borderRight: `1px solid #e0e0e0`,
                         padding: '4px',
@@ -956,205 +1015,11 @@ const Rejection = () => {
       </Box>
 
       {/* ---------------------Add New Entry Modal---------------------- */}
-      <Dialog 
-        open={Object.keys(addData).length > 0} 
-        onClose={() => setAddData({})} 
-        maxWidth="md" 
-        fullWidth
-      >
-        <DialogTitle>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.primary }}>
-            Add New Rejection Data
-          </Typography>
-        </DialogTitle>
-        
-        <DialogContent>
-          <Box sx={{ mt: 2 }}>
-            <Grid container spacing={2}>
-              {/* Read-only fields */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Part Description"
-                  value={addData.part_description || ''}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  variant="outlined"
-                  sx={{
-                    '& .MuiInputBase-input': {
-                      backgroundColor: '#f5f5f5',
-                      color: '#666'
-                    }
-                  }}
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="RM (Raw Material)"
-                  value={addData.rm || ''}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  variant="outlined"
-                  sx={{
-                    '& .MuiInputBase-input': {
-                      backgroundColor: '#f5f5f5',
-                      color: '#666'
-                    }
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Date"
-                  value={addData.timestamp ? addData.timestamp.split('T')[0] : ''}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  variant="outlined"
-                  sx={{
-                    '& .MuiInputBase-input': {
-                      backgroundColor: '#f5f5f5',
-                      color: '#666'
-                    }
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Day"
-                  value={addData.day || ''}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  variant="outlined"
-                  sx={{
-                    '& .MuiInputBase-input': {
-                      backgroundColor: '#f5f5f5',
-                      color: '#666'
-                    }
-                  }}
-                />
-              </Grid>
-
-              {/* Editable fields */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="OK Parts"
-                  type="number"
-                  value={addData.ok_parts || ''}
-                  onChange={(e) => setAddData(prev => ({ ...prev, ok_parts: parseFloat(e.target.value) || 0 }))}
-                  variant="outlined"
-                  inputProps={{ min: 0, step: 1 }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Rejections (kg)"
-                  type="number"
-                  value={addData.rejections || ''}
-                  onChange={(e) => setAddData(prev => ({ ...prev, rejections: parseFloat(e.target.value) || 0 }))}
-                  variant="outlined"
-                  inputProps={{ min: 0, step: 0.1 }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Lumps (kg)"
-                  type="number"
-                  value={addData.lumps || ''}
-                  onChange={(e) => setAddData(prev => ({ ...prev, lumps: parseFloat(e.target.value) || 0 }))}
-                  variant="outlined"
-                  inputProps={{ min: 0, step: 0.1 }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Runner (kg)"
-                  type="number"
-                  value={addData.runner || ''}
-                  onChange={(e) => setAddData(prev => ({ ...prev, runner: parseFloat(e.target.value) || 0 }))}
-                  variant="outlined"
-                  inputProps={{ min: 0, step: 0.1 }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Issued (kg)"
-                  type="number"
-                  value={addData.isssued || ''}
-                  onChange={(e) => setAddData(prev => ({ ...prev, isssued: parseFloat(e.target.value) || 0 }))}
-                  variant="outlined"
-                  inputProps={{ min: 0, step: 0.1 }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Responsible Person"
-                  value={addData.resp_person || ''}
-                  onChange={(e) => setAddData(prev => ({ ...prev, resp_person: e.target.value }))}
-                  variant="outlined"
-                />
-              </Grid>
-
-              {/* Summary display */}
-              <Grid item xs={12}>
-                <Box sx={{ 
-                  mt: 2, 
-                  p: 2, 
-                  backgroundColor: '#f8f9fa', 
-                  borderRadius: 1,
-                  border: '1px solid #e0e0e0'
-                }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                    Summary:
-                  </Typography>
-                  <Typography variant="body2">
-                    Total Scrap: {((addData.rejections || 0) + (addData.lumps || 0) + (addData.runner || 0)).toFixed(2)} kg
-                  </Typography>
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </DialogContent>
-
-        <DialogActions sx={{ p: 3, gap: 1 }}>
-          <Button
-            onClick={() => setAddData({})}
-            color="error"
-            variant="outlined"
-            sx={{ minWidth: 100 }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleAdd}
-            color="primary"
-            variant="contained"
-            sx={{ minWidth: 100 }}
-          >
-            Add Entry
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddRejection 
+        addData={addData} 
+        setAddData={setAddData} 
+        fetchData={fetchData} 
+      />
 
       {/* ---------------------Update Modal---------------------- */}
       <Dialog 
@@ -1208,6 +1073,26 @@ const Rejection = () => {
                   }}
                 />
               </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Date"
+                  value={edit.timestamp ? edit.timestamp.split('T')[0] : ''}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  variant="outlined"
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      backgroundColor: '#f5f5f5',
+                      color: '#666'
+                    }
+                  }}
+                />
+              </Grid>
+
+              
 
               {/* Editable fields */}
               <Grid item xs={12} sm={6}>
@@ -1295,6 +1180,7 @@ const Rejection = () => {
                   <Typography variant="body2">
                     Total Scrap: {((edit.rejections || 0) + (edit.lumps || 0) + (edit.runner || 0)).toFixed(2)} kg
                   </Typography>
+                  <Typography sx={{color: 'grey', fontSize: '0.8rem', mt: '0.2rem'}}>{'(Rejection + Lumps + Runner)'}</Typography>
                 </Box>
               </Grid>
             </Grid>

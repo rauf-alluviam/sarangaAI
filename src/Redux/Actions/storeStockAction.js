@@ -109,7 +109,7 @@ export const updateStoreStock = (stockData, token, onSuccess, onError) => async 
 
         const response = await axios.put(
             `${BACKEND_API}/update_store_stock_monitoring_sheet_entry/${stockData._id}`,
-            updatedStock,
+            updatedStock2,
             {
                 headers: {
                     Authorization: `Bearer ${token}`,
