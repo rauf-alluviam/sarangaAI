@@ -370,7 +370,7 @@ const Rejection = () => {
                 color: '#1976d2'
               })
             }}>
-              {total}
+              {typeof total === 'number' ? total.toFixed(2) : total}
             </Typography>
           </Box>
         ))}
