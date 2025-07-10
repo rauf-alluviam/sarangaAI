@@ -58,7 +58,9 @@ const Sidebar = ({ setIsSliderOpen }) => {
       icon: <IoFileTray />,
       items: [
         { icon: <IoFileTray />, title: 'Bracket-D', path: '/bracket-d' },
-        { icon: <IoFileTray />, title: 'Bracket-E', path: '/bracket-e' }
+        { icon: <IoFileTray />, title: 'Bracket-E', path: '/bracket-e' },
+        { icon: <IoFileTray />, title: 'Pes Cover-A', path: '/pes-cover-a' },
+        { icon: <IoFileTray />, title: 'Pes Cover-B', path: '/pes-cover-b' },
       ]
     },
     {
