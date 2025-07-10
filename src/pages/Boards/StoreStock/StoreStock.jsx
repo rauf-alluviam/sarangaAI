@@ -21,7 +21,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import AddStoreStock from './AddStoreStock';
 import { fetchStoreStock, updateStoreStock } from '../../../store/actions/storeStockAction';
-import { enqueueSnackbar } from 'notistack';
+import Swal from 'sweetalert2';
 import { IoPersonSharp } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 
@@ -146,13 +146,25 @@ const StoreStock = () => {
         token,
         (successMessage) => {
           // Success callback
-          enqueueSnackbar(successMessage, { variant: 'success' });
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: successMessage,
+            timer: 2000,
+            showConfirmButton: false,
+          });
           setEdit({}); // Clear the edit state
           setUpdateDialogOpen(false);
         },
         (errorMessage) => {
           // Error callback
-          enqueueSnackbar(errorMessage, { variant: 'error' });
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMessage,
+            timer: 2000,
+            showConfirmButton: false,
+          });
           setUpdateDialogOpen(false);
         }
       )
