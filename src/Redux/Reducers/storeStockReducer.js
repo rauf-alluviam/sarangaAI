@@ -4,7 +4,7 @@ const initialState={
     storeStockerror: null
 }
 
-export const storeStockReducer=(state= initialState, action)=>{
+const storeStockReducer = (state = initialState, action) => {
     switch(action.type){
         case "FETCH_STORE_STOCK_REQUEST":
             return {...state, storeStockloading: true, storeStockerror: null};
@@ -35,3 +35,5 @@ export const storeStockReducer=(state= initialState, action)=>{
             return state;
     }
 }
+
+export default storeStockReducer;

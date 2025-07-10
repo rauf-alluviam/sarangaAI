@@ -44,3 +44,5 @@ export const cameraReducer=(state= initialState, action)=>{
             return state;
     }
 }
+
+export default cameraReducer;

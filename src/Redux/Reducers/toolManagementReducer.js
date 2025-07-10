@@ -53,3 +53,5 @@ import {
         return state;
     }
   };
+  
+  export default toolManagementReducer;
