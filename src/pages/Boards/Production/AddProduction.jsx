@@ -98,18 +98,21 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Schedule *"
-                type="number"
-                value={addData.schedule || ''}
-                onChange={(e) => setAddData(prev => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))}
-                variant="outlined"
-                inputProps={{ min: 0 }}
-                required
-              />
-            </Grid>
+            {/* Schedule field - only show for day 1 or day 2 */}
+            {(addData.day === 1 || addData.day === 2) && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Schedule *"
+                  type="number"
+                  value={addData.schedule || ''}
+                  onChange={(e) => setAddData(prev => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))}
+                  variant="outlined"
+                  inputProps={{ min: 0 }}
+                  required
+                />
+              </Grid>
+            )}
 
             <Grid item xs={12} sm={6}>
               <TextField

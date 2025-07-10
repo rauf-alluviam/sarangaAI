@@ -14,8 +14,11 @@ import {
   MenuItem,
   Alert,
   CircularProgress,
+  IconButton,
 } from '@mui/material';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import colors from '../../../utils/colors';
 import axios from 'axios';
 import { enqueueSnackbar } from 'notistack';
@@ -33,6 +36,8 @@ const MonthlyFgStock = () => {
   console.log(monthlyData)
   const [hasSearched, setHasSearched] = useState(false);
   const { token } = useSelector((state) => state.auth);
+
+  const navigate = useNavigate();
 
   const months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -140,7 +145,7 @@ const MonthlyFgStock = () => {
       {/* Header Section */}
       <Box sx={{ 
         display: 'flex', 
-        justifyContent: 'center', 
+        justifyContent: 'space-between', 
         alignItems: 'center', 
         mb: 3,
         bgcolor: 'white',
@@ -148,9 +153,24 @@ const MonthlyFgStock = () => {
         borderRadius: '12px',
         boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'
       }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+        <IconButton
+          onClick={() => navigate('/fg-stock')}
+          sx={{
+            color: colors.primary,
+            backgroundColor: 'rgba(25, 118, 210, 0.1)',
+            '&:hover': {
+              backgroundColor: 'rgba(25, 118, 210, 0.2)',
+            },
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        
+        <Typography variant="h4" sx={{ fontWeight: 'bold', flex: 1, textAlign: 'center' }}>
           MONTHLY FG STOCK REPORT
         </Typography>
+        
+        <Box sx={{ width: '48px' }}></Box> {/* Spacer to center the title */}
       </Box>
 
       {/* Search Section */}

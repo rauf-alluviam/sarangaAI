@@ -14,8 +14,11 @@ import {
   MenuItem,
   Alert,
   CircularProgress,
+  IconButton,
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import colors from '../../../utils/colors';
 import axios from 'axios';
 import { enqueueSnackbar } from 'notistack';
@@ -33,6 +36,8 @@ const MonthlyStoreStock = () => {
   console.log(monthlyData);
   const [hasSearched, setHasSearched] = useState(false);
   const { token } = useSelector((state) => state.auth);
+
+  const navigate = useNavigate();
 
   const months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -54,17 +59,17 @@ const MonthlyStoreStock = () => {
 
   // Function to get daily data for specific month and day
   const getDailyData = (monthIndex, day) => {
-    if (!monthlyData || !monthlyData.daily_records) return { current_STOCK: '-' };
+    if (!monthlyData || !monthlyData.daily_records) return { current: '-' };
     
     // Check if this is the month we have data for (monthIndex is 0-based, monthlyData.month is 1-based)
     const dataMonth = monthlyData.month - 1; // Convert to 0-based
     if (monthIndex !== dataMonth) {
-      return { current_STOCK: '-' }; // No data for other months
+      return { current: '-' }; // No data for other months
     }
     
     const dateStr = `${monthlyData.year}-${monthlyData.month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     const dailyRecord = monthlyData.daily_records.find(record => record.date === dateStr);
-    return dailyRecord || { current_STOCK: '-' };
+    return dailyRecord || { current: '-' };
   };
 
   // Function to get days in month
@@ -84,7 +89,7 @@ const MonthlyStoreStock = () => {
     }
     
     return {
-      current_stock: monthlyData.total_current_stock || 0
+      current_stock: monthlyData.total_current || 0
     };
   };
 
@@ -128,7 +133,7 @@ const MonthlyStoreStock = () => {
       {/* Header Section */}
       <Box sx={{ 
         display: 'flex', 
-        justifyContent: 'center', 
+        justifyContent: 'space-between', 
         alignItems: 'center', 
         mb: 3,
         bgcolor: 'white',
@@ -136,9 +141,24 @@ const MonthlyStoreStock = () => {
         borderRadius: '12px',
         boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px'
       }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+        <IconButton
+          onClick={() => navigate('/store-stock')}
+          sx={{
+            color: colors.primary,
+            backgroundColor: 'rgba(25, 118, 210, 0.1)',
+            '&:hover': {
+              backgroundColor: 'rgba(25, 118, 210, 0.2)',
+            },
+          }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+        
+        <Typography variant="h4" sx={{ fontWeight: 'bold', flex: 1, textAlign: 'center' }}>
           MONTHLY STORE STOCK REPORT
         </Typography>
+        
+        <Box sx={{ width: '48px' }}></Box> {/* Spacer to center the title */}
       </Box>
 
       {/* Search Section */}
@@ -304,7 +324,7 @@ const MonthlyStoreStock = () => {
                     {months.map((month, monthIndex) => {
                       const daysInMonth = getDaysInMonth(monthIndex);
                       const isValidDay = day <= daysInMonth;
-                      const dailyData = isValidDay ? getDailyData(monthIndex, day) : { current_STOCK: '' };
+                      const dailyData = isValidDay ? getDailyData(monthIndex, day) : { current: '' };
                       
                       return (
                         <TableCell
@@ -322,11 +342,11 @@ const MonthlyStoreStock = () => {
                               variant="body2" 
                               sx={{ 
                                 color: '#2e7d32',
-                                fontWeight: dailyData.current_STOCK !== '-' ? 'bold' : 'normal',
+                                fontWeight: dailyData.current !== '-' ? 'bold' : 'normal',
                                 fontSize: '0.9rem'
                               }}
                             >
-                              {dailyData.current_STOCK}
+                              {dailyData.current}
                             </Typography>
                           ) : (
                             <Typography variant="body2" sx={{ color: '#ccc' }}>

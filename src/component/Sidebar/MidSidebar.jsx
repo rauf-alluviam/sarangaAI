@@ -83,7 +83,7 @@ const MidSidebar = ({ setIsSliderOpen }) => {
       flexDirection: 'column',
     }}>
       {/* Collapse/Expand Icons */}
-      {(isMinimize || isLargerThan900) && (
+      {/* {(isMinimize || isLargerThan900) && (
         <FaCircleChevronLeft
           onClick={() => setIsMinimize(true)}
           style={{
@@ -118,7 +118,7 @@ const MidSidebar = ({ setIsSliderOpen }) => {
         }}>
           <FaCircleChevronRight  />
         </div>
-      )}
+      )} */}
 
       {/* Fixed Logo Section */}
       <div style={{

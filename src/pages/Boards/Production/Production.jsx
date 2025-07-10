@@ -73,7 +73,7 @@ const Production = () => {
         partMap.set(partKey, {
           part_description,
           machine: machine,
-          schedule: schedule || 0,
+          schedule: null, // Will be set from first available day
           dailyData: new Map(),
           totalPlan: 0,
           totalActual: 0,
@@ -117,6 +117,29 @@ const Production = () => {
       // Add to totals
       partData.totalPlan += parseFloat(plan) || 0;
       partData.totalActual += parseFloat(actual) || 0;
+    });
+    
+    // Set schedule from first available day's entry for each part
+    partMap.forEach((partData, partKey) => {
+      // Sort the days to find the earliest day with data
+      const sortedDays = Array.from(partData.dailyData.keys()).sort((a, b) => a - b);
+      
+      // Find the first day that has a valid schedule
+      for (const day of sortedDays) {
+        const dayData = partData.dailyData.get(day);
+        if (dayData && dayData.records && dayData.records.length > 0) {
+          const firstRecord = dayData.records[0];
+          if (firstRecord.schedule && firstRecord.schedule !== null && firstRecord.schedule !== '') {
+            partData.schedule = parseFloat(firstRecord.schedule) || 0;
+            break; // Found schedule, stop looking
+          }
+        }
+      }
+      
+      // If still no schedule found, set to 0
+      if (partData.schedule === null) {
+        partData.schedule = 0;
+      }
     });
     
     return Array.from(partMap.values());
@@ -619,8 +642,17 @@ const Production = () => {
                               >
                                 <IconButton
                                   onClick={() => {
-                                    setEdit(dayData.records[0]);
-                                    console.log('Edit clicked for:', partData.part_description, 'Day:', day);
+                                    console.log('=== EDIT ICON CLICKED ===');
+                                    console.log('Part Description:', partData.part_description);
+                                    console.log('Day:', day);
+                                    console.log('Day Data:', dayData);
+                                    console.log('Selected Record:', dayData.records[0]);
+                                    console.log('All Records for this day:', dayData.records);
+                                    console.log('Record IDs:', dayData.recordIds);
+                                    console.log('========================');
+                                    
+                                    // Add day information to the edit state
+                                    setEdit({...dayData.records[0], day: day});
                                   }}
                                   size="small"
                                   sx={{
@@ -788,14 +820,14 @@ const Production = () => {
           <Box sx={{ width: 16, height: 16, backgroundColor: '#f8f9fa', border: '1px solid #d32f2f' }} />
           <Typography variant="body2">Actual</Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 16, height: 16, backgroundColor: '#e8f5e8', border: '1px solid #2e7d32' }} />
           <Typography variant="body2">Production</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 16, height: 16, backgroundColor: '#f3e5f5', border: '1px solid #7b1fa2' }} />
           <Typography variant="body2">Balance</Typography>
-        </Box>
+        </Box> */}
       </Box>
 
       {/* Add Production Modal */}
@@ -853,17 +885,20 @@ const Production = () => {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Schedule"
-                  type="number"
-                  value={edit.schedule || ''}
-                  onChange={(e) => setEdit(prev => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))}
-                  variant="outlined"
-                  inputProps={{ min: 0 }}
-                />
-              </Grid>
+              {/* Schedule field - only show for day 1 or day 2 */}
+              {(edit.day === 1 || edit.day === 2) && (
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Schedule"
+                    type="number"
+                    value={edit.schedule || ''}
+                    onChange={(e) => setEdit(prev => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))}
+                    variant="outlined"
+                    inputProps={{ min: 0 }}
+                  />
+                </Grid>
+              )}
 
               <Grid item xs={12} sm={6}>
                 <TextField
