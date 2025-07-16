@@ -11,48 +11,42 @@ import {
   TableRow,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import colors from "../../../utils/colors";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import colors from '../../../utils/colors';
 // import AddStock from "./AddStock";
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import { MdDone, MdOutlineCancel, MdOutlineEdit } from "react-icons/md";
-import CloseIcon from "@mui/icons-material/Close";
-import EditIcon from "@mui/icons-material/Edit";
-import AddStoreStock from "./AddStoreStock";
-import { fetchStoreStock, updateStoreStock } from "../../../Redux/Actions/storeStockAction";
-import store from "../../../Redux/store";
-import { enqueueSnackbar } from "notistack";
-import { IoPersonSharp } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux';
+import { MdDone, MdOutlineCancel, MdOutlineEdit } from 'react-icons/md';
+import CloseIcon from '@mui/icons-material/Close';
+import EditIcon from '@mui/icons-material/Edit';
+import AddStoreStock from './AddStoreStock';
+import { fetchStoreStock, updateStoreStock } from '../../../store/actions/storeStockAction';
+import Swal from 'sweetalert2';
+import { IoPersonSharp } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const StoreStock = () => {
-  const { storeStockArr}= useSelector((state) => state.storeStock);
+  const { storeStockArr } = useSelector((state) => state.storeStock);
   console.log(storeStockArr);
 
   // Use date instead of week
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-  const { userData, token } = useSelector((state) => state.auth);
+  const { token } = useSelector((state) => state.auth);
   const [isOpen, setIsOpen] = React.useState(false);
 
   console.log(date);
-  const [stock, setStock] = useState([]);
-  console.log(stock);
-  const [isLoading, setIsLoading] = useState(false);
   const [edit, setEdit] = useState({});
   console.log(edit);
   const dispatch = useDispatch();
-  const navigate= useNavigate();
+  const navigate = useNavigate();
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState({
     status: '',
     color: '',
-    message: ''
+    message: '',
   });
 
   // let stock= [
@@ -115,12 +109,10 @@ const StoreStock = () => {
   // ]
 
   useEffect(() => {
-    const [year, month, day] = date.split("-");
-    console.log(date);
+    const [year, month, day] = date.split('-');
     dispatch(fetchStoreStock(year, month, day, token));
-  }, [date, isOpen]);
+  }, [date, isOpen, dispatch, token]);
   // }, [date, isOpen, edit]);
-
 
   const handleSubmit = async () => {
     // Calculate status based on current stock value
@@ -148,32 +140,46 @@ const StoreStock = () => {
   };
 
   const confirmUpdate = () => {
-    dispatch(updateStoreStock(
-      edit, 
-      token, 
-      (successMessage) => {
-        // Success callback
-        enqueueSnackbar(successMessage, { variant: "success" });
-        setEdit({}); // Clear the edit state
-        setUpdateDialogOpen(false);
-      },
-      (errorMessage) => {
-        // Error callback
-        enqueueSnackbar(errorMessage, { variant: "error" });
-        setUpdateDialogOpen(false);
-      }
-    ));
+    dispatch(
+      updateStoreStock(
+        edit,
+        token,
+        (successMessage) => {
+          // Success callback
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: successMessage,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setEdit({}); // Clear the edit state
+          setUpdateDialogOpen(false);
+        },
+        (errorMessage) => {
+          // Error callback
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: errorMessage,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setUpdateDialogOpen(false);
+        }
+      )
+    );
   };
 
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "88vh",
+        display: 'flex',
+        flexDirection: 'column',
+        height: '88vh',
         // bgcolor: "lightgray",
-        position: "relative",
-        padding: "1rem",
+        position: 'relative',
+        padding: '1rem',
       }}
     >
       {/* <Typography
@@ -190,126 +196,133 @@ const StoreStock = () => {
       </Typography> */}
 
       <Typography
-              sx={{
-                fontSize: "2rem",
-                textAlign: "center",
-                // borderBottom: "1px solid #282828",
-                width: "100%",
-                // marginLeft: "auto",
-                mr: "auto",
-                padding: "1rem 0rem",
-                bgcolor: 'white',
-                borderRadius: '12px',
-                boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
-              }}
-            >
-              STORE STOCK MONITORING BOARD
-            </Typography>
+        sx={{
+          fontSize: '2rem',
+          textAlign: 'center',
+          // borderBottom: "1px solid #282828",
+          width: '100%',
+          // marginLeft: "auto",
+          mr: 'auto',
+          padding: '1rem 0rem',
+          bgcolor: 'white',
+          borderRadius: '12px',
+          boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
+        }}
+      >
+        STORE STOCK MONITORING BOARD
+      </Typography>
 
       <Box
         sx={{
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-evenly",
-          mt: "1.6rem",
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-evenly',
+          mt: '1.6rem',
           // ml: "auto",
           // mr: "auto",
-          padding: "0.5rem",  
+          padding: '0.5rem',
           // bgcolor: 'red'
         }}
       >
         <Box
-          bgcolor={"#f9f9f9"} // Light background color for highlighting
-          color={"#282828"}
-          display={"flex"}
-          alignItems={"center"}
-          fontSize={"1.2rem"}
-          padding={"0.5rem 0.8rem"}
-          borderRadius={"8px"}
-          boxShadow={"rgba(56, 56, 56, 0.4) 0px 2px 8px 0px"}
-          mr={"auto"}
-          
+          bgcolor={'#f9f9f9'} // Light background color for highlighting
+          color={'#282828'}
+          display={'flex'}
+          alignItems={'center'}
+          fontSize={'1.2rem'}
+          padding={'0.5rem 0.8rem'}
+          borderRadius={'8px'}
+          boxShadow={'rgba(56, 56, 56, 0.4) 0px 2px 8px 0px'}
+          mr={'auto'}
           sx={{
-            cursor: "pointer", // Pointer cursor for hover effect
-            transition: "0.3s ease-in-out", // Smooth transition for hover effect
-            "&:hover": {
-              boxShadow: "0px 4px 12px rgba(10, 12, 10, 0.38)", // Stronger shadow on hover
+            cursor: 'pointer', // Pointer cursor for hover effect
+            transition: '0.3s ease-in-out', // Smooth transition for hover effect
+            '&:hover': {
+              boxShadow: '0px 4px 12px rgba(10, 12, 10, 0.38)', // Stronger shadow on hover
             },
           }}
         >
-          
-        <Box ml={"1rem"} display={"flex"} alignItems={"center"}>
-          <Box display={"flex"} maxWidth={"12rem"} minWidth={"12rem"} width={"12rem"} alignItems={'center'}>
-            <IoPersonSharp style={{ color: "#282828", fontSize: "1.5rem", marginRight: '0.5rem' }} />
-            <Typography>Responsible Person-</Typography>
-          </Box>
+          <Box ml={'1rem'} display={'flex'} alignItems={'center'}>
+            <Box
+              display={'flex'}
+              maxWidth={'12rem'}
+              minWidth={'12rem'}
+              width={'12rem'}
+              alignItems={'center'}
+            >
+              <IoPersonSharp
+                style={{ color: '#282828', fontSize: '1.5rem', marginRight: '0.5rem' }}
+              />
+              <Typography>Responsible Person-</Typography>
+            </Box>
 
-          {storeStockArr.length > 0 ? ( // Check if there is at least one item in storeStockArr
-            edit._id === storeStockArr[0]._id ? (
-              <>
-                <TextField
-                  type="text"
-                  defaultValue={storeStockArr[0]?.resp_person}
-                  onChange={(e) => setEdit({ ...edit, resp_person: e.target.value })}
-                  sx={{ width: "7rem" }}
-                  size="small"
-                />
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    ml: "1rem",
+            {storeStockArr.length > 0 ? ( // Check if there is at least one item in storeStockArr
+              edit._id === storeStockArr[0]._id ? (
+                <>
+                  <TextField
+                    type="text"
+                    defaultValue={storeStockArr[0]?.resp_person}
+                    onChange={(e) => setEdit({ ...edit, resp_person: e.target.value })}
+                    sx={{ width: '7rem' }}
+                    size="small"
+                  />
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      ml: '1rem',
+                    }}
+                  >
+                    <IconButton onClick={() => setEdit({})}>
+                      <CloseIcon style={{ color: '#CC7C7C' }} />
+                    </IconButton>
+                    <IconButton onClick={handleSubmit} style={{ color: 'green' }}>
+                      <MdDone />
+                    </IconButton>
+                  </Box>
+                </>
+              ) : (
+                <div
+                  style={{
+                    backgroundColor: '#FFCDD2',
+                    height: '2rem',
+                    borderRadius: '4px',
+                    padding: '0 0.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginLeft: '0.5rem',
+                    color: '#282828',
+                    boxShadow: 'rgba(0, 0, 0, 0.17) 0px 3px 8px',
                   }}
                 >
-                  <IconButton onClick={() => setEdit({})}>
-                    <CloseIcon style={{ color: "#CC7C7C" }} />
-                  </IconButton>
-                  <IconButton onClick={handleSubmit} style={{ color: "green" }}>
-                    <MdDone />
-                  </IconButton>
-                </Box>
-              </>
+                  {storeStockArr[0]?.resp_person || 'Not mentioned'}
+                </div>
+              )
             ) : (
-              <div
-                style={{
-                  backgroundColor: "#FFCDD2",
-                  height: "2rem",
-                  borderRadius: "4px",
-                  padding: "0 0.5rem",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginLeft: "0.5rem",
-                  color: "#282828",
-                  boxShadow: "rgba(0, 0, 0, 0.17) 0px 3px 8px",
+              <Typography
+                sx={{
+                  marginLeft: '1rem',
+                  color: '#888',
+                  fontStyle: 'italic',
                 }}
               >
-                {storeStockArr[0]?.resp_person || "Not mentioned"}
-              </div>
-            )
-          ) : (
-            <Typography
-              sx={{
-                marginLeft: "1rem",
-                color: "#888",
-                fontStyle: "italic",
-              }}
-            >
-              No data available
-            </Typography>
-          )}
+                No data available
+              </Typography>
+            )}
 
-          {storeStockArr.length > 0 && edit._id !== storeStockArr[0]?._id && ( // Show Edit button only if data exists
-            <IconButton
-              onClick={() => setEdit(storeStockArr[0])}
-              style={{ color: "grey", marginLeft: "1rem" }}
-            >
-              <EditIcon style={{ color: "rgb(201, 162, 56)" }} />
-            </IconButton>
-          )}
-        </Box>
+            {storeStockArr.length > 0 &&
+              edit._id !== storeStockArr[0]?._id && ( // Show Edit button only if data exists
+                <IconButton
+                  onClick={() => setEdit(storeStockArr[0])}
+                  style={{ color: 'grey', marginLeft: '1rem' }}
+                >
+                  <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
+                </IconButton>
+              )}
+          </Box>
         </Box>
 
         {/* <Box display={'flex'}  width={'15rem'} justifyContent={'space-between'} mr={'1rem'}>
@@ -320,38 +333,44 @@ const StoreStock = () => {
         </Box> */}
 
         <Box display={'flex'}>
-        {/* <Button
+          {/* <Button
           sx={{ bgcolor: colors.primary, width: "12rem", mr: '1rem' }}
           variant="contained"
           onClick={() => setIsOpen(true)}
         >
           Add New Item
         </Button> */}
-        <Button variant="contained" sx={{mr: '0.8rem', bgcolor: colors.primary}} onClick={()=> navigate('/monthly-store-stock')}>Monthly Sheet</Button>
-        
-        <TextField
-          size="small"
-          label="Select Date"
-          sx={{ width: "15rem" }}
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-          required
-        />
+          <Button
+            variant="contained"
+            sx={{ mr: '0.8rem', bgcolor: colors.primary }}
+            onClick={() => navigate('/monthly-store-stock')}
+          >
+            Monthly Sheet
+          </Button>
+
+          <TextField
+            size="small"
+            label="Select Date"
+            sx={{ width: '15rem' }}
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            required
+          />
         </Box>
       </Box>
       {isOpen && (
         <Box
-          bgcolor={"rgba(0, 0, 0, 0.6)"}
-          position={"fixed"}
+          bgcolor={'rgba(0, 0, 0, 0.6)'}
+          position={'fixed'}
           top={0}
           left={0}
-          height={"100vh"}
-          width={"100vw"}
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
+          height={'100vh'}
+          width={'100vw'}
+          display={'flex'}
+          justifyContent={'center'}
+          alignItems={'center'}
           zIndex={9}
           onClick={() => setIsOpen(false)}
         >
@@ -362,62 +381,52 @@ const StoreStock = () => {
       {/* Update Status Dialog */}
       {updateDialogOpen && (
         <Box
-          bgcolor={"rgba(0, 0, 0, 0.6)"}
-          position={"fixed"}
+          bgcolor={'rgba(0, 0, 0, 0.6)'}
+          position={'fixed'}
           top={0}
           left={0}
-          height={"100vh"}
-          width={"100vw"}
-          display={"flex"}
-          justifyContent={"center"}
-          alignItems={"center"}
+          height={'100vh'}
+          width={'100vw'}
+          display={'flex'}
+          justifyContent={'center'}
+          alignItems={'center'}
           zIndex={10}
           onClick={() => setUpdateDialogOpen(false)}
         >
           <Box
             onClick={(e) => e.stopPropagation()}
-            height={"auto"}
-            borderRadius={"8px"}
-            width={"33rem"}
-            bgcolor={"white"}
-            display={"flex"}
-            flexDirection={"column"}
-            alignItems={"center"}
-            justifyContent={"space-between"}
-            p={"2rem"}
+            height={'auto'}
+            borderRadius={'8px'}
+            width={'33rem'}
+            bgcolor={'white'}
+            display={'flex'}
+            flexDirection={'column'}
+            alignItems={'center'}
+            justifyContent={'space-between'}
+            p={'2rem'}
           >
-            <Typography fontSize={"1.5rem"} textAlign={"center"} mb={2}>
+            <Typography fontSize={'1.5rem'} textAlign={'center'} mb={2}>
               Stock Status Update
             </Typography>
 
-            <Box
-              display={"flex"}
-              alignItems={"center"}
-              justifyContent={"center"}
-              mb={2}
-            >
+            <Box display={'flex'} alignItems={'center'} justifyContent={'center'} mb={2}>
               <Box
-                width={"25px"}
-                height={"25px"}
+                width={'25px'}
+                height={'25px'}
                 bgcolor={updateStatus.color}
-                borderRadius={"50%"}
+                borderRadius={'50%'}
                 mr={1}
               />
-              <Typography fontSize={"1.2rem"} fontWeight={"bold"}>
+              <Typography fontSize={'1.2rem'} fontWeight={'bold'}>
                 {updateStatus.status}
               </Typography>
             </Box>
 
-            <Typography
-              fontSize={"1rem"}
-              textAlign={"center"}
-              color={"textSecondary"}
-              mb={3}
-            >
+            <Typography fontSize={'1rem'} textAlign={'center'} color={'textSecondary'} mb={3}>
               {updateStatus.message}
             </Typography>
 
-            <Typography fontSize={"0.9rem"} textAlign={"center"} mb={3}>
+            <Typography fontSize={'0.9rem'} textAlign={'center'} mb={3}>
               Current Stock: <strong>{edit.current || 0}</strong>
             </Typography>
 
@@ -435,12 +444,12 @@ const StoreStock = () => {
               <Button
                 variant="contained"
                 onClick={confirmUpdate}
-                sx={{ 
-                  bgcolor: colors.primary, 
+                sx={{
+                  bgcolor: colors.primary,
                   flex: 1,
                   '&:hover': {
-                    bgcolor: colors.buttonHover || colors.primary
-                  }
+                    bgcolor: colors.buttonHover || colors.primary,
+                  },
                 }}
               >
                 Confirm Update
@@ -452,41 +461,40 @@ const StoreStock = () => {
 
       {/* --------------Table------------------- */}
       <Box
-        position={"relative"}
+        position={'relative'}
         // bgcolor={"lightgrey"}
-        mr={"1rem"}
-        p={"0.7rem"}
-        borderRadius={"6px"}
-        display={"flex"}
-        flexDirection={"column"}
-        alignItems={"center"}
-        sx={{ 
+        mr={'1rem'}
+        p={'0.7rem'}
+        borderRadius={'6px'}
+        display={'flex'}
+        flexDirection={'column'}
+        alignItems={'center'}
+        sx={{
           // bgcolor: 'lightblue',
-          minHeight: "64vh", // or a fixed height like "600px"
-          width: "100%",  // Make sure it's not constrained by parent
-          overflow: "auto", // Enables both vertical & horizontal scroll
-          scrollbarWidth: "thin", // Firefox
-          "&::-webkit-scrollbar": {
-            width: "8px",
-            height: "8px",
+          minHeight: '64vh', // or a fixed height like "600px"
+          width: '100%', // Make sure it's not constrained by parent
+          overflow: 'auto', // Enables both vertical & horizontal scroll
+          scrollbarWidth: 'thin', // Firefox
+          '&::-webkit-scrollbar': {
+            width: '8px',
+            height: '8px',
           },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#888",
-            borderRadius: "4px",
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: '#888',
+            borderRadius: '4px',
           },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#555",
+          '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: '#555',
           },
         }}
       >
         {/* <Typography position={'absolute'} top={'-1rem'} left={0}>0 Records found</Typography> */}
         {/* <Typography fontSize={'1.6rem'} sx={{borderBottom: '1px solid grey', mb: '1rem'}}>Fire Report</Typography> */}
-        <Paper sx={{ maxHeight: "100%", overflow: "hidden",  mr: 'auto'}}>
-          <TableContainer sx={{ maxHeight: "100%" }} >
+        <Paper sx={{ maxHeight: '100%', overflow: 'hidden', mr: 'auto' }}>
+          <TableContainer sx={{ maxHeight: '100%' }}>
             {/* <Table aria-label="simple table" border={1} stickyHeader> */}
-            <Table stickyHeader aria-label="sticky table"  border={1} >
-            
-              <TableHead >
+            <Table stickyHeader aria-label="sticky table" border={1}>
+              <TableHead>
                 {/* {
       "item_description": "DATA",
       "item_code": "1234567",
@@ -501,64 +509,111 @@ const StoreStock = () => {
       "target": 780,
       "timestamp": "2025-05-20T10:45:50.624000" 
     } */}
-                <TableRow  sx={{ bgcolor: "#f5f5f5 !important", borderBottom: "1px solid #ddd" }}>
-                  <TableCell sx={{ fontSize: "1.2rem", maxWidth: '4rem', width: '4rem', minWidth: '4rem', backgroundColor: "inherit" }}>Sr No</TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "23rem",
-                          maxWidth: "23rem",
-                          minWidth: "23rem", backgroundColor: "inherit", }}>
+                <TableRow sx={{ bgcolor: '#f5f5f5 !important', borderBottom: '1px solid #ddd' }}>
+                  <TableCell
+                    sx={{
+                      fontSize: '1.2rem',
+                      maxWidth: '4rem',
+                      width: '4rem',
+                      minWidth: '4rem',
+                      backgroundColor: 'inherit',
+                    }}
+                  >
+                    Sr No
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: '1.2rem',
+                      width: '23rem',
+                      maxWidth: '23rem',
+                      minWidth: '23rem',
+                      backgroundColor: 'inherit',
+                    }}
+                  >
                     Item Description
                   </TableCell>
                   {/* <TableCell align="center" sx={{fontSize: '1.2rem'}}>Count</TableCell> */}
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                  <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Minimum
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                  <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Maximum
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit",  maxWidth: '9rem', width: '9rem', minWidth: '9rem' }}>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: '1.2rem',
+                      backgroundColor: 'inherit',
+                      maxWidth: '9rem',
+                      width: '9rem',
+                      minWidth: '9rem',
+                    }}
+                  >
                     Current Stock
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit"  }}>
+                  <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Location
                   </TableCell>
-                  
-                  <TableCell align="center" sx={{ fontSize: "1.2rem",backgroundColor: "inherit", maxWidth: '16rem', width: '16rem', minWidth: '16rem' }}>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: '1.2rem',
+                      backgroundColor: 'inherit',
+                      maxWidth: '16rem',
+                      width: '16rem',
+                      minWidth: '16rem',
+                    }}
+                  >
                     Plan
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", width: "14rem", minWidth: '14rem', maxWidth: '14rem', backgroundColor: "inherit" }}>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontSize: '1.2rem',
+                      width: '14rem',
+                      minWidth: '14rem',
+                      maxWidth: '14rem',
+                      backgroundColor: 'inherit',
+                    }}
+                  >
                     Actual
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                  <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Status
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
+                  <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Edit
                   </TableCell>
                 </TableRow>
               </TableHead>
 
-              <TableBody >
+              <TableBody>
                 {storeStockArr.length > 0 ? (
                   storeStockArr.map((elem, index) => (
                     <TableRow key={elem.id || index}>
                       <TableCell align="center">{index + 1}</TableCell>
                       <TableCell
                         sx={{
-                          width: "20rem",
-                          maxWidth: "20rem",
-                          minWidth: "20rem",
+                          width: '20rem',
+                          maxWidth: '20rem',
+                          minWidth: '20rem',
                         }}
                         align="center"
                       >
                         {elem.item_description}
                       </TableCell>
-                      <TableCell sx={{ width: "6rem" }} align="center">
-                      {elem.minimum}
+                      <TableCell sx={{ width: '6rem' }} align="center">
+                        {elem.minimum}
                       </TableCell>
-                      <TableCell sx={{ width: "6rem" }} align="center">
+                      <TableCell sx={{ width: '6rem' }} align="center">
                         {elem.maximum}
                       </TableCell>
-                      <TableCell sx={{ width: "6rem", minWidth: '6rem', maxWidth: '6rem' }} align="center">
+                      <TableCell
+                        sx={{ width: '6rem', minWidth: '6rem', maxWidth: '6rem' }}
+                        align="center"
+                      >
                         {edit._id == elem._id ? (
                           <TextField
                             fullWidth
@@ -566,10 +621,8 @@ const StoreStock = () => {
                             // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="number"
                             defaultValue={elem.current}
-                            onChange={(e) =>
-                              setEdit({ ...edit, current: e.target.value })
-                            }
-                            sx={{ width: "100%" }}
+                            onChange={(e) => setEdit({ ...edit, current: e.target.value })}
+                            sx={{ width: '100%' }}
                             size="small"
                           />
                         ) : (
@@ -577,7 +630,10 @@ const StoreStock = () => {
                         )}
                       </TableCell>
 
-                      <TableCell sx={{ width: "4rem", minWidth: '4rem', maxWidth: '4rem' }} align="center">
+                      <TableCell
+                        sx={{ width: '4rem', minWidth: '4rem', maxWidth: '4rem' }}
+                        align="center"
+                      >
                         {edit._id == elem._id ? (
                           <TextField
                             fullWidth
@@ -585,10 +641,8 @@ const StoreStock = () => {
                             // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="text"
                             defaultValue={elem.location}
-                            onChange={(e) =>
-                              setEdit({ ...edit, location: e.target.value })
-                            }
-                            sx={{ width: "100%" }}
+                            onChange={(e) => setEdit({ ...edit, location: e.target.value })}
+                            sx={{ width: '100%' }}
                             size="small"
                           />
                         ) : (
@@ -609,8 +663,11 @@ const StoreStock = () => {
   <Box>3</Box>
 </Box>
 </TableCell> */}
-                      
-                      <TableCell sx={{ width: "9rem", minWidth: '9rem', maxWidth: '9rem' }} align="center">
+
+                      <TableCell
+                        sx={{ width: '9rem', minWidth: '9rem', maxWidth: '9rem' }}
+                        align="center"
+                      >
                         {edit._id == elem._id ? (
                           <TextField
                             fullWidth
@@ -618,17 +675,18 @@ const StoreStock = () => {
                             // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="text"
                             defaultValue={elem.plan}
-                            onChange={(e) =>
-                              setEdit({ ...edit, plan: e.target.value })
-                            }
-                            sx={{ width: "100%" }}
+                            onChange={(e) => setEdit({ ...edit, plan: e.target.value })}
+                            sx={{ width: '100%' }}
                             size="small"
                           />
                         ) : (
                           elem.plan
                         )}
                       </TableCell>
-                      <TableCell sx={{ width: "14rem", minWidth: '14rem', maxWidth: '14rem' }} align="center">
+                      <TableCell
+                        sx={{ width: '14rem', minWidth: '14rem', maxWidth: '14rem' }}
+                        align="center"
+                      >
                         {edit._id == elem._id ? (
                           <TextField
                             fullWidth
@@ -636,58 +694,66 @@ const StoreStock = () => {
                             // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="text"
                             defaultValue={elem.actual}
-                            onChange={(e) =>
-                              setEdit({ ...edit, actual: e.target.value })
-                            }
-                            sx={{ width: "100%" }}
+                            onChange={(e) => setEdit({ ...edit, actual: e.target.value })}
+                            sx={{ width: '100%' }}
                             size="small"
                           />
                         ) : (
                           elem.actual
                         )}
                       </TableCell>
-                      <TableCell
-                        sx={{ width: "7rem", height: "100%", padding: 0 }}
-                        align="center"
-                      >
-                        {Number(elem.current) < elem.minimum && <Box width={'25px'} height={'25px'} bgcolor={'red'} borderRadius={'50%'} margin={'auto'}></Box>}
-                        {(Number(elem.current) >= elem.minimum && Number(elem.current) < 400) && (
-                          <Box width={'25px'} height={'25px'} bgcolor={'orange'} borderRadius={'50%'} margin={'auto'}></Box>
+                      <TableCell sx={{ width: '7rem', height: '100%', padding: 0 }} align="center">
+                        {Number(elem.current) < elem.minimum && (
+                          <Box
+                            width={'25px'}
+                            height={'25px'}
+                            bgcolor={'red'}
+                            borderRadius={'50%'}
+                            margin={'auto'}
+                          ></Box>
                         )}
-                        {Number(elem.current) >= 400 && <Box width={'25px'} height={'25px'} bgcolor={'green'} borderRadius={'50%'} margin={'auto'}></Box>}
+                        {Number(elem.current) >= elem.minimum && Number(elem.current) < 400 && (
+                          <Box
+                            width={'25px'}
+                            height={'25px'}
+                            bgcolor={'orange'}
+                            borderRadius={'50%'}
+                            margin={'auto'}
+                          ></Box>
+                        )}
+                        {Number(elem.current) >= 400 && (
+                          <Box
+                            width={'25px'}
+                            height={'25px'}
+                            bgcolor={'green'}
+                            borderRadius={'50%'}
+                            margin={'auto'}
+                          ></Box>
+                        )}
                       </TableCell>
-                      <TableCell
-                        sx={{ width: "6rem", maxWidth: "6rem" }}
-                        align="center"
-                      >
+                      <TableCell sx={{ width: '6rem', maxWidth: '6rem' }} align="center">
                         {edit._id == elem._id ? (
                           <Box
                             sx={{
-                              display: "flex",
-                              width: "100%",
-                              justifyContent: "center",
-                              alignItems: "center",
+                              display: 'flex',
+                              width: '100%',
+                              justifyContent: 'center',
+                              alignItems: 'center',
                             }}
                           >
                             {/* <Button variant="outlined" sx={{}} color="error" onClick={()=> setEdit({})} size="small">Cancel</Button> */}
                             <IconButton onClick={() => setEdit({})}>
-                              <CloseIcon style={{ color: "red" }} />
+                              <CloseIcon style={{ color: 'red' }} />
                             </IconButton>
                             {/* import CloseIcon from '@mui/icons-material/Close'; */}
                             {/* <Button variant="contained"  color="success" onClick={handleSubmit}>Submit</Button> */}
-                            <IconButton
-                              onClick={handleSubmit}
-                              style={{ color: "green" }}
-                            >
+                            <IconButton onClick={handleSubmit} style={{ color: 'green' }}>
                               <MdDone />
                             </IconButton>
                           </Box>
                         ) : (
                           // <Button onClick={()=> setEdit(elem)}>Edit</Button>
-                          <IconButton
-                            onClick={() => setEdit(elem)}
-                            style={{ color: "grey" }}
-                          >
+                          <IconButton onClick={() => setEdit(elem)} style={{ color: 'grey' }}>
                             <EditIcon />
                           </IconButton>
                         )}
@@ -698,7 +764,7 @@ const StoreStock = () => {
                     </TableRow>
                   ))
                 ) : (
-                  <Typography p={"1rem"}>No Result found</Typography>
+                  <Typography p={'1rem'}>No Result found</Typography>
                 )}
 
                 {/* {isLoading && (
@@ -712,7 +778,7 @@ const StoreStock = () => {
             </Table>
           </TableContainer>
 
-{/* <Box display={'flex'} justifyContent={'space-between'}>
+          {/* <Box display={'flex'} justifyContent={'space-between'}>
 <Box display={'flex'} flexDirection={'column'} >
                   <Typography fontSize={'1.1rem'}>Days Require For Purchase Materials</Typography>
                   <Box width={'100%'} fontSize={'1.1rem'} display={'flex'} justifyContent={'space-between'}><span>Local : Min- 1</span> <span>Max- 10</span></Box>
@@ -725,25 +791,53 @@ const StoreStock = () => {
                 </Box>
                 
 </Box> */}
-          
         </Paper>
-        
       </Box>
-      <Table sx={{position: 'fixed', bottom: 0, bgcolor: 'rgba(0, 55, 173, 0.04)', width: '100rem'}}>
-            <TableRow>
-              <TableCell sx={{ border: "1px solid rgba(1, 27, 83, 0.55)" }}>
-                <Box display={'flex'} flexDirection={'column'} >
-                  <Typography fontSize={'1.1rem'}>Days Require For Purchase Materials</Typography>
-                  <Box width={'100%'} fontSize={'1.1rem'} display={'flex'} justifyContent={'space-between'}><span>Local : Min- 1</span> <span>Max- 10</span></Box>
-                  <Box  width={'100%'} fontSize={'1.1rem'} display={'flex'} justifyContent={'space-between'}><span>Import : Min- 0</span> <span>Max- 0</span></Box>
-                </Box>
-              </TableCell>
-              <TableCell sx={{ border: "1px solid rgba(1, 27, 83, 0.55)" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'red'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Critical ({'<'}MIN)</Typography></Box></TableCell>
-              <TableCell sx={{ border: "1px solid rgba(1, 27, 83, 0.55)" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'orange'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Normal (200 To 400)</Typography></Box></TableCell>
-              <TableCell sx={{ border: "1px solid rgba(1, 27, 83, 0.55)" }}><Box  display={'flex'} alignItems={'center'}><Box bgcolor={'green'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box><Typography fontSize={'1.1rem'}>Ok ({'≥'}400)</Typography></Box></TableCell>
-
-            </TableRow>
-          </Table>
+      <Table
+        sx={{ position: 'fixed', bottom: 0, bgcolor: 'rgba(0, 55, 173, 0.04)', width: '100rem' }}
+      >
+        <TableRow>
+          <TableCell sx={{ border: '1px solid rgba(1, 27, 83, 0.55)' }}>
+            <Box display={'flex'} flexDirection={'column'}>
+              <Typography fontSize={'1.1rem'}>Days Require For Purchase Materials</Typography>
+              <Box
+                width={'100%'}
+                fontSize={'1.1rem'}
+                display={'flex'}
+                justifyContent={'space-between'}
+              >
+                <span>Local : Min- 1</span> <span>Max- 10</span>
+              </Box>
+              <Box
+                width={'100%'}
+                fontSize={'1.1rem'}
+                display={'flex'}
+                justifyContent={'space-between'}
+              >
+                <span>Import : Min- 0</span> <span>Max- 0</span>
+              </Box>
+            </Box>
+          </TableCell>
+          <TableCell sx={{ border: '1px solid rgba(1, 27, 83, 0.55)' }}>
+            <Box display={'flex'} alignItems={'center'}>
+              <Box bgcolor={'red'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box>
+              <Typography fontSize={'1.1rem'}>Critical ({'<'}MIN)</Typography>
+            </Box>
+          </TableCell>
+          <TableCell sx={{ border: '1px solid rgba(1, 27, 83, 0.55)' }}>
+            <Box display={'flex'} alignItems={'center'}>
+              <Box bgcolor={'orange'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box>
+              <Typography fontSize={'1.1rem'}>Normal (200 To 400)</Typography>
+            </Box>
+          </TableCell>
+          <TableCell sx={{ border: '1px solid rgba(1, 27, 83, 0.55)' }}>
+            <Box display={'flex'} alignItems={'center'}>
+              <Box bgcolor={'green'} width={'6rem'} height={'3rem'} mr={'1rem'}></Box>
+              <Typography fontSize={'1.1rem'}>Ok ({'≥'}400)</Typography>
+            </Box>
+          </TableCell>
+        </TableRow>
+      </Table>
     </Box>
   );
 };

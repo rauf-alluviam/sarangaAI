@@ -23,3 +23,5 @@ export const fgStockReducer=(state= initialState, action)=>{
             return state;
     }
 }
+
+export default fgStockReducer;
