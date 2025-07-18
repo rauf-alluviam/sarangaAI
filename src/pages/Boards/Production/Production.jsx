@@ -43,8 +43,8 @@ const Production = () => {
   const [hasInitialized, setHasInitialized] = useState(false);
   const [edit, setEdit] = useState({});
   const [addData, setAddData] = useState({});
-  console.log(data)
-  console.log(edit)
+  console.log(data);
+  console.log(edit);
 
   // Generate days array (1-31)
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -52,8 +52,18 @@ const Production = () => {
   // Get month name
   const getMonthName = (monthNum) => {
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return monthNames[monthNum - 1];
   };
@@ -61,14 +71,15 @@ const Production = () => {
   // Process records to organize by part and date
   const processData = (records) => {
     const partMap = new Map();
-    
-    records.forEach(record => {
-      const { part_description, machine, schedule, plan, actual, resp_person, timestamp, id } = record;
+
+    records.forEach((record) => {
+      const { part_description, machine, schedule, plan, actual, resp_person, timestamp, id } =
+        record;
       const date = new Date(timestamp);
       const day = date.getDate();
-      
+
       const partKey = part_description;
-      
+
       if (!partMap.has(partKey)) {
         partMap.set(partKey, {
           part_description,
@@ -78,21 +89,21 @@ const Production = () => {
           totalPlan: 0,
           totalActual: 0,
           recordIds: [],
-          recordsByDay: new Map()
+          recordsByDay: new Map(),
         });
       }
-      
+
       const partData = partMap.get(partKey);
-      
+
       // Track the original record ID
       partData.recordIds.push(id);
-      
+
       // Track which day this record belongs to
       if (!partData.recordsByDay.has(day)) {
         partData.recordsByDay.set(day, []);
       }
       partData.recordsByDay.get(day).push(id);
-      
+
       // If this day already has data, accumulate the values
       if (partData.dailyData.has(day)) {
         const existingData = partData.dailyData.get(day);
@@ -101,7 +112,7 @@ const Production = () => {
           actual: (existingData.actual || 0) + (parseFloat(actual) || 0),
           resp_person: resp_person || existingData.resp_person,
           recordIds: [...(existingData.recordIds || []), id],
-          records: [...(existingData.records || []), record]
+          records: [...(existingData.records || []), record],
         });
       } else {
         // Create new entry for this day
@@ -110,68 +121,72 @@ const Production = () => {
           actual: parseFloat(actual) || 0,
           resp_person: resp_person || '',
           recordIds: [id],
-          records: [record]
+          records: [record],
         });
       }
-      
+
       // Add to totals
       partData.totalPlan += parseFloat(plan) || 0;
       partData.totalActual += parseFloat(actual) || 0;
     });
-    
+
     // Set schedule from first available day's entry for each part
     partMap.forEach((partData, partKey) => {
       // Sort the days to find the earliest day with data
       const sortedDays = Array.from(partData.dailyData.keys()).sort((a, b) => a - b);
-      
+
       // Find the first day that has a valid schedule
       for (const day of sortedDays) {
         const dayData = partData.dailyData.get(day);
         if (dayData && dayData.records && dayData.records.length > 0) {
           const firstRecord = dayData.records[0];
-          if (firstRecord.schedule && firstRecord.schedule !== null && firstRecord.schedule !== '') {
+          if (
+            firstRecord.schedule &&
+            firstRecord.schedule !== null &&
+            firstRecord.schedule !== ''
+          ) {
             partData.schedule = parseFloat(firstRecord.schedule) || 0;
             break; // Found schedule, stop looking
           }
         }
       }
-      
+
       // If still no schedule found, set to 0
       if (partData.schedule === null) {
         partData.schedule = 0;
       }
     });
-    
+
     return Array.from(partMap.values());
   };
 
   // Fetch data from backend
   const fetchData = useCallback(async () => {
     if (!token) return;
-    
+
     const [year, month] = selectedDate.split('-');
     setIsLoading(true);
-    
+
     try {
       // Updated API endpoint for production plan data
       const response = await axios.get(`${BACKEND_API}/get_production_plan_details_by_month`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
         params: {
           year: parseInt(year),
-          month: parseInt(month)
-        }
+          month: parseInt(month),
+        },
       });
-      
+
       setData(response.data);
       enqueueSnackbar('Data fetched successfully', { variant: 'success' });
     } catch (error) {
       console.error('Error fetching data:', error);
       enqueueSnackbar('Error fetching data', { variant: 'error' });
       setIsLoading(false);
-      
+
       // Remove sample data fallback in production
       // const sampleData = {
       //   message: "Entries fetched from MongoDB",
@@ -247,30 +262,41 @@ const Production = () => {
 
   const renderPlanActualRows = (dayData) => {
     return (
-      <Box sx={{ minHeight: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <Box sx={{ 
-          fontSize: '0.7rem', 
-          padding: '4px 8px',
-          backgroundColor: '#f0f8ff',
-          borderBottom: '1px solid #e0e0e0',
+      <Box
+        sx={{
+          minHeight: '50px',
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '25px'
-        }}>
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box
+          sx={{
+            fontSize: '0.7rem',
+            padding: '4px 8px',
+            backgroundColor: '#f0f8ff',
+            borderBottom: '1px solid #e0e0e0',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '25px',
+          }}
+        >
           <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
             {dayData?.plan || '-'}
           </Typography>
         </Box>
-        <Box sx={{ 
-          fontSize: '0.7rem', 
-          padding: '4px 8px',
-          backgroundColor: '#f8f9fa',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '25px'
-        }}>
+        <Box
+          sx={{
+            fontSize: '0.7rem',
+            padding: '4px 8px',
+            backgroundColor: '#f8f9fa',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '25px',
+          }}
+        >
           <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
             {dayData?.actual || '-'}
           </Typography>
@@ -281,31 +307,48 @@ const Production = () => {
 
   const renderPlanActualLabels = () => {
     return (
-      <Box sx={{ minHeight: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <Box sx={{ 
-          fontSize: '0.7rem', 
-          padding: '4px 8px',
-          backgroundColor: '#f0f8ff',
-          borderBottom: '1px solid #e0e0e0',
+      <Box
+        sx={{
+          minHeight: '50px',
           display: 'flex',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          minHeight: '25px'
-        }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#1976d2' }}>
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Box
+          sx={{
+            fontSize: '0.7rem',
+            padding: '4px 8px',
+            backgroundColor: '#f0f8ff',
+            borderBottom: '1px solid #e0e0e0',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            minHeight: '25px',
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#1976d2' }}
+          >
             Plan
           </Typography>
         </Box>
-        <Box sx={{ 
-          fontSize: '0.7rem', 
-          padding: '4px 8px',
-          backgroundColor: '#f8f9fa',
-          display: 'flex',
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          minHeight: '25px'
-        }}>
-          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#d32f2f' }}>
+        <Box
+          sx={{
+            fontSize: '0.7rem',
+            padding: '4px 8px',
+            backgroundColor: '#f8f9fa',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            minHeight: '25px',
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#d32f2f' }}
+          >
             Actual
           </Typography>
         </Box>
@@ -317,22 +360,26 @@ const Production = () => {
     try {
       const updatePayload = {
         part_description: edit.part_description,
-        schedule: edit.schedule?.toString() || "0",
-        plan: edit.plan?.toString() || "0",
-        actual: edit.actual?.toString() || "0",
+        schedule: edit.schedule?.toString() || '0',
+        plan: edit.plan?.toString() || '0',
+        actual: edit.actual?.toString() || '0',
         resp_person: edit.resp_person || '',
-        timestamp: edit.timestamp
+        timestamp: edit.timestamp,
       };
 
       console.log('Update payload:', updatePayload);
       console.log('Document ID to update:', edit.id);
 
-      const response = await axios.put(`${BACKEND_API}/update_production_plan_detail/${edit.id}`, updatePayload, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await axios.put(
+        `${BACKEND_API}/update_production_plan_detail/${edit.id}`,
+        updatePayload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
-      });
+      );
 
       console.log('Update response:', response.data);
       enqueueSnackbar('Record updated successfully', { variant: 'success' });
@@ -404,26 +451,28 @@ const Production = () => {
         </Box>
       ) : processedData.length > 0 ? (
         <Paper sx={{ overflow: 'hidden', border: `1px solid #e0e0e0`, boxShadow: 3 }}>
-          <TableContainer sx={{ 
-            maxHeight: '70vh', 
-            overflowX: 'auto',
-            overflowY: 'auto',
-            '&::-webkit-scrollbar': {
-              height: '12px',
-              width: '12px'
-            },
-            '&::-webkit-scrollbar-track': {
-              backgroundColor: '#f1f1f1',
-              borderRadius: '6px'
-            },
-            '&::-webkit-scrollbar-thumb': {
-              backgroundColor: '#c1c1c1',
-              borderRadius: '6px',
-              '&:hover': {
-                backgroundColor: '#a8a8a8'
-              }
-            }
-          }}>
+          <TableContainer
+            sx={{
+              maxHeight: '70vh',
+              overflowX: 'auto',
+              overflowY: 'auto',
+              '&::-webkit-scrollbar': {
+                height: '12px',
+                width: '12px',
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#f1f1f1',
+                borderRadius: '6px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#c1c1c1',
+                borderRadius: '6px',
+                '&:hover': {
+                  backgroundColor: '#a8a8a8',
+                },
+              },
+            }}
+          >
             <Table stickyHeader>
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#f5f5f5 !important' }}>
@@ -438,12 +487,12 @@ const Production = () => {
                       zIndex: 3,
                       minWidth: '60px',
                       border: `1px solid #e0e0e0`,
-                      textAlign: 'center'
+                      textAlign: 'center',
                     }}
                   >
                     Sr. No.
                   </TableCell>
-                  
+
                   {/* Part Description */}
                   <TableCell
                     sx={{
@@ -454,7 +503,7 @@ const Production = () => {
                       left: 60,
                       zIndex: 3,
                       minWidth: '150px',
-                      border: `1px solid #e0e0e0`
+                      border: `1px solid #e0e0e0`,
                     }}
                   >
                     Part Description
@@ -470,7 +519,7 @@ const Production = () => {
                       left: 210,
                       zIndex: 3,
                       minWidth: '100px',
-                      border: `1px solid #e0e0e0`
+                      border: `1px solid #e0e0e0`,
                     }}
                   >
                     Schedule
@@ -486,7 +535,7 @@ const Production = () => {
                       left: 310,
                       zIndex: 3,
                       minWidth: '80px',
-                      border: `1px solid #e0e0e0`
+                      border: `1px solid #e0e0e0`,
                     }}
                   >
                     Plan/Actual
@@ -503,7 +552,7 @@ const Production = () => {
                         fontWeight: 'bold',
                         minWidth: '60px',
                         border: `1px solid #e0e0e0`,
-                        width: '60px'
+                        width: '60px',
                       }}
                     >
                       {day}
@@ -540,14 +589,15 @@ const Production = () => {
                       position: 'sticky',
                       right: 0,
                       zIndex: 3,
-                      border: `1px solid #e0e0e0`, 
+                      border: `1px solid #e0e0e0`,
                     }}
                   >
-                    <Box  width={'100%'} display={'flex'} justifyContent={'space-between'}>
-                        <Typography mr={'0.4rem'} fontSize={'0.9rem'}>Production</Typography>
-                        <Typography fontSize={'0.9rem'}>Balance</Typography>
+                    <Box width={'100%'} display={'flex'} justifyContent={'space-between'}>
+                      <Typography mr={'0.4rem'} fontSize={'0.9rem'}>
+                        Production
+                      </Typography>
+                      <Typography fontSize={'0.9rem'}>Balance</Typography>
                     </Box>
-                    
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -564,7 +614,7 @@ const Production = () => {
                         left: 0,
                         zIndex: 2,
                         border: `1px solid #e0e0e0`,
-                        textAlign: 'center'
+                        textAlign: 'center',
                       }}
                     >
                       {index + 1}
@@ -578,7 +628,7 @@ const Production = () => {
                         position: 'sticky',
                         left: 60,
                         zIndex: 2,
-                        border: `1px solid #e0e0e0`
+                        border: `1px solid #e0e0e0`,
                       }}
                     >
                       {partData.part_description}
@@ -592,7 +642,7 @@ const Production = () => {
                         left: 210,
                         zIndex: 2,
                         border: `1px solid #e0e0e0`,
-                        textAlign: 'center'
+                        textAlign: 'center',
                       }}
                     >
                       <Typography variant="body2" sx={{ fontWeight: 600, color: '#1976d2' }}>
@@ -608,7 +658,7 @@ const Production = () => {
                         left: 310,
                         zIndex: 2,
                         border: `1px solid #e0e0e0`,
-                        padding: '4px'
+                        padding: '4px',
                       }}
                     >
                       {renderPlanActualLabels()}
@@ -624,7 +674,7 @@ const Production = () => {
                             padding: '4px',
                             border: `1px solid #e0e0e0`,
                             backgroundColor: dayData ? '#f0f8f0' : 'white',
-                            position: 'relative'
+                            position: 'relative',
                           }}
                           align="center"
                         >
@@ -637,7 +687,7 @@ const Production = () => {
                                   top: 0,
                                   right: 0,
                                   display: 'flex',
-                                  gap: 0.5
+                                  gap: 0.5,
                                 }}
                               >
                                 <IconButton
@@ -650,17 +700,17 @@ const Production = () => {
                                     console.log('All Records for this day:', dayData.records);
                                     console.log('Record IDs:', dayData.recordIds);
                                     console.log('========================');
-                                    
+
                                     // Add day information to the edit state
-                                    setEdit({...dayData.records[0], day: day});
+                                    setEdit({ ...dayData.records[0], day: day });
                                   }}
                                   size="small"
                                   sx={{
-                                    color: "rgb(57, 81, 160)",
-                                    backgroundColor: "rgba(255, 255, 255, 0.99)",
+                                    color: 'rgb(57, 81, 160)',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.99)',
                                     width: 16,
                                     height: 16,
-                                    "&:hover": { backgroundColor: "rgba(245, 158, 11, 0.1)" }
+                                    '&:hover': { backgroundColor: 'rgba(245, 158, 11, 0.1)' },
                                   }}
                                 >
                                   <EditIcon sx={{ fontSize: 14 }} />
@@ -671,8 +721,10 @@ const Production = () => {
                             <IconButton
                               onClick={() => {
                                 const [year, month] = selectedDate.split('-');
-                                const dateString = `${year}-${month.padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-                                
+                                const dateString = `${year}-${month.padStart(2, '0')}-${day
+                                  .toString()
+                                  .padStart(2, '0')}`;
+
                                 setAddData({
                                   part_description: partData.part_description,
                                   machine: partData.machine,
@@ -680,15 +732,17 @@ const Production = () => {
                                   plan: 0,
                                   actual: 0,
                                   resp_person: '',
-                                  timestamp: `${dateString}T${new Date().toTimeString().slice(0, 8)}.000Z`,
-                                  day: day
+                                  timestamp: `${dateString}T${new Date()
+                                    .toTimeString()
+                                    .slice(0, 8)}.000Z`,
+                                  day: day,
                                 });
                               }}
                               size="small"
                               sx={{
-                                color: "rgb(214, 214, 214)",
+                                color: 'rgb(214, 214, 214)',
                                 margin: 'auto',
-                                "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.05)" }
+                                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.05)' },
                               }}
                             >
                               <AddIcon />
@@ -709,81 +763,105 @@ const Production = () => {
                         zIndex: 2,
                         minWidth: '160px',
                         maxWidth: '160px',
-                        width: '160px'
+                        width: '160px',
                       }}
                     >
                       <Box sx={{ display: 'flex', minHeight: '50px' }}>
                         {/* Production Column */}
-                        <Box sx={{ 
-                          width: '80px',
-                          minWidth: '80px',
-                          maxWidth: '80px', 
-                          display: 'flex', 
-                          flexDirection: 'column', 
-                          borderRight: '1px solid #e0e0e0'
-                        }}>
-                          <Box sx={{ 
-                            fontSize: '0.7rem', 
-                            padding: '4px 8px',
-                            backgroundColor: '#f8f9fa',
-                            borderBottom: '1px solid #e0e0e0',
+                        <Box
+                          sx={{
+                            width: '80px',
+                            minWidth: '80px',
+                            maxWidth: '80px',
                             display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            minHeight: '25px'
-                          }}>
-                            <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
+                            flexDirection: 'column',
+                            borderRight: '1px solid #e0e0e0',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              fontSize: '0.7rem',
+                              padding: '4px 8px',
+                              backgroundColor: '#f8f9fa',
+                              borderBottom: '1px solid #e0e0e0',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              minHeight: '25px',
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
+                            >
                               {partData.totalPlan}
                             </Typography>
                           </Box>
-                          <Box sx={{ 
-                            fontSize: '0.7rem', 
-                            padding: '4px 8px',
-                            backgroundColor: '#f8f9fa',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            minHeight: '25px'
-                          }}>
-                            <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
+                          <Box
+                            sx={{
+                              fontSize: '0.7rem',
+                              padding: '4px 8px',
+                              backgroundColor: '#f8f9fa',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              minHeight: '25px',
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
+                            >
                               {partData.totalActual}
                             </Typography>
                           </Box>
                         </Box>
-                        
+
                         {/* Balance Column */}
-                        <Box sx={{ 
-                          width: '80px',
-                          minWidth: '80px',
-                          maxWidth: '80px', 
-                          display: 'flex', 
-                          flexDirection: 'column'
-                        }}>
-                          <Box sx={{ 
-                            fontSize: '0.7rem', 
-                            padding: '4px 8px',
-                            backgroundColor: '#f8f9fa',
-                            borderBottom: '1px solid #e0e0e0',
+                        <Box
+                          sx={{
+                            width: '80px',
+                            minWidth: '80px',
+                            maxWidth: '80px',
                             display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            minHeight: '25px'
-                          }}>
-                            <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
-                              {((partData.schedule || 0) - partData.totalPlan)}
+                            flexDirection: 'column',
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              fontSize: '0.7rem',
+                              padding: '4px 8px',
+                              backgroundColor: '#f8f9fa',
+                              borderBottom: '1px solid #e0e0e0',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              minHeight: '25px',
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
+                            >
+                              {(partData.schedule || 0) - partData.totalPlan}
                             </Typography>
                           </Box>
-                          <Box sx={{ 
-                            fontSize: '0.7rem', 
-                            padding: '4px 8px',
-                            backgroundColor: '#f8f9fa',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            minHeight: '25px'
-                          }}>
-                            <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
-                              {((partData.schedule || 0) - partData.totalActual)}
+                          <Box
+                            sx={{
+                              fontSize: '0.7rem',
+                              padding: '4px 8px',
+                              backgroundColor: '#f8f9fa',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              minHeight: '25px',
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
+                            >
+                              {(partData.schedule || 0) - partData.totalActual}
                             </Typography>
                           </Box>
                         </Box>
@@ -802,22 +880,28 @@ const Production = () => {
       )}
 
       {/* Legend */}
-      <Box sx={{ 
-        mt: 3, 
-        display: 'flex', 
-        justifyContent: 'center', 
-        gap: 4,
-        bgcolor: 'white',
-        padding: '1rem',
-        borderRadius: '8px',
-        boxShadow: '0px 2px 4px rgba(0,0,0,0.1)'
-      }}>
+      <Box
+        sx={{
+          mt: 3,
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 4,
+          bgcolor: 'white',
+          padding: '1rem',
+          borderRadius: '8px',
+          boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 16, height: 16, backgroundColor: '#f0f8ff', border: '1px solid #1976d2' }} />
+          <Box
+            sx={{ width: 16, height: 16, backgroundColor: '#f0f8ff', border: '1px solid #1976d2' }}
+          />
           <Typography variant="body2">Plan</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 16, height: 16, backgroundColor: '#f8f9fa', border: '1px solid #d32f2f' }} />
+          <Box
+            sx={{ width: 16, height: 16, backgroundColor: '#f8f9fa', border: '1px solid #d32f2f' }}
+          />
           <Typography variant="body2">Actual</Typography>
         </Box>
         {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -831,17 +915,13 @@ const Production = () => {
       </Box>
 
       {/* Add Production Modal */}
-      <AddProduction 
-        addData={addData} 
-        setAddData={setAddData} 
-        fetchData={fetchData} 
-      />
+      <AddProduction addData={addData} setAddData={setAddData} fetchData={fetchData} />
 
       {/* Update Modal */}
-      <Dialog 
-        open={Object.keys(edit).length > 0} 
-        onClose={() => setEdit({})} 
-        maxWidth="md" 
+      <Dialog
+        open={Object.keys(edit).length > 0}
+        onClose={() => setEdit({})}
+        maxWidth="md"
         fullWidth
       >
         <DialogTitle>
@@ -849,7 +929,7 @@ const Production = () => {
             Edit Production Data
           </Typography>
         </DialogTitle>
-        
+
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={2}>
@@ -863,12 +943,12 @@ const Production = () => {
                   sx={{
                     '& .MuiInputBase-input': {
                       backgroundColor: '#f5f5f5',
-                      color: '#666'
-                    }
+                      color: '#666',
+                    },
                   }}
                 />
               </Grid>
-              
+
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -879,21 +959,23 @@ const Production = () => {
                   sx={{
                     '& .MuiInputBase-input': {
                       backgroundColor: '#f5f5f5',
-                      color: '#666'
-                    }
+                      color: '#666',
+                    },
                   }}
                 />
               </Grid>
 
-              {/* Schedule field - only show for day 1 or day 2 */}
-              {(edit.day === 1 || edit.day === 2) && (
+              {/* Schedule field - only show for day 1 */}
+              {edit.day === 1 && (
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
                     label="Schedule"
                     type="number"
                     value={edit.schedule || ''}
-                    onChange={(e) => setEdit(prev => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) =>
+                      setEdit((prev) => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))
+                    }
                     variant="outlined"
                     inputProps={{ min: 0 }}
                   />
@@ -906,7 +988,9 @@ const Production = () => {
                   label="Plan"
                   type="number"
                   value={edit.plan || ''}
-                  onChange={(e) => setEdit(prev => ({ ...prev, plan: parseInt(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setEdit((prev) => ({ ...prev, plan: parseInt(e.target.value) || 0 }))
+                  }
                   variant="outlined"
                   inputProps={{ min: 0 }}
                 />
@@ -918,7 +1002,9 @@ const Production = () => {
                   label="Actual"
                   type="number"
                   value={edit.actual || ''}
-                  onChange={(e) => setEdit(prev => ({ ...prev, actual: parseInt(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setEdit((prev) => ({ ...prev, actual: parseInt(e.target.value) || 0 }))
+                  }
                   variant="outlined"
                   inputProps={{ min: 0 }}
                 />
@@ -929,7 +1015,7 @@ const Production = () => {
                   fullWidth
                   label="Responsible Person"
                   value={edit.resp_person || ''}
-                  onChange={(e) => setEdit(prev => ({ ...prev, resp_person: e.target.value }))}
+                  onChange={(e) => setEdit((prev) => ({ ...prev, resp_person: e.target.value }))}
                   variant="outlined"
                 />
               </Grid>
@@ -946,12 +1032,7 @@ const Production = () => {
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleUpdate}
-            color="primary"
-            variant="contained"
-            sx={{ minWidth: 100 }}
-          >
+          <Button onClick={handleUpdate} color="primary" variant="contained" sx={{ minWidth: 100 }}>
             Update
           </Button>
         </DialogActions>
