@@ -9,7 +9,7 @@ import {
   Grid,
   Box,
   Typography,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
@@ -29,7 +29,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
   };
 
   const handleSubmit = async () => {
-    if (!addData.part_description || !addData.schedule || !addData.plan || !addData.actual) {
+    if (!addData.part_description || !addData.schedule || !addData.plan) {
       enqueueSnackbar('Please fill in all required fields', { variant: 'error' });
       return;
     }
@@ -38,20 +38,20 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
     try {
       const payload = {
         part_description: addData.part_description,
-        schedule: addData.schedule?.toString() || "0",
-        plan: addData.plan?.toString() || "0",
-        actual: addData.actual?.toString() || "0",
+        schedule: addData.schedule?.toString() || '0',
+        plan: addData.plan?.toString() || '0',
+        actual: addData.actual?.toString() || '0',
         resp_person: addData.resp_person || '',
-        timestamp: addData.timestamp
+        timestamp: addData.timestamp,
       };
 
       console.log('Add Production payload:', payload);
 
       const response = await axios.post(`${BACKEND_API}/save_production_plan_detail`, payload, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       console.log('Add Production response:', response.data);
@@ -67,12 +67,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
   };
 
   return (
-    <Dialog 
-      open={Object.keys(addData).length > 0} 
-      onClose={handleClose} 
-      maxWidth="md" 
-      fullWidth
-    >
+    <Dialog open={Object.keys(addData).length > 0} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.primary }}>
@@ -83,7 +78,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
           </IconButton>
         </Box>
       </DialogTitle>
-      
+
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           <Grid container spacing={2}>
@@ -92,7 +87,9 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
                 fullWidth
                 label="Part Description *"
                 value={addData.part_description || ''}
-                onChange={(e) => setAddData(prev => ({ ...prev, part_description: e.target.value }))}
+                onChange={(e) =>
+                  setAddData((prev) => ({ ...prev, part_description: e.target.value }))
+                }
                 variant="outlined"
                 required
               />
@@ -106,7 +103,9 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
                   label="Schedule *"
                   type="number"
                   value={addData.schedule || ''}
-                  onChange={(e) => setAddData(prev => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))}
+                  onChange={(e) =>
+                    setAddData((prev) => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))
+                  }
                   variant="outlined"
                   inputProps={{ min: 0 }}
                   required
@@ -120,7 +119,9 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
                 label="Plan *"
                 type="number"
                 value={addData.plan || ''}
-                onChange={(e) => setAddData(prev => ({ ...prev, plan: parseInt(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setAddData((prev) => ({ ...prev, plan: parseInt(e.target.value) || 0 }))
+                }
                 variant="outlined"
                 inputProps={{ min: 0 }}
                 required
@@ -130,13 +131,14 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="Actual *"
+                label="Actual"
                 type="number"
                 value={addData.actual || ''}
-                onChange={(e) => setAddData(prev => ({ ...prev, actual: parseInt(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setAddData((prev) => ({ ...prev, actual: parseInt(e.target.value) || 0 }))
+                }
                 variant="outlined"
                 inputProps={{ min: 0 }}
-                required
               />
             </Grid>
 
@@ -145,7 +147,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
                 fullWidth
                 label="Responsible Person"
                 value={addData.resp_person || ''}
-                onChange={(e) => setAddData(prev => ({ ...prev, resp_person: e.target.value }))}
+                onChange={(e) => setAddData((prev) => ({ ...prev, resp_person: e.target.value }))}
                 variant="outlined"
               />
             </Grid>
@@ -160,7 +162,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
                   const dateValue = e.target.value;
                   if (dateValue) {
                     const timestamp = new Date(dateValue).toISOString();
-                    setAddData(prev => ({ ...prev, timestamp }));
+                    setAddData((prev) => ({ ...prev, timestamp }));
                   }
                 }}
                 variant="outlined"
@@ -172,13 +174,15 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
 
             {/* Summary display */}
             <Grid item xs={12}>
-              <Box sx={{ 
-                mt: 2, 
-                p: 2, 
-                backgroundColor: '#f8f9fa', 
-                borderRadius: 1,
-                border: '1px solid #e0e0e0'
-              }}>
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: 1,
+                  border: '1px solid #e0e0e0',
+                }}
+              >
                 <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
                   Summary:
                 </Typography>
@@ -195,12 +199,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
       </DialogContent>
 
       <DialogActions sx={{ p: 3, gap: 1 }}>
-        <Button
-          onClick={handleClose}
-          color="error"
-          variant="outlined"
-          sx={{ minWidth: 100 }}
-        >
+        <Button onClick={handleClose} color="error" variant="outlined" sx={{ minWidth: 100 }}>
           Cancel
         </Button>
         <Button

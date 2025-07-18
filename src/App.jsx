@@ -40,7 +40,9 @@ import UserManagement from './pages/UserProfile/UserManagement';
 import MidSidebar from './component/Sidebar/MidSidebar';
 import { MdMenu } from 'react-icons/md';
 import MonthlyFgStock from './pages/Boards/FgStock/MonthlyFgStock';
+import MonthlyFgStockNew from './pages/Boards/FgStock/MonthlyFgStockNew';
 import MonthlyStoreStock from './pages/Boards/StoreStock/MonthlyStoreStock';
+import MonthlyStoreStockNew from './pages/Boards/StoreStock/MonthlyStoreStockNew';
 import Rejection from './pages/Boards/Rejection/Rejection';
 import Production from './pages/Boards/Production/Production';
 import PesCoverA from './pages/Detection/PesCover/PesCoverA';
@@ -303,7 +305,7 @@ function App() {
               }
             />
 
-             <Route
+            <Route
               path="/pes-cover-b"
               element={
                 <ProtectedRoute>
@@ -365,7 +367,7 @@ function App() {
               path="/monthly-fg-stock"
               element={
                 <ProtectedRoute>
-                  <MonthlyFgStock />
+                  <MonthlyFgStockNew />
                 </ProtectedRoute>
               }
             />
@@ -373,7 +375,7 @@ function App() {
               path="/monthly-store-stock"
               element={
                 <ProtectedRoute>
-                  <MonthlyStoreStock />
+                  <MonthlyStoreStockNew />
                 </ProtectedRoute>
               }
             />
