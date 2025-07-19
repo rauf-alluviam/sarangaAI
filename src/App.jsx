@@ -41,6 +41,7 @@ import MidSidebar from './component/Sidebar/MidSidebar';
 import { MdMenu } from 'react-icons/md';
 import MonthlyFgStock from './pages/Boards/FgStock/MonthlyFgStock';
 import MonthlyFgStockNew from './pages/Boards/FgStock/MonthlyFgStockNew';
+import MonthlyRejection from './pages/Boards/Rejection/RejectionMonthly';
 import MonthlyStoreStock from './pages/Boards/StoreStock/MonthlyStoreStock';
 import MonthlyStoreStockNew from './pages/Boards/StoreStock/MonthlyStoreStockNew';
 import Rejection from './pages/Boards/Rejection/Rejection';
@@ -368,6 +369,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MonthlyFgStockNew />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/monthly-rejection"
+              element={
+                <ProtectedRoute>
+                  <MonthlyRejection />
                 </ProtectedRoute>
               }
             />

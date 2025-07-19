@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
   Table,
@@ -22,16 +22,18 @@ import {
   DialogContent,
   DialogActions,
   Grid,
-} from "@mui/material";
-import { useSelector } from "react-redux";
-import colors from "../../../utils/colors";
-import axios from "axios";
-import { enqueueSnackbar } from "notistack";
-import EditIcon from "@mui/icons-material/Edit";
-import CloseIcon from "@mui/icons-material/Close";
-import { MdDone } from "react-icons/md";
-import AddIcon from "@mui/icons-material/Add";
-import AddRejection from "./AddRejection";
+} from '@mui/material';
+import { useSelector } from 'react-redux';
+import colors from '../../../utils/colors';
+import axios from 'axios';
+import { enqueueSnackbar } from 'notistack';
+import EditIcon from '@mui/icons-material/Edit';
+import CloseIcon from '@mui/icons-material/Close';
+import { MdDone } from 'react-icons/md';
+import AddIcon from '@mui/icons-material/Add';
+import AddRejection from './AddRejection';
+import { Navigate, useNavigate } from 'react-router-dom';
+// import RejectionMonthly from '../Rejection/RejectionMonthly.jsx';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -39,12 +41,11 @@ const Rejection = () => {
   const { token } = useSelector((state) => state.auth);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().slice(0, 7)
-  ); // Format: YYYY-MM
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 7)); // Format: YYYY-MM
   const [hasInitialized, setHasInitialized] = useState(false); // Prevent double calls
   const [edit, setEdit] = useState({}); // Track which cell is being edited (format: {partKey: 'BRACKET-D', day: 4})
   const [addData, setAddData] = useState({}); // For add new entry dialog
+  const navigate = useNavigate();
   console.log(data);
   console.log(edit);
   // Generate days array (1-31)
@@ -53,18 +54,18 @@ const Rejection = () => {
   // Get month name
   const getMonthName = (monthNum) => {
     const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return monthNames[monthNum - 1];
   };
@@ -149,7 +150,7 @@ const Rejection = () => {
 
       // Update RM if it's different (concatenate multiple RMs if needed)
       if (rm && rm !== partData.rm && !partData.rm.includes(rm)) {
-        partData.rm = partData.rm + ", " + rm;
+        partData.rm = partData.rm + ', ' + rm;
       }
     });
 
@@ -160,38 +161,28 @@ const Rejection = () => {
   const fetchData = useCallback(async () => {
     if (!token) return; // Don't fetch if no token
 
-    const [year, month] = selectedDate.split("-");
+    const [year, month] = selectedDate.split('-');
     setIsLoading(true);
 
-    console.log(
-      "API Call - Year:",
-      year,
-      "Month:",
-      month,
-      "Timestamp:",
-      new Date().toISOString()
-    );
+    console.log('API Call - Year:', year, 'Month:', month, 'Timestamp:', new Date().toISOString());
 
     try {
-      const response = await axios.get(
-        `${BACKEND_API}/get_rejection_details_by_month`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          params: {
-            year: parseInt(year),
-            month: parseInt(month),
-          },
-        }
-      );
+      const response = await axios.get(`${BACKEND_API}/get_rejection_details_by_month`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        params: {
+          year: parseInt(year),
+          month: parseInt(month),
+        },
+      });
 
       setData(response.data);
-      enqueueSnackbar("Data fetched successfully", { variant: "success" });
+      enqueueSnackbar('Data fetched successfully', { variant: 'success' });
     } catch (error) {
-      console.error("Error fetching data:", error);
-      enqueueSnackbar("Error fetching data", { variant: "error" });
+      console.error('Error fetching data:', error);
+      enqueueSnackbar('Error fetching data', { variant: 'error' });
       setIsLoading(false);
       // Using the sample data you provided for demonstration
       // const sampleData = {
@@ -291,57 +282,45 @@ const Rejection = () => {
   const processedData = data ? processData(data.records) : [];
 
   const renderPartsSection = (partData, dayData, showStaticText = false) => {
-    const parts = [
-      "OK Parts",
-      "Rejection",
-      "Lumps",
-      "Runner",
-      "Issued",
-      "Scrap Sum",
-    ];
+    const parts = ['OK Parts', 'Rejection', 'Lumps', 'Runner', 'Issued', 'Scrap Sum'];
     const values = [
-      dayData?.ok_parts || "-",
-      dayData?.rejections || "-",
-      dayData?.lumps || "-",
-      dayData?.runner || "-",
-      dayData?.isssued || "-",
+      dayData?.ok_parts || '-',
+      dayData?.rejections || '-',
+      dayData?.lumps || '-',
+      dayData?.runner || '-',
+      dayData?.isssued || '-',
       dayData
-        ? (
-            (dayData.rejections || 0) +
-            (dayData.lumps || 0) +
-            (dayData.runner || 0)
-          ).toFixed(2)
-        : "-",
+        ? ((dayData.rejections || 0) + (dayData.lumps || 0) + (dayData.runner || 0)).toFixed(2)
+        : '-',
     ];
 
     return (
       <Box
         sx={{
-          minHeight: "140px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
+          minHeight: '140px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
         }}
       >
         {parts.map((part, index) => (
           <Box
             key={part}
             sx={{
-              fontSize: "0.7rem",
-              padding: "4px 8px",
-              backgroundColor: index % 2 === 0 ? "#f8f9fa" : "white",
-              borderBottom:
-                index < parts.length - 1 ? "1px solid #e0e0e0" : "none",
-              display: "flex",
-              justifyContent: showStaticText ? "flex-start" : "center",
-              alignItems: "center",
-              minHeight: "22px",
+              fontSize: '0.7rem',
+              padding: '4px 8px',
+              backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white',
+              borderBottom: index < parts.length - 1 ? '1px solid #e0e0e0' : 'none',
+              display: 'flex',
+              justifyContent: showStaticText ? 'flex-start' : 'center',
+              alignItems: 'center',
+              minHeight: '22px',
               // Clean styling for Scrap Sum row
-              ...(part === "Scrap Sum" && {
-                border: "1px solid rgba(33, 149, 243, 0.19)",
-                backgroundColor: "#e3f2fd",
-                borderRadius: "3px",
-                margin: "1px 0",
+              ...(part === 'Scrap Sum' && {
+                border: '1px solid rgba(33, 149, 243, 0.19)',
+                backgroundColor: '#e3f2fd',
+                borderRadius: '3px',
+                margin: '1px 0',
                 fontWeight: 600,
               }),
             }}
@@ -351,11 +330,11 @@ const Rejection = () => {
                 variant="caption"
                 sx={{
                   fontWeight: 500,
-                  color: "#555",
-                  fontSize: "0.7rem",
-                  ...(part === "Scrap Sum" && {
+                  color: '#555',
+                  fontSize: '0.7rem',
+                  ...(part === 'Scrap Sum' && {
                     fontWeight: 600,
-                    color: "#1976d2",
+                    color: '#1976d2',
                   }),
                 }}
               >
@@ -366,12 +345,12 @@ const Rejection = () => {
                 variant="caption"
                 sx={{
                   fontWeight: 600,
-                  fontSize: "0.7rem",
-                  color: "#333",
-                  ...(part === "Scrap Sum" && {
+                  fontSize: '0.7rem',
+                  color: '#333',
+                  ...(part === 'Scrap Sum' && {
                     fontWeight: 700,
-                    fontSize: "0.75rem",
-                    color: "#1976d2",
+                    fontSize: '0.75rem',
+                    color: '#1976d2',
                   }),
                 }}
               >
@@ -401,31 +380,30 @@ const Rejection = () => {
     return (
       <Box
         sx={{
-          minHeight: "140px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
+          minHeight: '140px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
         }}
       >
         {totals.map((total, index) => (
           <Box
             key={index}
             sx={{
-              fontSize: "0.7rem",
-              padding: "4px 8px",
-              backgroundColor: index % 2 === 0 ? "#f0f8ff" : "#f8f9fa",
-              borderBottom:
-                index < totals.length - 1 ? "1px solid #e0e0e0" : "none",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: "22px",
+              fontSize: '0.7rem',
+              padding: '4px 8px',
+              backgroundColor: index % 2 === 0 ? '#f0f8ff' : '#f8f9fa',
+              borderBottom: index < totals.length - 1 ? '1px solid #e0e0e0' : 'none',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '22px',
               // Clean styling for Scrap Sum row (last item)
               ...(index === totals.length - 1 && {
-                border: "1px solid #2196f3",
-                backgroundColor: "#e3f2fd",
-                borderRadius: "3px",
-                margin: "1px 0",
+                border: '1px solid #2196f3',
+                backgroundColor: '#e3f2fd',
+                borderRadius: '3px',
+                margin: '1px 0',
                 fontWeight: 600,
               }),
             }}
@@ -434,16 +412,16 @@ const Rejection = () => {
               variant="caption"
               sx={{
                 fontWeight: 600,
-                fontSize: "0.7rem",
-                color: "#333",
+                fontSize: '0.7rem',
+                color: '#333',
                 ...(index === totals.length - 1 && {
                   fontWeight: 700,
-                  fontSize: "0.75rem",
-                  color: "#1976d2",
+                  fontSize: '0.75rem',
+                  color: '#1976d2',
                 }),
               }}
             >
-              {typeof total === "number" ? total.toFixed(2) : total}
+              {typeof total === 'number' ? total.toFixed(2) : total}
             </Typography>
           </Box>
         ))}
@@ -454,15 +432,14 @@ const Rejection = () => {
   const renderTotalPercentageSection = (partData) => {
     const issued = partData.total.isssued || 0;
 
-    const getPercent = (value) =>
-      issued ? ((value / issued) * 100).toFixed(2) + "%" : "0.00%";
+    const getPercent = (value) => (issued ? ((value / issued) * 100).toFixed(2) + '%' : '0.00%');
 
     const totals = [
       getPercent(partData.total.ok_parts || 0), // OK %
       getPercent(partData.total.rejections || 0), // Rejection %
       getPercent(partData.total.lumps || 0), // Lumps %
       getPercent(partData.total.runner || 0), // Runner %
-      issued ? "100.00%" : "0.00%", // Issued %
+      issued ? '100.00%' : '0.00%', // Issued %
       getPercent(
         (partData.total.rejections || 0) +
           (partData.total.lumps || 0) +
@@ -471,41 +448,40 @@ const Rejection = () => {
     ];
 
     const labels = [
-      "OK Parts %",
-      "Rejections %",
-      "Lumps %",
-      "Runner %",
-      "Issued %",
-      "Total Scrap %",
+      'OK Parts %',
+      'Rejections %',
+      'Lumps %',
+      'Runner %',
+      'Issued %',
+      'Total Scrap %',
     ];
 
     return (
       <Box
         sx={{
-          minHeight: "170px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
+          minHeight: '170px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
         }}
       >
         {totals.map((total, index) => (
           <Box
             key={index}
             sx={{
-              fontSize: "0.7rem",
-              padding: "4px 8px",
-              backgroundColor: index % 2 === 0 ? "#f0f8ff" : "#f8f9fa",
-              borderBottom:
-                index < totals.length - 1 ? "1px solid #e0e0e0" : "none",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: "22px",
+              fontSize: '0.7rem',
+              padding: '4px 8px',
+              backgroundColor: index % 2 === 0 ? '#f0f8ff' : '#f8f9fa',
+              borderBottom: index < totals.length - 1 ? '1px solid #e0e0e0' : 'none',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '22px',
               ...(index === totals.length - 1 && {
-                border: "1px solid #2196f3",
-                backgroundColor: "#e3f2fd",
-                borderRadius: "3px",
-                margin: "1px 0",
+                border: '1px solid #2196f3',
+                backgroundColor: '#e3f2fd',
+                borderRadius: '3px',
+                margin: '1px 0',
                 fontWeight: 600,
               }),
             }}
@@ -514,8 +490,8 @@ const Rejection = () => {
               variant="caption"
               sx={{
                 fontWeight: index === totals.length - 1 ? 700 : 600,
-                fontSize: index === totals.length - 1 ? "0.75rem" : "0.7rem",
-                color: index === totals.length - 1 ? "#1976d2" : "#333",
+                fontSize: index === totals.length - 1 ? '0.75rem' : '0.7rem',
+                color: index === totals.length - 1 ? '#1976d2' : '#333',
               }}
             >
               {total}
@@ -527,9 +503,7 @@ const Rejection = () => {
   };
 
   const calculateTotalKgs = (totalData) => {
-    return (totalData.rejections + totalData.lumps + totalData.runner).toFixed(
-      2
-    );
+    return (totalData.rejections + totalData.lumps + totalData.runner).toFixed(2);
   };
 
   const handleUpdate = async () => {
@@ -543,12 +517,12 @@ const Rejection = () => {
         lumps: edit.lumps || 0,
         runner: edit.runner || 0,
         isssued: edit.isssued || 0,
-        resp_person: edit.resp_person || "",
+        resp_person: edit.resp_person || '',
         timestamp: edit.timestamp,
       };
 
-      console.log("Update payload:", updatePayload);
-      console.log("Document ID to update:", edit.id);
+      console.log('Update payload:', updatePayload);
+      console.log('Document ID to update:', edit.id);
 
       // Here you would make the API call to update
       const response = await axios.put(
@@ -557,19 +531,19 @@ const Rejection = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         }
       );
-      console.log("Update response:", response.data);
+      console.log('Update response:', response.data);
 
-      enqueueSnackbar("Record updated successfully", { variant: "success" });
+      enqueueSnackbar('Record updated successfully', { variant: 'success' });
       setEdit({});
       // Refresh data after update
       fetchData();
     } catch (error) {
-      console.error("Error updating record:", error);
-      enqueueSnackbar("Error updating record", { variant: "error" });
+      console.error('Error updating record:', error);
+      enqueueSnackbar('Error updating record', { variant: 'error' });
     }
   };
 
@@ -584,44 +558,40 @@ const Rejection = () => {
         lumps: addData.lumps || 0,
         runner: addData.runner || 0,
         isssued: addData.isssued || 0,
-        resp_person: addData.resp_person || "",
+        resp_person: addData.resp_person || '',
         timestamp: addData.timestamp,
       };
 
       // console.log('Add payload:', addPayload);
 
       // Here you would make the API call to add new entry
-      const response = await axios.post(
-        `${BACKEND_API}/save_rejection_detail`,
-        addPayload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post(`${BACKEND_API}/save_rejection_detail`, addPayload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
       console.log(response);
 
-      enqueueSnackbar("New record added successfully", { variant: "success" });
+      enqueueSnackbar('New record added successfully', { variant: 'success' });
       setAddData({});
       // Refresh data after adding
       fetchData();
     } catch (error) {
-      console.error("Error adding record:", error);
-      enqueueSnackbar("Error adding record", { variant: "error" });
+      console.error('Error adding record:', error);
+      enqueueSnackbar('Error adding record', { variant: 'error' });
     }
   };
 
   return (
-    <Box sx={{ p: 3, bgcolor: "#f5f5f5", minHeight: "100vh" }}>
+    <Box sx={{ p: 3, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       {/* Header */}
       <Typography
         variant="h4"
         sx={{
-          textAlign: "center",
+          textAlign: 'center',
           mb: 2,
-          fontWeight: "bold",
+          fontWeight: 'bold',
           color: colors.primary,
           borderBottom: `3px solid ${colors.primary}`,
           // pb: '0.6rem'
@@ -635,18 +605,27 @@ const Rejection = () => {
         <CardContent>
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "end",
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'end',
             }}
           >
+            <Button
+              variant="contained"
+              color="secondary"
+              // onClick={() => setShowRejectionMonthly(true)}
+              onClick={() => navigate('/monthly-rejection')}
+              sx={{ minWidth: 180, bgcolor: colors.primary, mr: '1rem' }}
+            >
+              Rejection Monthly
+            </Button>
             <TextField
               label="Select Month & Year"
               type="month"
               value={selectedDate}
               onChange={handleDateChange}
               size="small"
-              sx={{ width: "200px" }}
+              sx={{ width: '200px' }}
               InputLabelProps={{
                 shrink: true,
               }}
@@ -675,35 +654,33 @@ const Rejection = () => {
 
       {/* Main Table */}
       {isLoading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress size={50} />
         </Box>
       ) : processedData.length > 0 ? (
-        <Paper
-          sx={{ overflow: "hidden", border: `1px solid #e0e0e0`, boxShadow: 3 }}
-        >
+        <Paper sx={{ overflow: 'hidden', border: `1px solid #e0e0e0`, boxShadow: 3 }}>
           <TableContainer
             sx={{
-              maxHeight: "70vh",
-              overflowX: "auto",
-              overflowY: "auto",
-              "&::-webkit-scrollbar": {
-                height: "12px",
-                width: "12px",
+              maxHeight: '70vh',
+              overflowX: 'auto',
+              overflowY: 'auto',
+              '&::-webkit-scrollbar': {
+                height: '12px',
+                width: '12px',
               },
-              "&::-webkit-scrollbar-track": {
-                backgroundColor: "#f1f1f1",
-                borderRadius: "6px",
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: '#f1f1f1',
+                borderRadius: '6px',
               },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#c1c1c1",
-                borderRadius: "6px",
-                "&:hover": {
-                  backgroundColor: "#a8a8a8",
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#c1c1c1',
+                borderRadius: '6px',
+                '&:hover': {
+                  backgroundColor: '#a8a8a8',
                 },
               },
-              "&::-webkit-scrollbar-corner": {
-                backgroundColor: "#f1f1f1",
+              '&::-webkit-scrollbar-corner': {
+                backgroundColor: '#f1f1f1',
               },
             }}
           >
@@ -711,25 +688,25 @@ const Rejection = () => {
               <TableHead>
                 <TableRow
                   sx={{
-                    backgroundColor: "#f5f5f5 !important",
+                    backgroundColor: '#f5f5f5 !important',
                     borderBottom: `1px solid #e0e0e0`,
                   }}
                 >
                   {/* Serial Number Column */}
                   <TableCell
                     sx={{
-                      backgroundColor: "inherit",
-                      color: "#2c3e50",
-                      fontWeight: "bold",
-                      position: "sticky",
+                      backgroundColor: 'inherit',
+                      color: '#2c3e50',
+                      fontWeight: 'bold',
+                      position: 'sticky',
                       left: 0,
                       zIndex: 3,
-                      minWidth: "60px",
-                      maxWidth: "60px",
-                      width: "60px",
+                      minWidth: '60px',
+                      maxWidth: '60px',
+                      width: '60px',
                       borderRight: `1px solid #e0e0e0`,
                       border: `1px solid #e0e0e0`,
-                      textAlign: "center",
+                      textAlign: 'center',
                     }}
                   >
                     Sr. No.
@@ -737,13 +714,13 @@ const Rejection = () => {
                   {/* Fixed Columns */}
                   <TableCell
                     sx={{
-                      backgroundColor: "inherit",
-                      color: "#2c3e50",
-                      fontWeight: "bold",
-                      position: "sticky",
+                      backgroundColor: 'inherit',
+                      color: '#2c3e50',
+                      fontWeight: 'bold',
+                      position: 'sticky',
                       left: 60,
                       zIndex: 3,
-                      minWidth: "150px",
+                      minWidth: '150px',
                       borderRight: `1px solid #e0e0e0`,
                       border: `1px solid #e0e0e0`,
                     }}
@@ -752,13 +729,13 @@ const Rejection = () => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      backgroundColor: "inherit",
-                      color: "#2c3e50",
-                      fontWeight: "bold",
-                      position: "sticky",
+                      backgroundColor: 'inherit',
+                      color: '#2c3e50',
+                      fontWeight: 'bold',
+                      position: 'sticky',
                       left: 210,
                       zIndex: 3,
-                      minWidth: "120px",
+                      minWidth: '120px',
                       borderRight: `1px solid #e0e0e0`,
                       border: `1px solid #e0e0e0`,
                     }}
@@ -767,13 +744,13 @@ const Rejection = () => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      backgroundColor: "inherit",
-                      color: "#2c3e50",
-                      fontWeight: "bold",
-                      position: "sticky",
+                      backgroundColor: 'inherit',
+                      color: '#2c3e50',
+                      fontWeight: 'bold',
+                      position: 'sticky',
                       left: 330,
                       zIndex: 3,
-                      minWidth: "100px",
+                      minWidth: '100px',
                       borderRight: `1px solid #e0e0e0`,
                       border: `1px solid #e0e0e0`,
                     }}
@@ -787,14 +764,14 @@ const Rejection = () => {
                       key={day}
                       align="center"
                       sx={{
-                        backgroundColor: "inherit",
-                        color: "#2c3e50",
-                        fontWeight: "bold",
-                        minWidth: "60px",
-                        fontSize: "0.875rem",
+                        backgroundColor: 'inherit',
+                        color: '#2c3e50',
+                        fontWeight: 'bold',
+                        minWidth: '60px',
+                        fontSize: '0.875rem',
                         border: `1px solid #e0e0e0`,
-                        width: "60px",
-                        maxWidth: "6  0px",
+                        width: '60px',
+                        maxWidth: '6  0px',
                       }}
                     >
                       {day}
@@ -804,11 +781,11 @@ const Rejection = () => {
                   {/* Total Column */}
                   <TableCell
                     sx={{
-                      backgroundColor: "#f8f9fa",
-                      color: "#2c3e50",
-                      fontWeight: "bold",
-                      minWidth: "100px",
-                      position: "sticky",
+                      backgroundColor: '#f8f9fa',
+                      color: '#2c3e50',
+                      fontWeight: 'bold',
+                      minWidth: '100px',
+                      position: 'sticky',
                       right: 100, // Sticky at right, but left of Total (%)
                       zIndex: 3,
                       border: `1px solid #e0e0e0`,
@@ -818,11 +795,11 @@ const Rejection = () => {
                   </TableCell>
                   <TableCell
                     sx={{
-                      backgroundColor: "#f8f9fa",
-                      color: "#2c3e50",
-                      fontWeight: "bold",
-                      minWidth: "100px",
-                      position: "sticky",
+                      backgroundColor: '#f8f9fa',
+                      color: '#2c3e50',
+                      fontWeight: 'bold',
+                      minWidth: '100px',
+                      position: 'sticky',
                       right: 0, // Rightmost sticky column
                       zIndex: 3,
                       border: `1px solid #e0e0e0`,
@@ -830,7 +807,6 @@ const Rejection = () => {
                   >
                     Total (%)
                   </TableCell>
-                 
 
                   {/* Edit Column Header */}
                   {/* <TableCell
@@ -855,21 +831,18 @@ const Rejection = () => {
 
               <TableBody>
                 {processedData.map((partData, index) => (
-                  <TableRow
-                    key={`${partData.part_description}-${partData.rm}`}
-                    hover
-                  >
+                  <TableRow key={`${partData.part_description}-${partData.rm}`} hover>
                     {/* Serial Number */}
                     <TableCell
                       sx={{
                         fontWeight: 600,
-                        backgroundColor: "#fff",
-                        position: "sticky",
+                        backgroundColor: '#fff',
+                        position: 'sticky',
                         left: 0,
                         zIndex: 2,
                         borderRight: `1px solid #e0e0e0`,
                         border: `1px solid #e0e0e0`,
-                        textAlign: "center",
+                        textAlign: 'center',
                       }}
                     >
                       {index + 1}
@@ -879,8 +852,8 @@ const Rejection = () => {
                     <TableCell
                       sx={{
                         fontWeight: 600,
-                        backgroundColor: "#fff",
-                        position: "sticky",
+                        backgroundColor: '#fff',
+                        position: 'sticky',
                         left: 60,
                         zIndex: 2,
                         borderRight: `1px solid #e0e0e0`,
@@ -893,8 +866,8 @@ const Rejection = () => {
                     {/* RM */}
                     <TableCell
                       sx={{
-                        backgroundColor: "#fff",
-                        position: "sticky",
+                        backgroundColor: '#fff',
+                        position: 'sticky',
                         left: 210,
                         zIndex: 2,
                         borderRight: `1px solid #e0e0e0`,
@@ -907,12 +880,12 @@ const Rejection = () => {
                     {/* Parts Column */}
                     <TableCell
                       sx={{
-                        backgroundColor: "#fff",
-                        position: "sticky",
+                        backgroundColor: '#fff',
+                        position: 'sticky',
                         left: 330,
                         zIndex: 2,
                         borderRight: `1px solid #e0e0e0`,
-                        padding: "4px",
+                        padding: '4px',
                         border: `1px solid #e0e0e0`,
                       }}
                     >
@@ -924,31 +897,30 @@ const Rejection = () => {
                       const dayData = partData.dailyData.get(day);
                       const editKey = `${partData.part_description}-${day}`;
                       const isEditing =
-                        edit.part_description === partData.part_description &&
-                        edit.day === day;
+                        edit.part_description === partData.part_description && edit.day === day;
 
                       return (
                         <TableCell
                           key={day}
                           sx={{
-                            padding: "4px",
+                            padding: '4px',
                             borderRight: `1px solid #e0e0e0`,
-                            backgroundColor: dayData ? "#f0f8f0" : "white",
+                            backgroundColor: dayData ? '#f0f8f0' : 'white',
                             border: `1px solid #e0e0e0`,
-                            position: "relative",
+                            position: 'relative',
                           }}
                           align="center"
                         >
                           {dayData ? (
-                            <Box sx={{ position: "relative" }}>
+                            <Box sx={{ position: 'relative' }}>
                               {renderPartsSection(partData, dayData)}
                               {/* Edit icon for this specific date */}
                               <Box
                                 sx={{
-                                  position: "absolute",
+                                  position: 'absolute',
                                   top: 0,
                                   right: 0,
-                                  display: "flex",
+                                  display: 'flex',
                                   gap: 0.5,
                                 }}
                               >
@@ -1024,7 +996,7 @@ const Rejection = () => {
                                       `Edit clicked for ${partData.part_description} on Day ${day}`
                                     );
                                     console.log(
-                                      "Complete documents for this date:",
+                                      'Complete documents for this date:',
                                       dayData.records[0]
                                     );
                                     // Log each document individually for clarity
@@ -1035,14 +1007,12 @@ const Rejection = () => {
                                   }}
                                   size="small"
                                   sx={{
-                                    color: "rgb(57, 81, 160)",
-                                    backgroundColor:
-                                      "rgba(255, 255, 255, 0.99)",
+                                    color: 'rgb(57, 81, 160)',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.99)',
                                     width: 16,
                                     height: 16,
-                                    "&:hover": {
-                                      backgroundColor:
-                                        "rgba(245, 158, 11, 0.1)",
+                                    '&:hover': {
+                                      backgroundColor: 'rgba(245, 158, 11, 0.1)',
                                     },
                                   }}
                                 >
@@ -1055,11 +1025,10 @@ const Rejection = () => {
                             <IconButton
                               onClick={() => {
                                 // Pre-fill the add dialog with part info and selected date
-                                const [year, month] = selectedDate.split("-");
-                                const dateString = `${year}-${month.padStart(
-                                  2,
-                                  "0"
-                                )}-${day.toString().padStart(2, "0")}`;
+                                const [year, month] = selectedDate.split('-');
+                                const dateString = `${year}-${month.padStart(2, '0')}-${day
+                                  .toString()
+                                  .padStart(2, '0')}`;
 
                                 setAddData({
                                   part_description: partData.part_description,
@@ -1069,7 +1038,7 @@ const Rejection = () => {
                                   lumps: 0,
                                   runner: 0,
                                   isssued: 0,
-                                  resp_person: "",
+                                  resp_person: '',
                                   timestamp: `${dateString}T${new Date()
                                     .toTimeString()
                                     .slice(0, 8)}.000Z`,
@@ -1078,10 +1047,10 @@ const Rejection = () => {
                               }}
                               size="small"
                               sx={{
-                                color: "rgb(214, 214, 214)",
-                                margin: "auto",
-                                "&:hover": {
-                                  backgroundColor: "rgba(0, 0, 0, 0.05)",
+                                color: 'rgb(214, 214, 214)',
+                                margin: 'auto',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
                                 },
                               }}
                             >
@@ -1095,26 +1064,26 @@ const Rejection = () => {
                     {/* Total Column */}
                     <TableCell
                       sx={{
-                        fontWeight: "bold",
-                        backgroundColor: "#fff5f5",
-                        position: "sticky",
+                        fontWeight: 'bold',
+                        backgroundColor: '#fff5f5',
+                        position: 'sticky',
                         right: 100, // Sticky at right, but left of Total (%)
                         zIndex: 2,
                         border: `1px solid #e0e0e0`,
-                        padding: "4px",
+                        padding: '4px',
                       }}
                     >
                       {renderTotalSection(partData)}
                     </TableCell>
                     <TableCell
                       sx={{
-                        fontWeight: "bold",
-                        backgroundColor: "#fff5f5",
-                        position: "sticky",
+                        fontWeight: 'bold',
+                        backgroundColor: '#fff5f5',
+                        position: 'sticky',
                         right: 0, // Rightmost sticky column
                         zIndex: 2,
                         border: `1px solid #e0e0e0`,
-                        padding: "4px",
+                        padding: '4px',
                       }}
                     >
                       {renderTotalPercentageSection(partData)}
@@ -1199,33 +1168,33 @@ const Rejection = () => {
       <Box
         sx={{
           mt: 3,
-          display: "flex",
-          justifyContent: "center",
+          display: 'flex',
+          justifyContent: 'center',
           gap: 4,
-          bgcolor: "white",
-          padding: "1rem",
-          borderRadius: "8px",
-          boxShadow: "0px 2px 4px rgba(0,0,0,0.1)",
+          bgcolor: 'white',
+          padding: '1rem',
+          borderRadius: '8px',
+          boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box
             sx={{
               width: 16,
               height: 16,
-              backgroundColor: "#e8f5e8",
-              border: "1px solid #4caf50",
+              backgroundColor: '#e8f5e8',
+              border: '1px solid #4caf50',
             }}
           />
           <Typography variant="body2">Data Available</Typography>
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box
             sx={{
               width: 16,
               height: 16,
-              backgroundColor: "white",
-              border: "1px solid #e0e0e0",
+              backgroundColor: 'white',
+              border: '1px solid #e0e0e0',
             }}
           />
           <Typography variant="body2">No Data</Typography>
@@ -1233,11 +1202,7 @@ const Rejection = () => {
       </Box>
 
       {/* ---------------------Add New Entry Modal---------------------- */}
-      <AddRejection
-        addData={addData}
-        setAddData={setAddData}
-        fetchData={fetchData}
-      />
+      <AddRejection addData={addData} setAddData={setAddData} fetchData={fetchData} />
 
       {/* ---------------------Update Modal---------------------- */}
       <Dialog
@@ -1247,10 +1212,7 @@ const Rejection = () => {
         fullWidth
       >
         <DialogTitle>
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", color: colors.primary }}
-          >
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.primary }}>
             Edit Rejection Data
           </Typography>
         </DialogTitle>
@@ -1263,15 +1225,15 @@ const Rejection = () => {
                 <TextField
                   fullWidth
                   label="Part Description"
-                  value={edit.part_description || ""}
+                  value={edit.part_description || ''}
                   InputProps={{
                     readOnly: true,
                   }}
                   variant="outlined"
                   sx={{
-                    "& .MuiInputBase-input": {
-                      backgroundColor: "#f5f5f5",
-                      color: "#666",
+                    '& .MuiInputBase-input': {
+                      backgroundColor: '#f5f5f5',
+                      color: '#666',
                     },
                   }}
                 />
@@ -1281,15 +1243,15 @@ const Rejection = () => {
                 <TextField
                   fullWidth
                   label="RM (Raw Material)"
-                  value={edit.rm || ""}
+                  value={edit.rm || ''}
                   InputProps={{
                     readOnly: true,
                   }}
                   variant="outlined"
                   sx={{
-                    "& .MuiInputBase-input": {
-                      backgroundColor: "#f5f5f5",
-                      color: "#666",
+                    '& .MuiInputBase-input': {
+                      backgroundColor: '#f5f5f5',
+                      color: '#666',
                     },
                   }}
                 />
@@ -1299,15 +1261,15 @@ const Rejection = () => {
                 <TextField
                   fullWidth
                   label="Date"
-                  value={edit.timestamp ? edit.timestamp.split("T")[0] : ""}
+                  value={edit.timestamp ? edit.timestamp.split('T')[0] : ''}
                   InputProps={{
                     readOnly: true,
                   }}
                   variant="outlined"
                   sx={{
-                    "& .MuiInputBase-input": {
-                      backgroundColor: "#f5f5f5",
-                      color: "#666",
+                    '& .MuiInputBase-input': {
+                      backgroundColor: '#f5f5f5',
+                      color: '#666',
                     },
                   }}
                 />
@@ -1319,7 +1281,7 @@ const Rejection = () => {
                   fullWidth
                   label="OK Parts"
                   type="number"
-                  value={edit.ok_parts || ""}
+                  value={edit.ok_parts || ''}
                   onChange={(e) =>
                     setEdit((prev) => ({
                       ...prev,
@@ -1336,7 +1298,7 @@ const Rejection = () => {
                   fullWidth
                   label="Rejections (kg)"
                   type="number"
-                  value={edit.rejections || ""}
+                  value={edit.rejections || ''}
                   onChange={(e) =>
                     setEdit((prev) => ({
                       ...prev,
@@ -1353,7 +1315,7 @@ const Rejection = () => {
                   fullWidth
                   label="Lumps (kg)"
                   type="number"
-                  value={edit.lumps || ""}
+                  value={edit.lumps || ''}
                   onChange={(e) =>
                     setEdit((prev) => ({
                       ...prev,
@@ -1370,7 +1332,7 @@ const Rejection = () => {
                   fullWidth
                   label="Runner (kg)"
                   type="number"
-                  value={edit.runner || ""}
+                  value={edit.runner || ''}
                   onChange={(e) =>
                     setEdit((prev) => ({
                       ...prev,
@@ -1387,7 +1349,7 @@ const Rejection = () => {
                   fullWidth
                   label="Issued (kg)"
                   type="number"
-                  value={edit.isssued || ""}
+                  value={edit.isssued || ''}
                   onChange={(e) =>
                     setEdit((prev) => ({
                       ...prev,
@@ -1403,7 +1365,7 @@ const Rejection = () => {
                 <TextField
                   fullWidth
                   label="Responsible Person"
-                  value={edit.resp_person || ""}
+                  value={edit.resp_person || ''}
                   onChange={(e) =>
                     setEdit((prev) => ({
                       ...prev,
@@ -1420,30 +1382,21 @@ const Rejection = () => {
                   sx={{
                     mt: 2,
                     p: 2,
-                    backgroundColor: "#f8f9fa",
+                    backgroundColor: '#f8f9fa',
                     borderRadius: 1,
-                    border: "1px solid #e0e0e0",
+                    border: '1px solid #e0e0e0',
                   }}
                 >
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ fontWeight: "bold", mb: 1 }}
-                  >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
                     Summary:
                   </Typography>
                   <Typography variant="body2">
-                    Total Scrap:{" "}
-                    {(
-                      (edit.rejections || 0) +
-                      (edit.lumps || 0) +
-                      (edit.runner || 0)
-                    ).toFixed(2)}{" "}
+                    Total Scrap:{' '}
+                    {((edit.rejections || 0) + (edit.lumps || 0) + (edit.runner || 0)).toFixed(2)}{' '}
                     kg
                   </Typography>
-                  <Typography
-                    sx={{ color: "grey", fontSize: "0.8rem", mt: "0.2rem" }}
-                  >
-                    {"(Rejection + Lumps + Runner)"}
+                  <Typography sx={{ color: 'grey', fontSize: '0.8rem', mt: '0.2rem' }}>
+                    {'(Rejection + Lumps + Runner)'}
                   </Typography>
                 </Box>
               </Grid>
@@ -1460,12 +1413,7 @@ const Rejection = () => {
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleUpdate}
-            color="primary"
-            variant="contained"
-            sx={{ minWidth: 100 }}
-          >
+          <Button onClick={handleUpdate} color="primary" variant="contained" sx={{ minWidth: 100 }}>
             Update
           </Button>
         </DialogActions>
