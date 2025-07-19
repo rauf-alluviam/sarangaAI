@@ -371,7 +371,7 @@ const RejectionMonthly = () => {
                 top: 20,
                 right: 30,
                 left: 20,
-                bottom: 80,
+                bottom: 10,
               }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
@@ -379,7 +379,7 @@ const RejectionMonthly = () => {
                 dataKey="name"
                 angle={-45}
                 textAnchor="end"
-                height={70}
+                height={120}
                 tick={{ fontSize: 12 }}
               />
               <YAxis tickFormatter={(value) => value.toFixed(0)} tick={{ fontSize: 12 }} />
