@@ -73,13 +73,28 @@ export const updateStoreStock = (stockData, token, onSuccess, onError) => async 
       _id: stockData._id, // Include the ID to update the specific stock entry
     };
 
+    let locationValue = stockData.location;
+    // If location is an object with p1/p2/p3, keep as object, else as string
+    if (typeof locationValue === 'object' && locationValue !== null && (
+      locationValue.p1 !== undefined || locationValue.p2 !== undefined || locationValue.p3 !== undefined
+    )) {
+      locationValue = {
+        p1: locationValue.p1 || '',
+        p2: locationValue.p2 || '',
+        p3: locationValue.p3 || ''
+      };
+    } else if (typeof locationValue === 'string') {
+      // keep as string
+    } else {
+      locationValue = '';
+    }
     const updatedStock2 = {
       item_description: stockData.item_description,
       minimum: 200,
       maximum: stockData.maximum,
       current: stockData.current || 0,
       resp_person: stockData.resp_person || '',
-      location: stockData.location || '',
+      location: locationValue,
       status: stockData.status || '',
       plan: stockData.plan || '',
       actual: stockData.actual || '',

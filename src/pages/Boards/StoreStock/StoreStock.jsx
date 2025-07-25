@@ -552,8 +552,8 @@ const StoreStock = () => {
                   >
                     Current Stock
                   </TableCell>
-                  <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
-                    Location
+                  <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }} colSpan={3}>
+                    <Typography fontWeight="bold">Location</Typography>
                   </TableCell>
 
                   <TableCell
@@ -617,8 +617,6 @@ const StoreStock = () => {
                         {edit._id == elem._id ? (
                           <TextField
                             fullWidth
-                            // label="Current Stock"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="number"
                             defaultValue={elem.current}
                             onChange={(e) => setEdit({ ...edit, current: e.target.value })}
@@ -630,25 +628,86 @@ const StoreStock = () => {
                         )}
                       </TableCell>
 
-                      <TableCell
-                        sx={{ width: '4rem', minWidth: '4rem', maxWidth: '4rem' }}
-                        align="center"
-                      >
-                        {edit._id == elem._id ? (
-                          <TextField
-                            fullWidth
-                            // label="Dispatched"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="text"
-                            defaultValue={elem.location}
-                            onChange={(e) => setEdit({ ...edit, location: e.target.value })}
-                            sx={{ width: '100%' }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.location
-                        )}
-                      </TableCell>
+                      {/* Location cells: always show as three fields when editing */}
+                      {edit._id == elem._id
+                        ? ['p1', 'p2', 'p3'].map((key) => {
+                            let locObj;
+                            if (typeof elem.location === 'object' && elem.location !== null) {
+                              locObj = edit.location || elem.location;
+                            } else {
+                              // If original location is string, convert to object for editing
+                              locObj = edit.location || { p1: elem.location || '', p2: '', p3: '' };
+                            }
+                            const val = locObj[key] || '';
+                            const match = typeof val === 'string' ? val.match(/^([a-zA-Z]+)(\d+)$/) : null;
+                            return (
+                              <TableCell align="center" key={key}>
+                                <TextField
+                                  fullWidth
+                                  size="small"
+                                  value={val}
+                                  onChange={e => setEdit({
+                                    ...edit,
+                                    location: {
+                                      ...locObj,
+                                      [key]: e.target.value
+                                    }
+                                  })}
+                                  sx={{ background: '#fff', borderRadius: 1 }}
+                                  placeholder={key.toUpperCase()}
+                                />
+                              </TableCell>
+                            );
+                          })
+                        : typeof elem.location === 'object' && elem.location !== null
+                        ? ['p1', 'p2', 'p3'].map((key) => {
+                            const val = elem.location[key] || '';
+                            const match = typeof val === 'string' ? val.match(/^([a-zA-Z]+)(\d+)$/) : null;
+                            return (
+                              <TableCell align="center" key={key}>
+                                <Box
+                                  display="flex"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                  sx={{
+                                    border: '2px solid #1976d2',
+                                    borderRadius: 2,
+                                    padding: '8px 16px',
+                                    minWidth: 60,
+                                    background: '#f5faff',
+                                  }}
+                                >
+                                  {match ? (
+                                    <>
+                                      <Typography fontWeight="bold" color="#1976d2" mr={1}>{match[1]}</Typography>
+                                      <Box sx={{ borderLeft: '2px solid #1976d2', height: 24, mx: 1 }} />
+                                      <Typography fontWeight="bold" color="#388e3c">{match[2]}</Typography>
+                                    </>
+                                  ) : (
+                                    <Typography fontWeight="bold">{val}</Typography>
+                                  )}
+                                </Box>
+                              </TableCell>
+                            );
+                          })
+                        : (
+                            <TableCell align="center" colSpan={3}>
+                              <Box
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                                sx={{
+                                  border: '2px solid #1976d2',
+                                  borderRadius: 2,
+                                  padding: '8px 16px',
+                                  minWidth: 120,
+                                  background: '#f5faff',
+                                }}
+                              >
+                                <Typography fontWeight="bold">{elem.location || ''}</Typography>
+                              </Box>
+                            </TableCell>
+                          )}
 
                       {/* <TableCell  sx={{width: '15rem'}} align="center">
 <Box
