@@ -236,7 +236,15 @@ const StoreStock = () => {
             <TableContainer sx={{ maxHeight: '100%' }}>
               <Table stickyHeader aria-label="sticky table" border={1}>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#f5f5f5 !important', borderBottom: '1px solid #ddd', position: 'sticky', top: 0, zIndex: 2 }}>
+                  <TableRow
+                    sx={{
+                      bgcolor: '#f5f5f5 !important',
+                      borderBottom: '1px solid #ddd',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 2,
+                    }}
+                  >
                     <TableCell rowSpan={2} colSpan={1}>
                       Sr No
                     </TableCell>
@@ -268,17 +276,55 @@ const StoreStock = () => {
                       Edit
                     </TableCell>
                   </TableRow>
-                  <TableRow sx={{ bgcolor: '#f5f5f5 !important', borderBottom: '1px solid #ddd', position: 'sticky', top: 56, zIndex: 2 }}>
-                    <TableCell align="center" colSpan={1} sx={{ position: 'sticky', top: 56, zIndex: 2, bgcolor: '#f5f5f5 !important', fontWeight: 'bold' }}>
+                  <TableRow
+                    sx={{
+                      bgcolor: '#f5f5f5 !important',
+                      borderBottom: '1px solid #ddd',
+                      position: 'sticky',
+                      top: 56,
+                      zIndex: 2,
+                    }}
+                  >
+                    <TableCell
+                      align="center"
+                      colSpan={1}
+                      sx={{
+                        position: 'sticky',
+                        top: 56,
+                        zIndex: 2,
+                        bgcolor: '#f5f5f5 !important',
+                        fontWeight: 'bold',
+                      }}
+                    >
                       use first me <br />
                       <b>P1</b>
                     </TableCell>
-                    <TableCell align="center" colSpan={1} sx={{ position: 'sticky', top: 56, zIndex: 2, bgcolor: '#f5f5f5 !important', fontWeight: 'bold' }}>
+                    <TableCell
+                      align="center"
+                      colSpan={1}
+                      sx={{
+                        position: 'sticky',
+                        top: 56,
+                        zIndex: 2,
+                        bgcolor: '#f5f5f5 !important',
+                        fontWeight: 'bold',
+                      }}
+                    >
                       &larr; <br />
                       <b>P2</b>
                     </TableCell>
-                    <TableCell align="center" colSpan={1} sx={{ position: 'sticky', top: 56, zIndex: 2, bgcolor: '#f5f5f5 !important', fontWeight: 'bold' }}>
-                       &larr; <br />
+                    <TableCell
+                      align="center"
+                      colSpan={1}
+                      sx={{
+                        position: 'sticky',
+                        top: 56,
+                        zIndex: 2,
+                        bgcolor: '#f5f5f5 !important',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      &larr; <br />
                       <b>P3</b>
                     </TableCell>
                   </TableRow>
@@ -313,9 +359,9 @@ const StoreStock = () => {
                         </TableCell>
 
                         {/* Location cells */}
-                      
-                         {edit._id == elem._id
-                        ? ['p1', 'p2', 'p3'].map((key) => {
+
+                        {edit._id == elem._id ? (
+                          ['p1', 'p2', 'p3'].map((key) => {
                             let locObj;
                             if (typeof elem.location === 'object' && elem.location !== null) {
                               locObj = edit.location || elem.location;
@@ -324,30 +370,34 @@ const StoreStock = () => {
                               locObj = edit.location || { p1: elem.location || '', p2: '', p3: '' };
                             }
                             const val = locObj[key] || '';
-                            const match = typeof val === 'string' ? val.match(/^([a-zA-Z]+)(\d+)$/) : null;
+                            const match =
+                              typeof val === 'string' ? val.match(/^([a-zA-Z]+)(\d+)$/) : null;
                             return (
                               <TableCell align="center" key={key}>
                                 <TextField
                                   fullWidth
                                   size="small"
                                   value={val}
-                                  onChange={e => setEdit({
-                                    ...edit,
-                                    location: {
-                                      ...locObj,
-                                      [key]: e.target.value
-                                    }
-                                  })}
+                                  onChange={(e) =>
+                                    setEdit({
+                                      ...edit,
+                                      location: {
+                                        ...locObj,
+                                        [key]: e.target.value,
+                                      },
+                                    })
+                                  }
                                   sx={{ background: '#fff', borderRadius: 1 }}
                                   placeholder={key.toUpperCase()}
                                 />
                               </TableCell>
                             );
                           })
-                        : typeof elem.location === 'object' && elem.location !== null
-                        ? ['p1', 'p2', 'p3'].map((key) => {
+                        ) : typeof elem.location === 'object' && elem.location !== null ? (
+                          ['p1', 'p2', 'p3'].map((key) => {
                             const val = elem.location[key] || '';
-                            const match = typeof val === 'string' ? val.match(/^([a-zA-Z]+)(\d+)$/) : null;
+                            const match =
+                              typeof val === 'string' ? val.match(/^([a-zA-Z]+)(\d+)$/) : null;
                             return (
                               <TableCell align="center" key={key}>
                                 <Box
@@ -364,9 +414,15 @@ const StoreStock = () => {
                                 >
                                   {match ? (
                                     <>
-                                      <Typography fontWeight="bold" color="#1976d2" mr={1}>{match[1]}</Typography>
-                                      <Box sx={{ borderLeft: '2px solid #1976d2', height: 24, mx: 1 }} />
-                                      <Typography fontWeight="bold" color="#388e3c">{match[2]}</Typography>
+                                      <Typography fontWeight="bold" color="#1976d2" mr={1}>
+                                        {match[1]}
+                                      </Typography>
+                                      <Box
+                                        sx={{ borderLeft: '2px solid #1976d2', height: 24, mx: 1 }}
+                                      />
+                                      <Typography fontWeight="bold" color="#388e3c">
+                                        {match[2]}
+                                      </Typography>
                                     </>
                                   ) : (
                                     <Typography fontWeight="bold">{val}</Typography>
@@ -375,24 +431,24 @@ const StoreStock = () => {
                               </TableCell>
                             );
                           })
-                        : (
-                            <TableCell align="center" colSpan={3}>
-                              <Box
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                sx={{
-                                  border: '2px solid #1976d2',
-                                  borderRadius: 2,
-                                  padding: '8px 16px',
-                                  minWidth: 120,
-                                  background: '#f5faff',
-                                }}
-                              >
-                                <Typography fontWeight="bold">{elem.location || ''}</Typography>
-                              </Box>
-                            </TableCell>
-                          )}
+                        ) : (
+                          <TableCell align="center" colSpan={3}>
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                              sx={{
+                                border: '2px solid #1976d2',
+                                borderRadius: 2,
+                                padding: '8px 16px',
+                                minWidth: 120,
+                                background: '#f5faff',
+                              }}
+                            >
+                              <Typography fontWeight="bold">{elem.location || ''}</Typography>
+                            </Box>
+                          </TableCell>
+                        )}
 
                         <TableCell sx={{ width: '9rem' }} align="center">
                           {edit._id === elem._id ? (
