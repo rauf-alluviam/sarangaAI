@@ -76,6 +76,16 @@ const MonthlyFgStockNew = () => {
             onChange={(e) => setYear(e.target.value)}
             sx={{ width: 120 }}
           />
+          <Box ml={4} px={2} py={1} bgcolor="#fffde7" borderRadius={2} boxShadow={1} minWidth={220}>
+            <Typography variant="body2" color="textSecondary" fontWeight="bold" mb={0.5}>
+              <u>Dispatched % Color Code:</u>
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              <span style={{ background: '#ffebee', borderRadius: '3px', padding: '0 4px' }}>Less than 80%</span>: light red<br/>
+              <span style={{ background: '#fff3e0', borderRadius: '3px', padding: '0 4px' }}>80% to 90%</span>: light orange<br/>
+              <span style={{ background: '#e8f5e9', borderRadius: '3px', padding: '0 4px' }}>Greater than 90%</span>: light green
+            </Typography>
+          </Box>
         </Box>
 
         {loading ? (
@@ -241,17 +251,35 @@ const MonthlyFgStockNew = () => {
                             {row.monthly_data[idx]?.monthly_schedule || '-'}
                           </Box>
                         </td>
-                        <td
-                          style={{
-                            padding: '8px',
-                            textAlign: 'center',
-                            borderBottom: '1px solid #e0e0e0',
-                          }}
-                        >
-                          <Box bgcolor={'#f1f8e9'} px={1} borderRadius={1}>
-                            {row.monthly_data[idx]?.monthly_dispatched || '-'}
-                          </Box>
-                        </td>
+                        {(() => {
+                          const schedule = Number(row.monthly_data[idx]?.monthly_schedule) || 0;
+                          const dispatched = Number(row.monthly_data[idx]?.monthly_dispatched) || 0;
+                          let percent = schedule > 0 ? (dispatched / schedule) * 100 : null;
+                          let bgColor = '#f1f8e9';
+                          if (percent !== null) {
+                            if (percent < 80) bgColor = '#ffebee'; // light red
+                            else if (percent >= 80 && percent <= 90) bgColor = '#fff3e0'; // light orange
+                            else if (percent > 90) bgColor = '#e8f5e9'; // light green
+                          }
+                          return (
+                            <td
+                              style={{
+                                padding: '8px',
+                                textAlign: 'center',
+                                borderBottom: '1px solid #e0e0e0',
+                              }}
+                            >
+                              <Box bgcolor={bgColor} px={1} borderRadius={1}>
+                                {dispatched || '-'}
+                                {percent !== null && schedule > 0 ? (
+                                  <Typography variant="caption" ml={1} color="textSecondary">
+                                    ({percent.toFixed(0)}%)
+                                  </Typography>
+                                ) : null}
+                              </Box>
+                            </td>
+                          );
+                        })()}
                       </React.Fragment>
                     ))}
                   </tr>
