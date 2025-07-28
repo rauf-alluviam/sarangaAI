@@ -236,7 +236,7 @@ const StoreStock = () => {
             <TableContainer sx={{ maxHeight: '100%' }}>
               <Table stickyHeader aria-label="sticky table" border={1}>
                 <TableHead>
-                  <TableRow sx={{ bgcolor: '#f5f5f5 !important', borderBottom: '1px solid #ddd' }}>
+                  <TableRow sx={{ bgcolor: '#f5f5f5 !important', borderBottom: '1px solid #ddd', position: 'sticky', top: 0, zIndex: 2 }}>
                     <TableCell rowSpan={2} colSpan={1}>
                       Sr No
                     </TableCell>
@@ -268,16 +268,16 @@ const StoreStock = () => {
                       Edit
                     </TableCell>
                   </TableRow>
-                  <TableRow sx={{ bgcolor: '#f5f5f5 !important', borderBottom: '1px solid #ddd' }}>
-                    <TableCell align="center" colSpan={1}>
+                  <TableRow sx={{ bgcolor: '#f5f5f5 !important', borderBottom: '1px solid #ddd', position: 'sticky', top: 56, zIndex: 2 }}>
+                    <TableCell align="center" colSpan={1} sx={{ position: 'sticky', top: 56, zIndex: 2, bgcolor: '#f5f5f5 !important', fontWeight: 'bold' }}>
                       use first me <br />
                       <b>P1</b>
                     </TableCell>
-                    <TableCell align="center" colSpan={1}>
+                    <TableCell align="center" colSpan={1} sx={{ position: 'sticky', top: 56, zIndex: 2, bgcolor: '#f5f5f5 !important', fontWeight: 'bold' }}>
                       &larr; <br />
                       <b>P2</b>
                     </TableCell>
-                    <TableCell align="center" colSpan={1}>
+                    <TableCell align="center" colSpan={1} sx={{ position: 'sticky', top: 56, zIndex: 2, bgcolor: '#f5f5f5 !important', fontWeight: 'bold' }}>
                        &larr; <br />
                       <b>P3</b>
                     </TableCell>
