@@ -21,7 +21,7 @@ import { format } from 'date-fns-tz';
 
 
 const UserProfile = ({ user }) => {
-    const {token}= useSelector((state)=> state.auth);
+    const {token, userData}= useSelector((state)=> state.auth);
   // Dummy user details for fallback
   const dummyUser = {
     name: "John Doe",
@@ -100,7 +100,7 @@ const UserProfile = ({ user }) => {
                 </Typography>
               </Box>
               <Typography variant="h8" fontWeight="bold">
-               admin
+               {currentUser.role || "User"}
               </Typography>
               {/* <Chip 
                 label={currentUser.force_password_change ? "Change Required" : "Current"}
