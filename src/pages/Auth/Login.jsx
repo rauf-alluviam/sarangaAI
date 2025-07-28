@@ -26,11 +26,11 @@ const Login=({setFlag})=> {
   const [resetPassMail, setResetPassMail]= useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit= async(e)=>{
+  const handleSubmit= async(e)=>{``
     e.preventDefault();
     // console.log({username, password})
     dispatch(login(username, password, navigate, 
-      (successMsg)=> {enqueueSnackbar(successMsg, { variant: 'success' })},
+      (successMsg)=> {enqueueSnackbar(successMsg, { variant: 'success', anchorOrigin: { vertical: 'top', horizontal: 'right' } }); navigate('/')},
       (errorMsg)=> enqueueSnackbar(errorMsg, { variant: 'error' })
     ))
     // navigate('/')
