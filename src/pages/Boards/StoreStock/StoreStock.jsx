@@ -22,6 +22,7 @@ import AddStoreStock from './AddStoreStock';
 import { fetchStoreStock, updateStoreStock } from '../../../store/actions/storeStockAction';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { IoPersonSharp } from 'react-icons/io5';
 
 const StoreStock = () => {
   const { storeStockArr } = useSelector((state) => state.storeStock);
@@ -37,6 +38,8 @@ const StoreStock = () => {
     color: '',
     message: '',
   });
+  // Track if GET request is already triggered for each field (P1, P2, P3)
+  const [fetched, setFetched] = useState({ p1: false, p2: false, p3: false });
 
   useEffect(() => {
     const [year, month, day] = date.split('-');
@@ -128,7 +131,16 @@ const StoreStock = () => {
         </Typography>
 
         <Box display={'flex'} justifyContent={'space-between'} mb={'1rem'}>
-          <Box display={'flex'} alignItems={'center'}>
+          <Box
+            display={'flex'}
+            alignItems={'center'}
+            border={'1px solid #ddd'}
+            borderRadius={'4px'}
+            p={1}
+          >
+            <IoPersonSharp
+              style={{ color: '#282828', fontSize: '1.5rem', marginRight: '0.5rem' }}
+            />
             <Typography>Responsible Person-</Typography>
             {storeStockArr.length > 0 ? (
               edit._id === storeStockArr[0]._id ? (
@@ -264,13 +276,13 @@ const StoreStock = () => {
                       <Typography fontWeight="bold">Location</Typography>
                     </TableCell>
                     <TableCell align="center" rowSpan={2} colSpan={1}>
-                      Plan
+                      Status
+                    </TableCell>
+                    <TableCell align="center" rowSpan={2} colSpan={1}>
+                      Schedule
                     </TableCell>
                     <TableCell align="center" rowSpan={2} colSpan={1}>
                       Actual
-                    </TableCell>
-                    <TableCell align="center" rowSpan={2} colSpan={1}>
-                      Status
                     </TableCell>
                     <TableCell align="center" rowSpan={2} colSpan={1}>
                       Edit
@@ -296,7 +308,7 @@ const StoreStock = () => {
                         fontWeight: 'bold',
                       }}
                     >
-                      use first me <br />
+                      Use me First <br />
                       <b>P1</b>
                     </TableCell>
                     <TableCell
@@ -361,38 +373,59 @@ const StoreStock = () => {
                         {/* Location cells */}
 
                         {edit._id == elem._id ? (
-                          ['p1', 'p2', 'p3'].map((key) => {
+                          (() => {
                             let locObj;
                             if (typeof elem.location === 'object' && elem.location !== null) {
                               locObj = edit.location || elem.location;
                             } else {
-                              // If original location is string, convert to object for editing
                               locObj = edit.location || { p1: elem.location || '', p2: '', p3: '' };
                             }
-                            const val = locObj[key] || '';
-                            const match =
-                              typeof val === 'string' ? val.match(/^([a-zA-Z]+)(\d+)$/) : null;
-                            return (
-                              <TableCell align="center" key={key}>
-                                <TextField
-                                  fullWidth
-                                  size="small"
-                                  value={val}
-                                  onChange={(e) =>
-                                    setEdit({
-                                      ...edit,
-                                      location: {
-                                        ...locObj,
-                                        [key]: e.target.value,
-                                      },
-                                    })
-                                  }
-                                  sx={{ background: '#fff', borderRadius: 1 }}
-                                  placeholder={key.toUpperCase()}
-                                />
-                              </TableCell>
-                            );
-                          })
+                            // Helper to check if a field is filled
+                            const isFilled = (val) => val && val.trim() !== '';
+
+                            // Handler for onChange with GET request trigger
+                            const handleLocationChange = (key, value) => {
+                              setEdit((prev) => ({
+                                ...prev,
+                                location: {
+                                  ...locObj,
+                                  [key]: value,
+                                },
+                              }));
+                              // Only trigger GET if just filled and not already fetched
+                              if (key === 'p1' && isFilled(value) && !fetched.p1) {
+                                setFetched((prev) => ({ ...prev, p1: true }));
+                                const [year, month, day] = date.split('-');
+                                dispatch(fetchStoreStock(year, month, day, token));
+                              }
+                              if (key === 'p2' && isFilled(value) && !fetched.p2) {
+                                setFetched((prev) => ({ ...prev, p2: true }));
+                                const [year, month, day] = date.split('-');
+                                dispatch(fetchStoreStock(year, month, day, token));
+                              }
+                            };
+
+                            return ['p1', 'p2', 'p3'].map((key) => {
+                              const val = locObj[key] || '';
+                              // Disable logic: P2 disabled if P1 not filled, P3 disabled if P2 not filled
+                              let disabled = false;
+                              if (key === 'p2' && !isFilled(locObj.p1)) disabled = true;
+                              if (key === 'p3' && !isFilled(locObj.p2)) disabled = true;
+                              return (
+                                <TableCell align="center" key={key}>
+                                  <TextField
+                                    fullWidth
+                                    size="small"
+                                    value={val}
+                                    onChange={(e) => handleLocationChange(key, e.target.value)}
+                                    sx={{ background: '#fff', borderRadius: 1 }}
+                                    placeholder={key.toUpperCase()}
+                                    disabled={disabled}
+                                  />
+                                </TableCell>
+                              );
+                            });
+                          })()
                         ) : typeof elem.location === 'object' && elem.location !== null ? (
                           ['p1', 'p2', 'p3'].map((key) => {
                             const val = elem.location[key] || '';
@@ -450,34 +483,7 @@ const StoreStock = () => {
                           </TableCell>
                         )}
 
-                        <TableCell sx={{ width: '9rem' }} align="center">
-                          {edit._id === elem._id ? (
-                            <TextField
-                              fullWidth
-                              type="text"
-                              defaultValue={elem.plan}
-                              onChange={(e) => setEdit({ ...edit, plan: e.target.value })}
-                              sx={{ width: '100%' }}
-                              size="small"
-                            />
-                          ) : (
-                            elem.plan
-                          )}
-                        </TableCell>
-                        <TableCell sx={{ width: '14rem' }} align="center">
-                          {edit._id === elem._id ? (
-                            <TextField
-                              fullWidth
-                              type="text"
-                              defaultValue={elem.actual}
-                              onChange={(e) => setEdit({ ...edit, actual: e.target.value })}
-                              sx={{ width: '100%' }}
-                              size="small"
-                            />
-                          ) : (
-                            elem.actual
-                          )}
-                        </TableCell>
+                        {/* Status column moved after Location columns */}
                         <TableCell sx={{ width: '7rem', padding: 0 }} align="center">
                           {Number(elem.current) < elem.minimum && (
                             <Box
@@ -505,6 +511,36 @@ const StoreStock = () => {
                               borderRadius={'50%'}
                               margin={'auto'}
                             />
+                          )}
+                        </TableCell>
+                        {/* Schedule column */}
+                        <TableCell sx={{ width: '9rem' }} align="center">
+                          {edit._id === elem._id ? (
+                            <TextField
+                              fullWidth
+                              type="text"
+                              defaultValue={elem.plan}
+                              onChange={(e) => setEdit({ ...edit, plan: e.target.value })}
+                              sx={{ width: '100%' }}
+                              size="small"
+                            />
+                          ) : (
+                            elem.plan
+                          )}
+                        </TableCell>
+                        {/* Actual column */}
+                        <TableCell sx={{ width: '14rem' }} align="center">
+                          {edit._id === elem._id ? (
+                            <TextField
+                              fullWidth
+                              type="text"
+                              defaultValue={elem.actual}
+                              onChange={(e) => setEdit({ ...edit, actual: e.target.value })}
+                              sx={{ width: '100%' }}
+                              size="small"
+                            />
+                          ) : (
+                            elem.actual
                           )}
                         </TableCell>
                         <TableCell sx={{ width: '6rem' }} align="center">
