@@ -62,11 +62,7 @@ const MonthlyStoreStockNew = () => {
     fetchData();
   }, [debouncedYear, token, BACKEND_API]);
 
-  // Helper to get stock value for month
-  const getStockForMonth = (item, monthIndex) => {
-    const monthData = item.monthly_data.find((m) => m.month === monthIndex + 1);
-    return monthData ? monthData.total_current_stock : '-';
-  };
+  // (removed unused getStockForMonth)
 
   return (
     <Box sx={{ bgcolor: '#f9f9f9', minHeight: '100vh', p: 3 }}>
@@ -115,7 +111,7 @@ const MonthlyStoreStockNew = () => {
                 minWidth: '1400px',
               }}
             >
-              {/* Simplified Table Header */}
+              {/* Enhanced Table Header with subcolumns */}
               <thead>
                 <tr>
                   <th
@@ -132,12 +128,14 @@ const MonthlyStoreStockNew = () => {
                       fontSize: '1rem',
                       boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
                     }}
+                    rowSpan={2}
                   >
                     Item Description
                   </th>
-                  {monthNames.map((month) => (
+                  {monthNames.map((month, idx) => (
                     <th
                       key={month}
+                      colSpan={3}
                       style={{
                         backgroundColor: '#f5f5f5',
                         textAlign: 'center',
@@ -148,12 +146,57 @@ const MonthlyStoreStockNew = () => {
                         position: 'sticky',
                         top: 0,
                         zIndex: 2,
-                        minWidth: '80px',
+                        minWidth: '240px',
+                        borderRight:
+                          idx !== monthNames.length - 1 ? '2.5px solid #bdbdbd' : undefined,
+                        boxShadow: idx !== monthNames.length - 1 ? '2px 0 0 #bdbdbd' : undefined,
                       }}
                     >
                       {month}
                     </th>
                   ))}
+                </tr>
+                <tr>
+                  {monthNames.map((_, idx) => [
+                    <th
+                      key={`current-${idx}`}
+                      style={{
+                        backgroundColor: '#f5f5f5',
+                        fontWeight: 'bold',
+                        fontSize: '0.95rem',
+                        borderBottom: '1px solid #e0e0e0',
+                        minWidth: '80px',
+                      }}
+                    >
+                      Current Stock
+                    </th>,
+                    <th
+                      key={`plan-${idx}`}
+                      style={{
+                        backgroundColor: '#f5f5f5',
+                        fontWeight: 'bold',
+                        fontSize: '0.95rem',
+                        borderBottom: '1px solid #e0e0e0',
+                        minWidth: '80px',
+                      }}
+                    >
+                      Schedule
+                    </th>,
+                    <th
+                      key={`actual-${idx}`}
+                      style={{
+                        backgroundColor: '#f5f5f5',
+                        fontWeight: 'bold',
+                        fontSize: '0.95rem',
+                        borderBottom: '1px solid #e0e0e0',
+                        minWidth: '80px',
+                        borderRight:
+                          idx !== monthNames.length - 1 ? '2.5px solid #bdbdbd' : undefined,
+                      }}
+                    >
+                      Actual
+                    </th>,
+                  ])}
                 </tr>
               </thead>
 
@@ -184,20 +227,53 @@ const MonthlyStoreStockNew = () => {
                     >
                       {row.item_description}
                     </td>
-                    {monthNames.map((_, idx) => (
-                      <td
-                        key={idx}
-                        style={{
-                          padding: '8px',
-                          textAlign: 'center',
-                          borderBottom: '1px solid #e0e0e0',
-                        }}
-                      >
-                        <Box bgcolor={'#e3f2fd'} px={1} borderRadius={1}>
-                          {getStockForMonth(row, idx)}
-                        </Box>
-                      </td>
-                    ))}
+                    {monthNames.map((_, idx) => {
+                      const monthData = row.monthly_data.find((m) => m.month === idx + 1) || {};
+                      return [
+                        <td
+                          key={`current-${idx}`}
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            borderBottom: '1px solid #e0e0e0',
+                          }}
+                        >
+                          <Box bgcolor={'#e3f2fd'} px={1} borderRadius={1}>
+                            {typeof monthData.total_current_stock === 'number'
+                              ? monthData.total_current_stock
+                              : '-'}
+                          </Box>
+                        </td>,
+                        <td
+                          key={`plan-${idx}`}
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            borderBottom: '1px solid #e0e0e0',
+                          }}
+                        >
+                          <Box bgcolor={'#fffde7'} px={1} borderRadius={1}>
+                            {typeof monthData.total_plan === 'number' ? monthData.total_plan : '-'}
+                          </Box>
+                        </td>,
+                        <td
+                          key={`actual-${idx}`}
+                          style={{
+                            padding: '8px',
+                            textAlign: 'center',
+                            borderBottom: '1px solid #e0e0e0',
+                            borderRight:
+                              idx !== monthNames.length - 1 ? '2.5px solid #bdbdbd' : undefined,
+                          }}
+                        >
+                          <Box bgcolor={'#e8f5e9'} px={1} borderRadius={1}>
+                            {typeof monthData.total_actual === 'number'
+                              ? monthData.total_actual
+                              : '-'}
+                          </Box>
+                        </td>,
+                      ];
+                    })}
                   </tr>
                 ))}
               </tbody>
