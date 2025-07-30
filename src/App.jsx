@@ -30,6 +30,8 @@ import StoreStock from './pages/Boards/StoreStock/StoreStock';
 import FourM from './pages/Boards/FourM/FourM';
 import ToolManage from './pages/Boards/ToolManage/ToolManage';
 import BracketD from './pages/Detection/BracketD/BracketD';
+import DojoEmployee from './pages/Dojo/DojoEmployee.jsx';
+import EmployeeDetails from './pages/Dojo/EmployeeDetails.jsx';
 import Complaint from './pages/Boards/Complaint/Complaint';
 import BracketE from './pages/Detection/BracketE/BracketE';
 import Dashboard2 from './pages/Dashboard/Dashboard2';
@@ -289,6 +291,24 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/dojo-employee"
+              element={
+                <ProtectedRoute>
+                  <DojoEmployee />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/employee/:userId"
+              element={
+                <ProtectedRoute>
+                  <EmployeeDetails />
+                </ProtectedRoute>
+              }
+            />
+
             <Route
               path="/bracket-e"
               element={

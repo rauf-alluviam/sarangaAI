@@ -1,21 +1,38 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import "./Sidebar.scss";
-import { Button, IconButton, List, ListItem, ListItemButton, useMediaQuery, Collapse, Box, Tooltip } from "@mui/material";
-import { MdHome, MdRateReview, MdStorefront } from "react-icons/md";
-import { IoIosLogOut } from "react-icons/io";
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import './Sidebar.scss';
+import {
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  useMediaQuery,
+  Collapse,
+  Box,
+  Tooltip,
+} from '@mui/material';
+import { MdHome, MdRateReview, MdStorefront } from 'react-icons/md';
+import { IoIosLogOut } from 'react-icons/io';
 // import logo from '../../assets/images/alluvium.png';
 import logo from '../../assets/rabsLogo.png';
-import { FaCircleChevronLeft, FaCircleChevronRight, FaFireFlameCurved, FaHelmetSafety, FaChevronDown, FaChevronRight, FaThumbsDown } from "react-icons/fa6";
-import { useDispatch } from "react-redux";
-import { logout } from "../../Redux/Actions/authAction";
-import { GiFirstAidKit, GiSmokeBomb } from "react-icons/gi";
-import { FaClipboardList, FaTools, FaUserCircle } from "react-icons/fa";
-import { PiTruckFill } from "react-icons/pi";
-import { IoFileTray } from "react-icons/io5";
-import { RiBox3Fill } from "react-icons/ri";
+import {
+  FaCircleChevronLeft,
+  FaCircleChevronRight,
+  FaFireFlameCurved,
+  FaHelmetSafety,
+  FaChevronDown,
+  FaChevronRight,
+  FaThumbsDown,
+} from 'react-icons/fa6';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../Redux/Actions/authAction';
+import { GiFirstAidKit, GiSmokeBomb } from 'react-icons/gi';
+import { FaClipboardList, FaTools, FaUserCircle } from 'react-icons/fa';
+import { PiTruckFill } from 'react-icons/pi';
+import { IoFileTray } from 'react-icons/io5';
+import { RiBox3Fill } from 'react-icons/ri';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
-
 
 const Sidebar = ({ setIsSliderOpen }) => {
   const navigate = useNavigate();
@@ -23,20 +40,21 @@ const Sidebar = ({ setIsSliderOpen }) => {
   const location = useLocation();
   let path = location.pathname;
   const dispatch = useDispatch();
-  
+
   // State for collapsible sections
   const [expandedSections, setExpandedSections] = useState({
     compliance: false,
     positioning: false,
-    inventory: false
+    dojo2_0: false,
+    inventory: false,
   });
 
   const isLargerThan900 = useMediaQuery('(min-width: 900px)');
 
   const toggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -49,8 +67,8 @@ const Sidebar = ({ setIsSliderOpen }) => {
         { icon: <FaFireFlameCurved />, title: 'Fire Detection', path: '/fire' },
         { icon: <FaHelmetSafety />, title: 'PPE Kit', path: '/ppe-kit' },
         { icon: <GiSmokeBomb />, title: 'Smoke Detection', path: '/smoke' },
-        { icon: <PiTruckFill />, title: 'Loading-Unloading', path: '/truck' }
-      ]
+        { icon: <PiTruckFill />, title: 'Loading-Unloading', path: '/truck' },
+      ],
     },
     {
       id: 'positioning',
@@ -61,8 +79,9 @@ const Sidebar = ({ setIsSliderOpen }) => {
         { icon: <IoFileTray />, title: 'Bracket-E', path: '/bracket-e' },
         { icon: <IoFileTray />, title: 'Pes Cover-A', path: '/pes-cover-a' },
         { icon: <IoFileTray />, title: 'Pes Cover-B', path: '/pes-cover-b' },
-      ]
+      ],
     },
+
     {
       id: 'inventory',
       title: 'Inventory Management',
@@ -73,22 +92,34 @@ const Sidebar = ({ setIsSliderOpen }) => {
         { icon: <FaTools />, title: 'Tool Management', path: '/tool-management' },
         { icon: <MdRateReview />, title: 'Complaint Board', path: '/complaint-board' },
         { icon: <FaThumbsDown />, title: 'Rejection', path: '/rejection' },
-        { icon: <PrecisionManufacturingIcon />, title: 'Production', path: '/production' }
-      ] 
-    }
+        { icon: <PrecisionManufacturingIcon />, title: 'Production', path: '/production' },
+      ],
+    },
+    {
+      id: 'dojo2.0',
+      title: 'DOJO2.0',
+      icon: <IoFileTray />,
+      items: [
+        { icon: <IoFileTray />, title: 'Dojo Employee', path: '/dojo-employee' },
+       
+      ],
+    },
   ];
-  
+
   return (
-    <div className="sidebar" style={{
-      position: 'relative',
-      width: isMinimize ? '5rem' : "15rem",
-      padding: '0',
-      transition: '0.2s', 
-      overflow: 'hidden',
-      maxHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <div
+      className="sidebar"
+      style={{
+        position: 'relative',
+        width: isMinimize ? '5rem' : '15rem',
+        padding: '0',
+        transition: '0.2s',
+        overflow: 'hidden',
+        maxHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {/* Collapse/Expand Icons */}
       {(isMinimize || isLargerThan900) && (
         <FaCircleChevronLeft
@@ -104,56 +135,61 @@ const Sidebar = ({ setIsSliderOpen }) => {
             zIndex: 9,
             display: !isMinimize ? 'flex' : 'none',
             cursor: 'pointer',
-            boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px'
+            boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px',
           }}
         />
-     )} 
+      )}
 
-     {(isMinimize && isLargerThan900) && (
-    <div  onClick={() => setIsMinimize(false)}   style={{
-      fontSize: '1.9rem',
-      position: 'fixed',
-      top: '1rem',
-      left: '4rem',
-      borderRadius: '50%',
-      zIndex: 9,
-      display: isMinimize ? 'flex' : 'none',
-      cursor: 'pointer',
-      color: 'white',
-      backgroundColor: 'grey',
-     boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px',
-    }}>
-<FaCircleChevronRight  />
-    </div>
-  )}
+      {isMinimize && isLargerThan900 && (
+        <div
+          onClick={() => setIsMinimize(false)}
+          style={{
+            fontSize: '1.9rem',
+            position: 'fixed',
+            top: '1rem',
+            left: '4rem',
+            borderRadius: '50%',
+            zIndex: 9,
+            display: isMinimize ? 'flex' : 'none',
+            cursor: 'pointer',
+            color: 'white',
+            backgroundColor: 'grey',
+            boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px',
+          }}
+        >
+          <FaCircleChevronRight />
+        </div>
+      )}
 
       {/* Fixed Logo Section */}
-      <div style={{
-        height: '8rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: isMinimize ? '0 10px' : '0 20px',
-        
-        // backgroundColor: 'rgba(255, 255, 255, 0.27)',
+      <div
+        style={{
+          height: '8rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          padding: isMinimize ? '0 10px' : '0 20px',
 
-      
-      }}>
+          // backgroundColor: 'rgba(255, 255, 255, 0.27)',
+        }}
+      >
         {!isMinimize && (
           <img
             src={logo}
             alt="logo"
             width={150}
-            style={{cursor: 'pointer'}}
-            onClick={() => { navigate('/');}}
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              navigate('/');
+            }}
             // style={{boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px', borderRadius: '8px', backgroundColor: 'rgb(148, 148, 148)'}}
           />
         )}
       </div>
 
       {/* Scrollable Content Area with disabled mouse wheel and hidden scrollbar */}
-      <div 
+      <div
         style={{
           flex: 1,
           overflowY: 'auto',
@@ -175,20 +211,23 @@ const Sidebar = ({ setIsSliderOpen }) => {
           {/* Dashboard */}
           <ListItem disableGutters={true} className="sidebar-listItem">
             <Button
-              onClick={() => { navigate('/'); setIsSliderOpen(false); }}
+              onClick={() => {
+                navigate('/');
+                setIsSliderOpen(false);
+              }}
               className="sidebar-link"
               style={{
-                borderLeft: (path === '/') && '5px solid #E08272',
-                borderRadius: '8px'
+                borderLeft: path === '/' && '5px solid #E08272',
+                borderRadius: '8px',
               }}
             >
               <ListItemButton
-                sx={{ textAlign: "left" }}
+                sx={{ textAlign: 'left' }}
                 className="appbar-links"
-                style={{ padding: "5px 0" }}
+                style={{ padding: '5px 0' }}
               >
-                <div style={{ display: "flex", alignItems: "center", padding: "0 10px" }}>
-                  <IconButton sx={{ color: "#ffffff9f" }}>
+                <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+                  <IconButton sx={{ color: '#ffffff9f' }}>
                     <MdHome />
                   </IconButton>
                   {!isMinimize && <p className="sidebar-list-text">Dashboard</p>}
@@ -201,7 +240,11 @@ const Sidebar = ({ setIsSliderOpen }) => {
           {sidebarSections.map((section) => (
             <div key={section.id}>
               {/* Section Header */}
-              <ListItem disableGutters={true} className="sidebar-listItem" onClick={()=> navigate(section.items[0].path)} >
+              <ListItem
+                disableGutters={true}
+                className="sidebar-listItem"
+                onClick={() => navigate(section.items[0].path)}
+              >
                 <Tooltip title={section.title} placement="right" disableHoverListener={!isMinimize}>
                   <Button
                     onClick={() => toggleSection(section.id)}
@@ -209,17 +252,24 @@ const Sidebar = ({ setIsSliderOpen }) => {
                     style={{ cursor: 'pointer' }}
                   >
                     <ListItemButton
-                      sx={{ textAlign: "left" }}
+                      sx={{ textAlign: 'left' }}
                       className="appbar-links"
-                      style={{ padding: "5px 0" }}
+                      style={{ padding: '5px 0' }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", padding: "0 10px", width: '100%' }}>
-                        <IconButton sx={{ color: "#ffffff9f" }}>
-                          {section.icon}
-                        </IconButton>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '0 10px',
+                          width: '100%',
+                        }}
+                      >
+                        <IconButton sx={{ color: '#ffffff9f' }}>{section.icon}</IconButton>
                         {!isMinimize && (
                           <>
-                            <p className="sidebar-list-text" style={{ flex: 1 }}>{section.title}</p>
+                            <p className="sidebar-list-text" style={{ flex: 1 }}>
+                              {section.title}
+                            </p>
                             {expandedSections[section.id] ? <FaChevronDown /> : <FaChevronRight />}
                           </>
                         )}
@@ -233,25 +283,30 @@ const Sidebar = ({ setIsSliderOpen }) => {
               <Collapse in={expandedSections[section.id]} timeout="auto" unmountOnExit>
                 {section.items.map((item, index) => (
                   <ListItem key={index} disableGutters={true} className="sidebar-listItem">
-                    <Tooltip title={item.title} placement="right" disableHoverListener={!isMinimize}>
+                    <Tooltip
+                      title={item.title}
+                      placement="right"
+                      disableHoverListener={!isMinimize}
+                    >
                       <Button
-                        onClick={() => { navigate(item.path); setIsSliderOpen(false); }}
+                        onClick={() => {
+                          navigate(item.path);
+                          setIsSliderOpen(false);
+                        }}
                         className="sidebar-link"
                         style={{
                           marginLeft: isMinimize ? '0' : '2rem',
-                          borderLeft: (path === item.path) && '5px solid #E08272',
-                          borderRadius: '8px'
+                          borderLeft: path === item.path && '5px solid #E08272',
+                          borderRadius: '8px',
                         }}
                       >
                         <ListItemButton
-                          sx={{ textAlign: "left" }}
+                          sx={{ textAlign: 'left' }}
                           className="appbar-links"
-                          style={{ padding: "5px 0" }}
+                          style={{ padding: '5px 0' }}
                         >
-                          <div style={{ display: "flex", alignItems: "center", padding: "0 10px" }}>
-                            <IconButton sx={{ color: "#ffffff9f" }}>
-                              {item.icon}
-                            </IconButton>
+                          <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+                            <IconButton sx={{ color: '#ffffff9f' }}>{item.icon}</IconButton>
                             {!isMinimize && <p className="sidebar-list-text">{item.title}</p>}
                           </div>
                         </ListItemButton>
@@ -266,30 +321,35 @@ const Sidebar = ({ setIsSliderOpen }) => {
       </div>
 
       {/* Fixed Bottom Profile Section */}
-      <div style={{
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: isMinimize ? '0 10px' : '0 20px',
-        backgroundColor: 'inherit',
-      }}>
+      <div
+        style={{
+          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          padding: isMinimize ? '0 10px' : '0 20px',
+          backgroundColor: 'inherit',
+        }}
+      >
         <List>
           {/* My Profile */}
           <ListItem disableGutters={true} className="sidebar-listItem">
-            <Button 
-              onClick={() => { navigate('/my-profile'); setIsSliderOpen(false); }}
+            <Button
+              onClick={() => {
+                navigate('/my-profile');
+                setIsSliderOpen(false);
+              }}
               className="sidebar-link"
               style={{
-                borderLeft: (path === '/my-profile') && '5px solid #E08272',
-                borderRadius: '8px'
+                borderLeft: path === '/my-profile' && '5px solid #E08272',
+                borderRadius: '8px',
               }}
             >
               <ListItemButton
-                sx={{ textAlign: "left" }}
+                sx={{ textAlign: 'left' }}
                 className="appbar-links"
-                style={{ padding: "5px 0" }}
+                style={{ padding: '5px 0' }}
               >
-                <div style={{ display: "flex", alignItems: "center", padding: "0 10px" }}>
-                  <IconButton sx={{ color: "#ffffff9f" }}>
-                  <FaUserCircle />
+                <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}>
+                  <IconButton sx={{ color: '#ffffff9f' }}>
+                    <FaUserCircle />
                   </IconButton>
                   {!isMinimize && <p className="sidebar-list-text">My Profile</p>}
                 </div>
@@ -301,15 +361,15 @@ const Sidebar = ({ setIsSliderOpen }) => {
           <ListItem disableGutters={true} className="sidebar-listItem">
             <Button className="sidebar-link">
               <ListItemButton
-                sx={{ textAlign: "left" }}
+                sx={{ textAlign: 'left' }}
                 className="appbar-links"
-                style={{ padding: "5px 0" }}
+                style={{ padding: '5px 0' }}
               >
                 <div
                   onClick={() => dispatch(logout())}
-                  style={{ display: "flex", alignItems: "center", padding: "0 10px" }}
+                  style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}
                 >
-                  <IconButton sx={{ color: "#ffffff9f" }}>
+                  <IconButton sx={{ color: '#ffffff9f' }}>
                     <IoIosLogOut />
                   </IconButton>
                   {!isMinimize && <p className="sidebar-list-text">Logout</p>}
