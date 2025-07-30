@@ -63,7 +63,7 @@ const Auth = () => {
               <span>"</span>Powering Industrial Safety & Efficiency with Smart Vision<span>"</span>
             </p>
             <p style={{ color: 'white', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-              Version: 1.0.5
+              Version: 1.0.6
             </p>
           </Box>
         )}
@@ -87,7 +87,7 @@ const Auth = () => {
                   <span>"</span>
                 </p>
                 <p style={{ color: 'white', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                  Version: 1.0.5
+                  Version: 1.0.6
                 </p>
               </Box>
             )
