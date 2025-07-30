@@ -267,8 +267,85 @@ const EmployeeDetails = () => {
     );
   };
 
+  const [inductionLoading, setInductionLoading] = useState(false);
+  const [inductionError, setInductionError] = useState(null);
+
+  const initializeInduction = async () => {
+    setInductionLoading(true);
+    setInductionError(null);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_API}/initialize_induction?user_id=${employee.user_id}`,
+        {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!response.ok) throw new Error('Failed to initialize induction');
+      // Optionally show a message here
+      // Refresh employee data
+      const refreshed = await fetch(`${API_URL}?user_id=${employee.user_id}`, {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!refreshed.ok) throw new Error('Failed to refresh employee data');
+      const data = await refreshed.json();
+      const trainee = data.trainee || data;
+      let avatar = '';
+      const documents = trainee.user_info?.user_documents || {};
+      if (documents.avatar && documents.avatar.length > 0) {
+        const image = documents.avatar.find((url) => /\.(jpg|jpeg|png|gif|webp)$/i.test(url));
+        avatar = image || documents.avatar[0];
+      }
+      setEmployee({
+        ...trainee,
+        avatar,
+        fullName: trainee.user_info?.full_name || 'No Name',
+        phone: trainee.user_info?.phone || 'N/A',
+        email: trainee.user_info?.email || 'N/A',
+        dob: trainee.user_info?.dob || 'N/A',
+        gender: trainee.user_info?.gender || 'N/A',
+        experience: trainee.user_info?.experience || 'N/A',
+        designation: trainee.user_info?.designation || 'Trainee',
+        department: trainee.user_info?.department || 'N/A',
+        adhar: trainee.user_info?.adhar_number || 'N/A',
+      });
+    } catch (err) {
+      setInductionError(err.message);
+    } finally {
+      setInductionLoading(false);
+    }
+  };
+
   const renderInductionSection = () => {
-    if (!employee.induction) return null;
+    if (!employee.induction) {
+      return (
+        <Box sx={{ mt: 3, mb: 3 }}>
+          <Alert severity="info" sx={{ mb: 2 }}>
+            Induction program not initialized for this employee.
+          </Alert>
+          {inductionError && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {inductionError}
+            </Alert>
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={initializeInduction}
+            disabled={inductionLoading}
+          >
+            {inductionLoading ? 'Initializing...' : 'Initialize Induction'}
+          </Button>
+        </Box>
+      );
+    }
 
     const { induction } = employee;
 
