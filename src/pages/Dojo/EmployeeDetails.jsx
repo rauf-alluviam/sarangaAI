@@ -809,7 +809,7 @@ const EmployeeDetails = () => {
       <Paper elevation={3} sx={{ p: 4, mb: 3 }}>
         <Grid container spacing={3}>
           <Grid item xs={12} md={3} sx={{ display: 'flex', justifyContent: 'center' }}>
-            {employee.avatar ? (
+            {employee?.avatar ? (
               /\.(jpg|jpeg|png|gif|webp)$/i.test(employee.avatar) ? (
                 <Link href={employee.avatar} target="_blank" rel="noopener noreferrer">
                   <Avatar
@@ -829,7 +829,7 @@ const EmployeeDetails = () => {
                       cursor: 'pointer',
                     }}
                   >
-                    {employee.fullName.charAt(0)}
+                    {employee?.fullName?.charAt(0) ?? ''}
                   </Avatar>
                 </Link>
               )
@@ -843,18 +843,18 @@ const EmployeeDetails = () => {
                   border: '3px solid #1976d2',
                 }}
               >
-                {employee.fullName.charAt(0)}
+                {employee?.fullName?.charAt(0) ?? ''}
               </Avatar>
             )}
           </Grid>
 
           <Grid item xs={12} md={9}>
             <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
-              {employee.fullName}
+              {employee?.fullName ?? ''}
             </Typography>
 
             <Chip
-              label={employee.designation}
+              label={employee?.designation ?? ''}
               color="primary"
               variant="outlined"
               sx={{ fontSize: '1rem', mb: 2 }}
@@ -869,7 +869,7 @@ const EmployeeDetails = () => {
                     </ListItemIcon>
                     <ListItemText
                       primary="Employee ID"
-                      secondary={employee.user_id}
+                      secondary={employee?.user_id ?? ''}
                       secondaryTypographyProps={{ style: { fontWeight: 'bold' } }}
                     />
                   </ListItem>
@@ -878,21 +878,21 @@ const EmployeeDetails = () => {
                     <ListItemIcon>
                       <EventIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText primary="Date of Birth" secondary={employee.dob} />
+                    <ListItemText primary="Date of Birth" secondary={employee?.dob ?? ''} />
                   </ListItem>
 
                   <ListItem>
                     <ListItemIcon>
                       <WorkIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText primary="Department" secondary={employee.department} />
+                    <ListItemText primary="Department" secondary={employee?.department ?? ''} />
                   </ListItem>
 
                   <ListItem>
                     <ListItemIcon>
                       <BadgeIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText primary="Aadhar Number" secondary={employee.adhar} />
+                    <ListItemText primary="Aadhar Number" secondary={employee?.adhar ?? ''} />
                   </ListItem>
                 </List>
               </Grid>
@@ -903,28 +903,28 @@ const EmployeeDetails = () => {
                     <ListItemIcon>
                       <PhoneIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText primary="Phone" secondary={employee.phone} />
+                    <ListItemText primary="Phone" secondary={employee?.phone ?? ''} />
                   </ListItem>
 
                   <ListItem>
                     <ListItemIcon>
                       <EmailIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText primary="Email" secondary={employee.email || 'N/A'} />
+                    <ListItemText primary="Email" secondary={employee?.email || 'N/A'} />
                   </ListItem>
 
                   <ListItem>
                     <ListItemIcon>
                       <PersonIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText primary="Gender" secondary={employee.gender || 'N/A'} />
+                    <ListItemText primary="Gender" secondary={employee?.gender || 'N/A'} />
                   </ListItem>
 
                   <ListItem>
                     <ListItemIcon>
                       <WorkIcon color="primary" />
                     </ListItemIcon>
-                    <ListItemText primary="Experience" secondary={employee.experience || 'N/A'} />
+                    <ListItemText primary="Experience" secondary={employee?.experience || 'N/A'} />
                   </ListItem>
                 </List>
               </Grid>
@@ -947,10 +947,10 @@ const EmployeeDetails = () => {
 
       <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="body2" color="text.secondary">
-          Created: {new Date(employee.created_at).toLocaleString()}
+          Created: {employee?.created_at ? new Date(employee.created_at).toLocaleString() : ''}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Last Updated: {new Date(employee.updated_at).toLocaleString()}
+          Last Updated: {employee?.updated_at ? new Date(employee.updated_at).toLocaleString() : ''}
         </Typography>
       </Box>
       {/* Confirmation Dialog for marking video as watched */}
