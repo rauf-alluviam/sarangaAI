@@ -24,6 +24,8 @@ import {
   TableHead,
   TableRow,
   Link,
+  Checkbox,
+  Dialog,
 } from '@mui/material';
 import {
   Person as PersonIcon,
@@ -37,17 +39,197 @@ import {
   CheckCircle as CheckCircleIcon,
   ArrowBack as ArrowBackIcon,
   VideoLibrary as VideoLibraryIcon,
+  CheckBox,
 } from '@mui/icons-material';
 
 const API_URL = `${import.meta.env.VITE_BACKEND_API}/get_trainee_info`;
 
 const EmployeeDetails = () => {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [uploadSuccess, setUploadSuccess] = useState(null);
+  // For showing uploaded images
+  const [uploadedImageDialogOpen, setUploadedImageDialogOpen] = useState(false);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+
+  // Dialog to show uploaded images
+  function UploadedImagesDialog({ open, onClose, imageUrls }) {
+    return (
+      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <Box sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Uploaded Images
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
+            {imageUrls && imageUrls.length > 0 ? (
+              imageUrls.map((url, idx) => (
+                <Box key={idx} sx={{ p: 1, border: '1px solid #eee', borderRadius: 2 }}>
+                  <img
+                    src={url}
+                    alt={`Uploaded ${idx + 1}`}
+                    style={{ maxWidth: 250, maxHeight: 250, borderRadius: 8 }}
+                  />
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    sx={{ mt: 1, wordBreak: 'break-all' }}
+                  >
+                    {url}
+                  </Typography>
+                </Box>
+              ))
+            ) : (
+              <Typography>No images found.</Typography>
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+            <Button onClick={onClose} variant="contained">
+              Close
+            </Button>
+          </Box>
+        </Box>
+      </Dialog>
+    );
+  }
+
+  // File upload handler
+  const handleFileUpload = async (event) => {
+    setUploadError(null);
+    setUploadSuccess(null);
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    try {
+      const file = files[0];
+      const formData = new FormData();
+      // Backend expects 'upload_file' as the field name
+      formData.append('upload_file', file);
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_API}/upload_induction_form?user_id=${userId}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+      if (!response.ok) throw new Error('Failed to upload file');
+      const data = await response.json();
+      setUploadSuccess(data.message || 'File uploaded successfully!');
+      if (
+        data.static_file_urls &&
+        Array.isArray(data.static_file_urls) &&
+        data.static_file_urls.length > 0
+      ) {
+        setUploadedImageUrls(data.static_file_urls);
+        setUploadedImageDialogOpen(true);
+      }
+    } catch (err) {
+      // Try to extract backend error message if available
+      if (err.response) {
+        try {
+          const errorData = await err.response.json();
+          setUploadError(errorData.message || err.message || 'Upload failed');
+        } catch {
+          setUploadError(err.message || 'Upload failed');
+        }
+      } else if (err instanceof Response) {
+        try {
+          const errorData = await err.json();
+          setUploadError(errorData.message || err.statusText || 'Upload failed');
+        } catch {
+          setUploadError(err.statusText || 'Upload failed');
+        }
+      } else {
+        setUploadError(err.message || 'Upload failed');
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Dialog for confirmation before marking video as watched
+  // const handleDialogClose = async (confirmed) => {
+  //   setDialogOpen(false);
+  //   if (confirmed && dialogVideo) {
+  //     setMarkingVideo(dialogVideo.title);
+  //     try {
+  //       const response = await fetch(
+  //         `${import.meta.env.VITE_BACKEND_API}/mark_video_watched`,
+  //         {
+  //           method: 'PUT',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //           body: JSON.stringify({
+  //             user_id: employee.user_id,
+  //             video_title: dialogVideo.title,
+  //           }),
+  //         }
+  //       );
+  //       if (!response.ok)
+  //         throw new Error('Failed to mark video as watched');
+  //       setEmployee((prev) => {
+  //         if (!prev?.induction?.videos) return prev;
+  //         return {
+  //           ...prev,
+  //           induction: {
+  //             ...prev.induction,
+  //             videos: prev.induction.videos.map((v) =>
+  //               v.title === dialogVideo.title
+  //                 ? {
+  //                     ...v,
+  //                     status: 'Watched',
+  //                     watched_at: new Date().toISOString(),
+  //                   }
+  //                 : v
+  //             ),
+  //           },
+  //         };
+  //       });
+  //     } catch (err) {
+  //       setUploadError(err.message || 'Failed to mark video as watched');
+  //     } finally {
+  //       setMarkingVideo(null);
+  //       setDialogVideo(null);
+  //     }
+  //   } else {
+  //     setDialogVideo(null);
+  //   }
+  // };
+
+  // SimpleDialog component for confirmation
+  function SimpleDialog({ open, onClose, video }) {
+    return (
+      <Dialog open={open} onClose={() => onClose(false)}>
+        <Box sx={{ p: 3, minWidth: 300 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Mark video as watched?
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Are you sure you want to mark <b>{video?.title}</b> as watched?
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+            <Button onClick={() => onClose(false)} color="inherit" variant="outlined">
+              No
+            </Button>
+            <Button onClick={() => onClose(true)} color="primary" variant="contained">
+              Yes
+            </Button>
+          </Box>
+        </Box>
+      </Dialog>
+    );
+  }
   const { userId } = useParams();
   const { token } = useSelector((state) => state.auth);
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  console.log(employee);
 
   useEffect(() => {
     const fetchEmployeeDetails = async () => {
@@ -269,6 +451,58 @@ const EmployeeDetails = () => {
 
   const [inductionLoading, setInductionLoading] = useState(false);
   const [inductionError, setInductionError] = useState(null);
+  // For marking video as watched
+  const [markingVideo, setMarkingVideo] = useState(null);
+  // For confirmation dialog
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogVideo, setDialogVideo] = useState(null);
+
+  // Handle dialog close and mark as watched if confirmed
+  const handleDialogClose = async (confirmed) => {
+    setDialogOpen(false);
+    if (confirmed && dialogVideo) {
+      setMarkingVideo(dialogVideo.title);
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_API}/mark_video_watched`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            user_id: employee.user_id,
+            video_title: dialogVideo.title,
+          }),
+        });
+        if (!response.ok) throw new Error('Failed to mark video as watched');
+        setEmployee((prev) => {
+          if (!prev?.induction?.videos) return prev;
+          return {
+            ...prev,
+            induction: {
+              ...prev.induction,
+              videos: prev.induction.videos.map((v) =>
+                v.title === dialogVideo.title
+                  ? {
+                      ...v,
+                      status: 'Watched',
+                      watched_at: new Date().toISOString(),
+                    }
+                  : v
+              ),
+            },
+          };
+        });
+      } catch (err) {
+        setUploadError(err.message || 'Failed to mark video as watched');
+      } finally {
+        setMarkingVideo(null);
+        setDialogVideo(null);
+      }
+    } else {
+      setDialogVideo(null);
+    }
+  };
 
   const initializeInduction = async () => {
     setInductionLoading(true);
@@ -349,6 +583,11 @@ const EmployeeDetails = () => {
 
     const { induction } = employee;
 
+    // Check if all videos are watched
+    const allVideosWatched =
+      induction.videos &&
+      induction.videos.length > 0 &&
+      induction.videos.every((v) => v.status === 'Watched');
     return (
       <Paper elevation={2} sx={{ p: 3, mt: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -365,10 +604,12 @@ const EmployeeDetails = () => {
           />
         </Box>
 
-        {induction.completed_at && (
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            Completed at: {new Date(induction.completed_at).toLocaleString()}
-          </Typography>
+        {/* Show completed_at at the top if all videos are watched and completed_at exists */}
+        {allVideosWatched && induction.completed_at && (
+          <Alert severity="success" sx={{ mb: 2, fontWeight: 600, fontSize: '1.1rem' }}>
+            All videos completed! Induction completed at:{' '}
+            {new Date(induction.completed_at).toLocaleString()}
+          </Alert>
         )}
 
         {induction.videos && induction.videos.length > 0 && (
@@ -385,6 +626,7 @@ const EmployeeDetails = () => {
                     <TableCell>Status</TableCell>
                     <TableCell>Watched At</TableCell>
                     <TableCell>Link</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -408,8 +650,90 @@ const EmployeeDetails = () => {
                           Watch Video
                         </Link>
                       </TableCell>
+                      <TableCell colSpan={4} align="center">
+                        <Checkbox
+                          checked={video.status === 'Watched'}
+                          sx={{ margin: 'auto' }}
+                          disabled={video.status === 'Watched' || markingVideo === video.title}
+                          onChange={(e) => {
+                            if (video.status === 'Not Watched' && e.target.checked) {
+                              setDialogVideo(video);
+                              setDialogOpen(true);
+                            }
+                          }}
+                        />
+                      </TableCell>
                     </TableRow>
                   ))}
+                  {/* File upload row */}
+                  <TableRow>
+                    <TableCell colSpan={5} align="right">
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'flex-start',
+                          bgcolor: '#f5faff',
+                          border: '2px solid #1976d2',
+                          borderRadius: 2,
+                          p: 2,
+                          mb: 1,
+                          boxShadow: 1,
+                        }}
+                      >
+                        {uploadError && (
+                          <Alert severity="error" sx={{ mb: 1, width: '100%' }}>
+                            {uploadError}
+                          </Alert>
+                        )}
+                        {uploadSuccess && (
+                          <Alert severity="success" sx={{ mb: 1, width: '100%' }}>
+                            {uploadSuccess}
+                          </Alert>
+                        )}
+
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            mb: 1,
+                            bgcolor: '#e3f2fd',
+                            px: 2,
+                            py: 1,
+                            borderRadius: 1,
+                          }}
+                        >
+                          <DescriptionIcon color="primary" sx={{ mr: 1 }} />
+                          <Typography
+                            sx={{ fontWeight: 600, color: '#1976d2', fontSize: '1.1rem' }}
+                          >
+                            Hr Induction (L1) Evaluation Test
+                          </Typography>
+                        </Box>
+                        <Button
+                          variant="contained"
+                          component="label"
+                          sx={{
+                            mt: 1,
+                            fontWeight: 600,
+                            bgcolor: '#1976d2',
+                            color: '#fff',
+                            '&:hover': { bgcolor: '#115293' },
+                          }}
+                          disabled={uploading}
+                          startIcon={<DescriptionIcon />}
+                        >
+                          {uploading ? 'Uploading...' : 'Upload File'}
+                          <input
+                            type="file"
+                            hidden
+                            onChange={handleFileUpload}
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                          />
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
@@ -421,18 +745,40 @@ const EmployeeDetails = () => {
             <Typography variant="h6" sx={{ mt: 3, mb: 2, display: 'flex', alignItems: 'center' }}>
               <DescriptionIcon sx={{ mr: 1 }} /> Submitted Forms
             </Typography>
-            <List>
-              {induction.form_files.map((file, index) => (
-                <ListItem key={index}>
-                  <ListItemIcon>
-                    <DescriptionIcon color="primary" />
-                  </ListItemIcon>
-                  <Link href={file} target="_blank" rel="noopener">
-                    Form {index + 1}
-                  </Link>
-                </ListItem>
-              ))}
-            </List>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              {induction.form_files.map((file, index) => {
+                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
+                return (
+                  <Box
+                    key={index}
+                    sx={{
+                      p: 1,
+                      border: '1px solid #eee',
+                      borderRadius: 2,
+                      cursor: 'pointer',
+                      width: 180,
+                      textAlign: 'center',
+                      transition: 'box-shadow 0.2s',
+                      '&:hover': { boxShadow: 3, borderColor: '#1976d2' },
+                    }}
+                    onClick={() => window.open(file, '_blank', 'noopener')}
+                  >
+                    {isImage ? (
+                      <img
+                        src={file}
+                        alt={`Form ${index + 1}`}
+                        style={{ maxWidth: 150, maxHeight: 150, borderRadius: 8, marginBottom: 8 }}
+                      />
+                    ) : (
+                      <DescriptionIcon color="primary" sx={{ fontSize: 60, mb: 1 }} />
+                    )}
+                    <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+                      Form {index + 1}
+                    </Typography>
+                  </Box>
+                );
+              })}
+            </Box>
           </>
         )}
       </Paper>
@@ -449,33 +795,6 @@ const EmployeeDetails = () => {
       </Container>
     );
   }
-
-  if (error) {
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-        <Button variant="contained" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
-          Back to Employee List
-        </Button>
-      </Container>
-    );
-  }
-
-  if (!employee) {
-    return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          Employee data not available
-        </Alert>
-        <Button variant="contained" startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)}>
-          Back to Employee List
-        </Button>
-      </Container>
-    );
-  }
-
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Button
@@ -634,6 +953,14 @@ const EmployeeDetails = () => {
           Last Updated: {new Date(employee.updated_at).toLocaleString()}
         </Typography>
       </Box>
+      {/* Confirmation Dialog for marking video as watched */}
+      <SimpleDialog open={dialogOpen} onClose={handleDialogClose} video={dialogVideo} />
+      {/* Uploaded Images Dialog after file upload */}
+      <UploadedImagesDialog
+        open={uploadedImageDialogOpen}
+        onClose={() => setUploadedImageDialogOpen(false)}
+        imageUrls={uploadedImageUrls}
+      />
     </Container>
   );
 };
