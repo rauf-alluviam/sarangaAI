@@ -281,7 +281,7 @@ const EmployeeDetails = () => {
     };
 
     fetchEmployeeDetails();
-  }, [userId, token]);
+  }, [userId, token, uploadedImageUrls]);
 
   const renderDocumentsSection = () => {
     if (!employee.user_info?.user_documents) return null;
