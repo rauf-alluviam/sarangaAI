@@ -81,9 +81,9 @@ const MonthlyFgStockNew = () => {
               <u>Dispatched % Color Code:</u>
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              <span style={{ background: '#ffebee', borderRadius: '3px', padding: '0 4px' }}>Less than 80%</span>: light red<br/>
-              <span style={{ background: '#fff3e0', borderRadius: '3px', padding: '0 4px' }}>80% to 90%</span>: light orange<br/>
-              <span style={{ background: '#e8f5e9', borderRadius: '3px', padding: '0 4px' }}>Greater than 90%</span>: light green
+              <span style={{ background: '#ff00269d', borderRadius: '3px', padding: '0 4px' }}>Less than 80%</span>: light red<br/>
+              <span style={{ background: '#c78212a9', borderRadius: '3px', padding: '0 4px' }}>80% to 90%</span>: light orange<br/>
+              <span style={{ background: '#15881f7c', borderRadius: '3px', padding: '0 4px' }}>Greater than 90%</span>: light green
             </Typography>
           </Box>
         </Box>
@@ -257,9 +257,9 @@ const MonthlyFgStockNew = () => {
                           let percent = schedule > 0 ? (dispatched / schedule) * 100 : null;
                           let bgColor = '#f1f8e9';
                           if (percent !== null) {
-                            if (percent < 80) bgColor = '#ffebee'; // light red
-                            else if (percent >= 80 && percent <= 90) bgColor = '#fff3e0'; // light orange
-                            else if (percent > 90) bgColor = '#e8f5e9'; // light green
+                            if (percent < 80) bgColor = '#ff00269d'; // light red
+                            else if (percent >= 80 && percent <= 90) bgColor = '#c78212a9'; // light orange
+                            else if (percent > 90) bgColor = '#15881f7c'; // light green
                           }
                           return (
                             <td
@@ -272,7 +272,7 @@ const MonthlyFgStockNew = () => {
                               <Box bgcolor={bgColor} px={1} borderRadius={1}>
                                 {dispatched || '-'}
                                 {percent !== null && schedule > 0 ? (
-                                  <Typography variant="caption" ml={1} color="textSecondary">
+                                  <Typography variant="caption" fontSize={'0.9rem'} ml={1}>
                                     ({percent.toFixed(0)}%)
                                   </Typography>
                                 ) : null}
