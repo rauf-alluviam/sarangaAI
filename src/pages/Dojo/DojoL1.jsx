@@ -8,7 +8,7 @@ const DojoL1 = () => {
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
-    const targetDate = new Date('August 8, 2025 00:00:00').getTime();
+    const targetDate = new Date('August 15, 2025 00:00:00').getTime();
 
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -74,7 +74,7 @@ const DojoL1 = () => {
         </div>
 
         <div className="target-date">
-          <i className="fas fa-calendar-alt"></i> August 8, 2025
+          <i className="fas fa-calendar-alt"></i> August 15, 2025
         </div>
       </div>
 
