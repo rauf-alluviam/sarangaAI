@@ -31,6 +31,8 @@ import FourM from './pages/Boards/FourM/FourM';
 import ToolManage from './pages/Boards/ToolManage/ToolManage';
 import BracketD from './pages/Detection/BracketD/BracketD';
 import DojoEmployee from './pages/Dojo/DojoEmployee.jsx';
+import DojoL1 from './pages/Dojo/DojoL1.jsx';
+import DojoL2 from './pages/Dojo/DojoL2.jsx';
 import EmployeeDetails from './pages/Dojo/EmployeeDetails.jsx';
 import Complaint from './pages/Boards/Complaint/Complaint';
 import BracketE from './pages/Detection/BracketE/BracketE';
@@ -296,6 +298,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DojoEmployee />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dojo-l1"
+              element={
+                <ProtectedRoute>
+                  <DojoL1 />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dojo-l2"
+              element={
+                <ProtectedRoute>
+                  <DojoL2 />
                 </ProtectedRoute>
               }
             />

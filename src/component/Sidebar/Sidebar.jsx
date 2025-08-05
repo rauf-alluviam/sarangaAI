@@ -101,7 +101,8 @@ const Sidebar = ({ setIsSliderOpen }) => {
       icon: <IoFileTray />,
       items: [
         { icon: <IoFileTray />, title: 'Dojo Employee', path: '/dojo-employee' },
-       
+        { icon: <IoFileTray />, title: 'L1', path: '/dojo-l1' },
+        { icon: <IoFileTray />, title: 'L2', path: '/dojo-l2' },
       ],
     },
   ];
