@@ -23,6 +23,7 @@ import { fetchStoreStock, updateStoreStock } from '../../../store/actions/storeS
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { IoPersonSharp } from 'react-icons/io5';
+import { LuMoveLeft } from "react-icons/lu";
 
 const StoreStock = () => {
   const { storeStockArr } = useSelector((state) => state.storeStock);
@@ -322,7 +323,9 @@ const StoreStock = () => {
                         fontWeight: 'bold',
                       }}
                     >
-                      &larr; <br />
+                      {/* &larr;  */}
+                      <LuMoveLeft style={{fontSize: '1.3rem'}} />
+                      <br />
                       <b>P2</b>
                     </TableCell>
                     <TableCell
@@ -336,7 +339,9 @@ const StoreStock = () => {
                         fontWeight: 'bold',
                       }}
                     >
-                      &larr; <br />
+                      {/* &larr;  */}
+                      <LuMoveLeft style={{fontSize: '1.3rem'}} />
+                      <br />
                       <b>P3</b>
                     </TableCell>
                   </TableRow>
