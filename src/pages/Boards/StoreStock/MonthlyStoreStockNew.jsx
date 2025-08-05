@@ -68,7 +68,7 @@ const MonthlyStoreStockNew = () => {
     <Box sx={{ bgcolor: '#f9f9f9', minHeight: '100vh', p: 3 }}>
       <Box>
         <Typography variant="h4" mb={2} textAlign="center">
-          Monthly Raw Material Store Stock Summary
+          Monthly RM Usage Report (kg)
         </Typography>
         <Box mb={2} display="flex" justifyContent="center" alignItems="center" gap={2}>
           <TextField
