@@ -80,7 +80,7 @@ const DojoL2 = () => {
 
       {/* Footer */}
       <div className="footer">
-        <p>© 2025 Dojo Level 1. All rights reserved.</p>
+        <p>© 2025 Dojo Level 2. All rights reserved.</p>
       </div>
     </div>
   );
