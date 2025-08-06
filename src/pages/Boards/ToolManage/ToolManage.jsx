@@ -105,7 +105,7 @@ const ToolManage = () => {
                       // boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
                     }}
                   >
-                    STORE STOCK MONITORING BOARD
+                    TOOL MANAGEMENT BOARD
                   </Typography>
 
       <Box
