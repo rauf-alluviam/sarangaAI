@@ -1014,7 +1014,7 @@ const EmployeeDetails = () => {
                     />
                     {uploading ? 'Uploading...' : 'Upload File'}
                   </label>
-                  
+
                   {Array.isArray(l2.form_files) && l2.form_files.length > 0 && (
                     <div className="mt-4">
                       <h4 className="font-medium text-blue-900 mb-2">Uploaded Level 2 Forms</h4>
@@ -1112,7 +1112,7 @@ const EmployeeDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-6 min-h-screen flex flex-col">
         {/* Back Button */}
         <button
           className="flex items-center text-gray-600 hover:text-gray-800 mb-6"
@@ -1122,7 +1122,7 @@ const EmployeeDetails = () => {
           Back to Employee List
         </button>
 
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-12 gap-6 min-h-[80vh] relative">
           {/* Left Sidebar - Basic Details */}
           <div className="col-span-12 lg:col-span-3">
             <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-6">
@@ -1212,9 +1212,9 @@ const EmployeeDetails = () => {
           </div>
 
           {/* Main Content Area */}
-          <div className="col-span-12 lg:col-span-9">
+          <div className="col-span-12 lg:col-span-9 h-[90vh] overflow-y-auto">
             {/* Navigation Tabs */}
-            <div className="bg-white rounded-lg shadow-sm border mb-6">
+            <div className="bg-white rounded-lg shadow-sm border mb-6 sticky top-0 z-20 ">
               <div className="border-b border-gray-200">
                 <nav className="flex overflow-x-auto">
                   {tabs.map((tab) => {

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, TextField, Typography, CircularProgress } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useSelector } from 'react-redux';
 
@@ -21,6 +23,7 @@ const monthNames = [
 ];
 
 const MonthlyStoreStockNew = () => {
+  const navigate = useNavigate();
   const { token } = useSelector((state) => state.auth);
   const [year, setYear] = useState(new Date().getFullYear());
   const [debouncedYear, setDebouncedYear] = useState(year);
@@ -66,10 +69,30 @@ const MonthlyStoreStockNew = () => {
 
   return (
     <Box sx={{ bgcolor: '#f9f9f9', minHeight: '100vh', p: 3 }}>
-      <Box>
-        <Typography variant="h4" mb={2} textAlign="center">
+      {/* Header Row */}
+      <Box mb={2} display="flex" alignItems="center">
+        <Box mr={2}>
+          <button
+            onClick={() => navigate('/store-stock')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              padding: 0,
+            }}
+            aria-label="Back"
+          >
+            <ArrowBackIcon fontSize="large" />
+          </button>
+        </Box>
+        <Typography variant="h4" mb={0} textAlign="center" flex={1}>
           Monthly RM Usage Report (kg)
         </Typography>
+      </Box>
+      {/* Main Content */}
+      <Box>
         <Box mb={2} display="flex" justifyContent="center" alignItems="center" gap={2}>
           <TextField
             label="Year"

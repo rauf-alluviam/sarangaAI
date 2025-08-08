@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, TextField, Typography, CircularProgress } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useSelector } from 'react-redux';
 
@@ -21,6 +23,7 @@ const monthNames = [
 ];
 
 const MonthlyFgStockNew = () => {
+  const navigate = useNavigate();
   const { token } = useSelector((state) => state.auth);
   const [year, setYear] = useState(new Date().getFullYear());
   const [debouncedYear, setDebouncedYear] = useState(year);
@@ -64,10 +67,30 @@ const MonthlyFgStockNew = () => {
 
   return (
     <Box sx={{ bgcolor: '#f9f9f9', minHeight: '100vh', p: 3 }}>
-      <Box>
-        <Typography variant="h4" mb={2} textAlign="center">
+      {/* Header Row */}
+      <Box mb={2} display="flex" alignItems="center">
+        <Box mr={2}>
+          <button
+            onClick={() => navigate('/fg-stock')}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              padding: 0,
+            }}
+            aria-label="Back"
+          >
+            <ArrowBackIcon fontSize="large" />
+          </button>
+        </Box>
+        <Typography variant="h4" mb={0} textAlign="center" flex={1}>
           Monthly FG Stock Summary
         </Typography>
+      </Box>
+      {/* Main Content */}
+      <Box>
         <Box mb={2} display="flex" justifyContent="center" alignItems="center" gap={2}>
           <TextField
             label="Year"
@@ -81,9 +104,20 @@ const MonthlyFgStockNew = () => {
               <u>Dispatched % Color Code:</u>
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              <span style={{ background: '#ff00269d', borderRadius: '3px', padding: '0 4px' }}>Less than 80%</span>: light red<br/>
-              <span style={{ background: '#c78212a9', borderRadius: '3px', padding: '0 4px' }}>80% to 90%</span>: light orange<br/>
-              <span style={{ background: '#15881f7c', borderRadius: '3px', padding: '0 4px' }}>Greater than 90%</span>: light green
+              <span style={{ background: '#ff00269d', borderRadius: '3px', padding: '0 4px' }}>
+                Less than 80%
+              </span>
+              : light red
+              <br />
+              <span style={{ background: '#c78212a9', borderRadius: '3px', padding: '0 4px' }}>
+                80% to 90%
+              </span>
+              : light orange
+              <br />
+              <span style={{ background: '#15881f7c', borderRadius: '3px', padding: '0 4px' }}>
+                Greater than 90%
+              </span>
+              : light green
             </Typography>
           </Box>
         </Box>
@@ -258,7 +292,8 @@ const MonthlyFgStockNew = () => {
                           let bgColor = '#f1f8e9';
                           if (percent !== null) {
                             if (percent < 80) bgColor = '#ff00269d'; // light red
-                            else if (percent >= 80 && percent <= 90) bgColor = '#c78212a9'; // light orange
+                            else if (percent >= 80 && percent <= 90)
+                              bgColor = '#c78212a9'; // light orange
                             else if (percent > 90) bgColor = '#15881f7c'; // light green
                           }
                           return (
