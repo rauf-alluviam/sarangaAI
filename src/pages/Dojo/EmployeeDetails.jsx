@@ -14,17 +14,6 @@ import {
   Tabs,
   Typography,
   Grid,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   List,
   ListItem,
   ListItemIcon,
@@ -33,45 +22,28 @@ import {
 
 import {
   ArrowBack as ArrowBackIcon,
-  Edit as EditIcon,
-  Check as CheckIcon,
-  InsertDriveFile as FileIcon,
-  Visibility as VisibilityIcon,
-  VideoLibrary as VideoIcon,
   Person as PersonIcon,
   Article as ArticleIcon,
+  VideoLibrary as VideoIcon,
   EmojiEvents as AwardIcon,
-  Business as BuildingIcon,
-  CalendarMonth as CalendarIcon,
-  ManageAccounts as ManagerIcon,
-  School as GraduationCapIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
-  Badge as BadgeIcon,
   AccountTree as DepartmentIcon,
-  CloudUpload as UploadIcon,
 } from '@mui/icons-material';
 
-const API_URL = `${import.meta.env.VITE_BACKEND_API}/get_trainee_info`;
+import Swal from 'sweetalert2';
 
-function ConfirmationDialog({ open, onClose, title, text }) {
-  return (
-    <Dialog open={open} onClose={() => onClose(false)}>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <Typography>{text}</Typography>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => onClose(false)} variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={() => onClose(true)} variant="contained">
-          Confirm
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
+// Import the new components
+import PersonalTab from './components/PersonalTab';
+import DocumentsTab from './components/DocumentsTab';
+import InductionTab from './components/InductionTab';
+import Level1Tab from './components/Level1Tab';
+import Level2Tab from './components/Level2Tab';
+import Level3Tab from './components/Level3Tab.jsx';
+import Level4Tab from './components/Level4Tab.jsx';
+
+const API_URL = `${import.meta.env.VITE_BACKEND_API}/get_trainee_info`;
+const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const EmployeeDetails = () => {
   const { userId } = useParams();
@@ -91,28 +63,60 @@ const EmployeeDetails = () => {
 
   // HR Induction Actions
   const [inductionLoading, setInductionLoading] = useState(false);
-  const [inductionError, setInductionError] = useState(null);
 
   // Level-2 Actions
   const [level2Loading, setLevel2Loading] = useState(false);
-  const [l2DialogOpen, setL2DialogOpen] = useState(false);
-  const [l2DialogVideo, setL2DialogVideo] = useState(null);
+  const [level2Error, setLevel2Error] = useState(null);
+  const [level2Success, setLevel2Success] = useState(null);
 
-  // Video marking
-  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
-  const [videoDialogVideo, setVideoDialogVideo] = useState(null);
+  // Level-3 Actions
+  const [level3Loading, setLevel3Loading] = useState(false);
+  const [level3Error, setLevel3Error] = useState(null);
+  const [level3Success, setLevel3Success] = useState(null);
 
-  const [shopfloorLoading, setShopfloorLoading] = useState(false);
-  const [shopfloorError, setShopfloorError] = useState(null);
-  const [shopfloorSuccess, setShopfloorSuccess] = useState(null);
+  // Level-4 Actions
+  const [level4Loading, setLevel4Loading] = useState(false);
+  const [level4Error, setLevel4Error] = useState(null);
+  const [level4Success, setLevel4Success] = useState(null);
 
   // Tabs Data
   const tabs = [
     { label: 'Personal', icon: <PersonIcon /> },
     { label: 'Documents', icon: <ArticleIcon /> },
-    { label: 'Induction (L1)', icon: <VideoIcon /> },
+    { label: 'Induction', icon: <VideoIcon /> },
+    { label: 'Level 1', icon: <AwardIcon /> },
     { label: 'Level 2', icon: <AwardIcon /> },
+    { label: 'Level 3', icon: <AwardIcon /> },
+    { label: 'Level 4', icon: <AwardIcon /> },
   ];
+
+  // Level 1 Actions
+  const [level1Loading, setLevel1Loading] = useState(false);
+  const [level1Error, setLevel1Error] = useState(null);
+
+  const handleInitializeLevel1 = async () => {
+    setLevel1Loading(true);
+    setLevel1Error(null);
+    try {
+      const res = await fetch(
+        `${BACKEND_API}/initialize_level_1_training?user_id=${employee.user_id}`,
+        {
+          method: 'POST',
+          headers: {
+            accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error('Failed to initialize Level 1');
+      await fetchEmployee();
+    } catch (err) {
+      setLevel1Error(err.message || 'Failed');
+      throw err; // Re-throw to be caught by the component
+    } finally {
+      setLevel1Loading(false);
+    }
+  };
 
   // Fetch employee
   const fetchEmployee = async () => {
@@ -172,7 +176,6 @@ const EmployeeDetails = () => {
   // Induction Initialization
   const handleInitializeInduction = async () => {
     setInductionLoading(true);
-    setInductionError(null);
     try {
       const res = await fetch(
         `${import.meta.env.VITE_BACKEND_API}/initialize_induction?user_id=${employee.user_id}`,
@@ -184,51 +187,82 @@ const EmployeeDetails = () => {
       if (!res.ok) throw new Error('Failed to initialize induction');
       await fetchEmployee();
     } catch (err) {
-      setInductionError(err.message || 'Failed');
+      console.error('Induction initialization failed:', err);
+      throw err; // Re-throw to be caught by the component
     } finally {
       setInductionLoading(false);
     }
   };
 
-  // L2 Initialization
+  // L2 Initialization (updated API and error handling)
   const handleInitializeLevel2 = async () => {
     setLevel2Loading(true);
+    setLevel2Error(null);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_API}/initialize_multilevel_l2?user_id=${employee.user_id}`,
+        `${BACKEND_API}/initialize_level_2_training?user_id=${employee.user_id}`,
         {
           method: 'POST',
           headers: { accept: 'application/json', Authorization: `Bearer ${token}` },
         }
       );
       if (!res.ok) throw new Error('Failed to initialize Level 2');
+      const data = await res.json();
+      setLevel2Success(data.message || 'Level 2 initialized!');
       await fetchEmployee();
     } catch (err) {
-      setUploadError(err.message || 'Failed');
+      setLevel2Error(err.message || 'Failed');
+      throw err; // Re-throw to be caught by the component
     } finally {
       setLevel2Loading(false);
     }
   };
 
-  // Mark shopfloor complete
-  const handleShopfloorComplete = async () => {
-    setShopfloorLoading(true);
-    setShopfloorError(null);
-    setShopfloorSuccess(null);
+  // Level 3 Initialization
+  const handleInitializeLevel3 = async () => {
+    setLevel3Loading(true);
+    setLevel3Error(null);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_API}/mark_shopfloor_training_completed?user_id=${
-          employee.user_id
-        }`,
-        { method: 'PUT', headers: { accept: 'application/json', Authorization: `Bearer ${token}` } }
+      const res = await fetch(
+        `${BACKEND_API}/initialize_level_3_training?user_id=${employee.user_id}`,
+        {
+          method: 'POST',
+          headers: { accept: 'application/json', Authorization: `Bearer ${token}` },
+        }
       );
-      if (!response.ok) throw new Error('Failed to mark shopfloor training as completed');
+      if (!res.ok) throw new Error('Failed to initialize Level 3');
+      const data = await res.json();
+      setLevel3Success(data.message || 'Level 3 initialized!');
       await fetchEmployee();
-      setShopfloorSuccess('Shopfloor training marked as completed');
     } catch (err) {
-      setShopfloorError(err.message || 'Failed');
+      setLevel3Error(err.message || 'Failed');
+      throw err; // Re-throw to be caught by the component
     } finally {
-      setShopfloorLoading(false);
+      setLevel3Loading(false);
+    }
+  };
+
+  // Level 4 Initialization
+  const handleInitializeLevel4 = async () => {
+    setLevel4Loading(true);
+    setLevel4Error(null);
+    try {
+      const res = await fetch(
+        `${BACKEND_API}/initialize_level_4_training?user_id=${employee.user_id}`,
+        {
+          method: 'POST',
+          headers: { accept: 'application/json', Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!res.ok) throw new Error('Failed to initialize Level 4');
+      const data = await res.json();
+      setLevel4Success(data.message || 'Level 4 initialized!');
+      await fetchEmployee();
+    } catch (err) {
+      setLevel4Error(err.message || 'Failed');
+      throw err; // Re-throw to be caught by the component
+    } finally {
+      setLevel4Loading(false);
     }
   };
 
@@ -253,6 +287,7 @@ const EmployeeDetails = () => {
       await fetchEmployee();
     } catch (err) {
       setUploadError(err.message || 'Upload failed');
+      throw err; // Re-throw to be caught by the component
     } finally {
       setUploading(false);
       event.target.value = '';
@@ -272,6 +307,7 @@ const EmployeeDetails = () => {
       await fetchEmployee();
     } catch (err) {
       setUploadError(err.message || 'Failed');
+      throw err; // Re-throw to be caught by the component
     }
   };
 
@@ -279,564 +315,92 @@ const EmployeeDetails = () => {
 
   // Personal Tab
   function renderPersonalTab() {
+    return <PersonalTab employee={employee} />;
+  }
+
+  // Level 1 Tab
+  function renderLevel1Tab() {
     return (
-      <Paper sx={{ p: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">Personal Data</Typography>
-        </Box>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Name</Typography>
-            <Typography>{employee?.fullName}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">DOB</Typography>
-            <Typography>
-              {employee?.dob ? new Date(employee.dob).toLocaleDateString() : 'N/A'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Gender</Typography>
-            <Typography>{employee?.gender || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Designation</Typography>
-            <Typography>{employee?.designation}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Email</Typography>
-            <Typography>{employee?.email}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Phone</Typography>
-            <Typography>{employee?.phone}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Department</Typography>
-            <Typography>{employee?.department}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Aadhar</Typography>
-            <Typography>{employee?.adhar || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Experience</Typography>
-            <Typography>{employee?.experience || 'N/A'}</Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Created At</Typography>
-            <Typography>
-              {employee?.created_at ? new Date(employee.created_at).toLocaleString() : 'N/A'}
-            </Typography>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="caption">Updated At</Typography>
-            <Typography>
-              {employee?.updated_at ? new Date(employee.updated_at).toLocaleString() : 'N/A'}
-            </Typography>
-          </Grid>
-        </Grid>
-        {/* Show photo if available */}
-        {employee?.user_info?.user_documents?.photo && (
-          <Box mt={2}>
-            <Typography variant="subtitle2">Photo</Typography>
-            <Avatar
-              src={employee.user_info.user_documents.photo}
-              alt="Photo"
-              sx={{ width: 100, height: 100, border: '1px solid #ccc', mt: 1 }}
-            />
-          </Box>
-        )}
-      </Paper>
+      <Level1Tab
+        employee={employee}
+        token={token}
+        level1Loading={level1Loading}
+        level1Error={level1Error}
+        onInitializeLevel1={handleInitializeLevel1}
+        onFetchEmployee={fetchEmployee}
+      />
     );
   }
 
   // Documents Tab
   function renderDocumentsTab() {
-    return (
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          ID Proof Documents
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        <Grid container spacing={2}>
-          {['aadhaar', 'pan_card', 'voter_id'].map((key) => (
-            <Grid item xs={12} sm={4} key={key}>
-              <Typography variant="subtitle2" gutterBottom>
-                {key.replace('_', ' ').toUpperCase()}
-              </Typography>
-              <Box display="flex" flexWrap="wrap" gap={1}>
-                {(employee?.user_info?.user_documents?.id_proof?.[key] || []).map((url, idx) => (
-                  <a href={url} key={idx} target="_blank" rel="noopener noreferrer">
-                    <Avatar
-                      src={url}
-                      alt={`${key} ${idx + 1}`}
-                      variant="rounded"
-                      sx={{ width: 64, height: 48, border: '1px solid #ccc' }}
-                    />
-                  </a>
-                ))}
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-        <Typography variant="h6" sx={{ mt: 3 }} gutterBottom>
-          Education Certificates
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        <Grid container spacing={2}>
-          {employee?.user_info?.user_documents?.education_certificates &&
-            Object.keys(employee.user_info.user_documents.education_certificates).map((key) => (
-              <Grid item xs={12} sm={3} key={key}>
-                <Typography variant="subtitle2" gutterBottom>
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </Typography>
-                <Box display="flex" flexWrap="wrap" gap={1}>
-                  {(employee.user_info.user_documents.education_certificates[key] || []).map(
-                    (url, idx) => (
-                      <a href={url} key={idx} target="_blank" rel="noopener noreferrer">
-                        <Avatar
-                          src={url}
-                          alt={`${key} ${idx + 1}`}
-                          variant="rounded"
-                          sx={{ width: 64, height: 48, border: '1px solid #ccc' }}
-                        />
-                      </a>
-                    )
-                  )}
-                </Box>
-              </Grid>
-            ))}
-        </Grid>
-        {/* Experience Letters */}
-        {employee?.user_info?.user_documents?.experience_letters &&
-          employee.user_info.user_documents.experience_letters.length > 0 && (
-            <Box mt={3}>
-              <Typography variant="h6" gutterBottom>
-                Experience Letters
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              <List dense>
-                {employee.user_info.user_documents.experience_letters.map((url, idx) => (
-                  <ListItem
-                    key={idx}
-                    component="a"
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ListItemIcon>
-                      <FileIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary={url.split('/').pop()} />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          )}
-        {/* Other Documents */}
-        {employee?.user_info?.user_documents?.other_documents && (
-          <Box mt={3}>
-            <Typography variant="h6" gutterBottom>
-              Other Documents
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            {Object.keys(employee.user_info.user_documents.other_documents).map((key) => (
-              <Box key={key} mb={2}>
-                <Typography variant="subtitle2" gutterBottom>
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </Typography>
-                <Box display="flex" flexWrap="wrap" gap={1}>
-                  {(employee.user_info.user_documents.other_documents[key] || []).map(
-                    (url, idx) => (
-                      <a href={url} key={idx} target="_blank" rel="noopener noreferrer">
-                        <Avatar
-                          src={url}
-                          alt={`${key} ${idx + 1}`}
-                          variant="rounded"
-                          sx={{ width: 64, height: 48, border: '1px solid #ccc' }}
-                        />
-                      </a>
-                    )
-                  )}
-                </Box>
-              </Box>
-            ))}
-          </Box>
-        )}
-      </Paper>
-    );
+    return <DocumentsTab employee={employee} />;
   }
 
   // Induction Tab
   function renderInductionTab() {
-    if (!employee?.induction) {
-      return (
-        <Paper sx={{ p: 3, minHeight: 320 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">HR Induction Program (L1)</Typography>
-            <Typography color="warning.main" variant="subtitle2">
-              Not Started
-            </Typography>
-          </Box>
-          {inductionError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {inductionError}
-            </Alert>
-          )}
-          <Button
-            variant="contained"
-            onClick={handleInitializeInduction}
-            disabled={inductionLoading}
-          >
-            {inductionLoading ? 'Initializing...' : 'Initialize Induction'}
-          </Button>
-        </Paper>
-      );
-    }
-
-    const induction = employee.induction;
-    const allVideosWatched =
-      Array.isArray(induction.videos) && induction.videos.every((v) => v.status === 'Watched');
-
     return (
-      <Paper sx={{ p: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">HR Induction Program (L1)</Typography>
-          <Typography color={induction.completed ? 'success.main' : 'warning.main'}>
-            {induction.completed ? 'Completed' : 'In Progress'}
-          </Typography>
-        </Box>
-        {allVideosWatched && induction.completed_at && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            All videos completed! Induction completed at:{' '}
-            {new Date(induction.completed_at).toLocaleString()}
-          </Alert>
-        )}
-        <Typography variant="subtitle1" mb={1}>
-          Induction Videos
-        </Typography>
-        <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Title</TableCell>
-                <TableCell>Action</TableCell>
-                <TableCell>Watched At</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {induction.videos.map((video, idx) => (
-                <TableRow key={idx}>
-                  <TableCell>
-                    {video.link ? (
-                      <a href={video.link} target="_blank" rel="noopener noreferrer">
-                        {video.title}
-                      </a>
-                    ) : (
-                      video.title
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {video.status === 'Watched' ? (
-                      <Box display="flex" alignItems="center" color="success.main">
-                        <CheckIcon fontSize="small" sx={{ mr: 1 }} /> Watched
-                      </Box>
-                    ) : (
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={() => {
-                          setVideoDialogVideo(video);
-                          setVideoDialogOpen(true);
-                        }}
-                        startIcon={<VisibilityIcon />}
-                      >
-                        Mark as Watched
-                      </Button>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {video.watched_at
-                      ? new Date(video.watched_at).toLocaleDateString()
-                      : 'Not watched'}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {/* File upload */}
-        <Box>
-          <Typography variant="subtitle2" mb={1}>
-            HR Induction (L1) Evaluation Test
-          </Typography>
-          {uploadError && (
-            <Alert severity="error" sx={{ mb: 1 }}>
-              {uploadError}
-            </Alert>
-          )}
-          {uploadSuccess && (
-            <Alert severity="success" sx={{ mb: 1 }}>
-              {uploadSuccess}
-            </Alert>
-          )}
-          <label htmlFor="file-upload-induction">
-            <input
-              id="file-upload-induction"
-              type="file"
-              onChange={(e) => handleFileUpload(e, false)}
-              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-              hidden
-              disabled={uploading}
-            />
-            <Button
-              variant="contained"
-              startIcon={<UploadIcon />}
-              component="span"
-              disabled={uploading}
-              sx={{ mt: 1 }}
-            >
-              {uploading ? 'Uploading...' : 'Upload File'}
-            </Button>
-          </label>
-          {Array.isArray(induction.form_files) && induction.form_files.length > 0 && (
-            <Box mt={2}>
-              <Typography variant="subtitle2">Uploaded Induction Forms</Typography>
-              <List dense>
-                {induction.form_files.map((file, idx) => (
-                  <ListItem
-                    key={idx}
-                    component="a"
-                    href={file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ListItemIcon>
-                      <FileIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary={file.split('/').pop()} />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          )}
-        </Box>
-        {/* Mark as watched dialog */}
-        <ConfirmationDialog
-          open={videoDialogOpen}
-          onClose={(confirmed) => {
-            setVideoDialogOpen(false);
-            if (confirmed && videoDialogVideo) handleMarkVideoWatched(videoDialogVideo);
-          }}
-          title="Mark video as watched?"
-          text={
-            videoDialogVideo
-              ? `Are you sure you want to mark "${videoDialogVideo.title}" as watched?`
-              : ''
-          }
-        />
-      </Paper>
+      <InductionTab
+        employee={employee}
+        token={token}
+        uploading={uploading}
+        uploadError={uploadError}
+        uploadSuccess={uploadSuccess}
+        inductionLoading={inductionLoading}
+        onInitializeInduction={handleInitializeInduction}
+        onFileUpload={handleFileUpload}
+        onMarkVideoWatched={handleMarkVideoWatched}
+        onFetchEmployee={fetchEmployee}
+      />
     );
   }
 
   // Level 2 Tab
   function renderLevel2Tab() {
-    const l2 = employee?.multilevel_l2;
-    if (!l2) {
-      return (
-        <Paper sx={{ p: 3, minHeight: 240 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">Level 2</Typography>
-            <Typography color="warning.main" variant="subtitle2">
-              Not Started
-            </Typography>
-          </Box>
-          <Button variant="contained" onClick={handleInitializeLevel2} disabled={level2Loading}>
-            {level2Loading ? 'Initializing...' : 'Initialize Level 2'}
-          </Button>
-        </Paper>
-      );
-    }
-    const allVideosWatched = l2.videos?.every((v) => v.status === 'Watched');
-    const shopfloorCompleted = l2.shopfloor_training === true;
     return (
-      <Paper sx={{ p: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">Level 2</Typography>
-          <Typography color={l2.completed ? 'success.main' : 'warning.main'}>
-            {l2.completed ? 'Completed' : 'In Progress'}
-          </Typography>
-        </Box>
-        {allVideosWatched && l2.completed_at && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            All videos completed! Level 2 completed at: {new Date(l2.completed_at).toLocaleString()}
-          </Alert>
-        )}
-
-        <Typography variant="subtitle1" mb={1}>
-          Training Videos
-        </Typography>
-        <TableContainer component={Paper} variant="outlined" sx={{ mb: 2 }}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Title</TableCell>
-                <TableCell>Action</TableCell>
-                <TableCell>Watched At</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {l2.videos?.map((video, idx) => (
-                <TableRow key={idx}>
-                  <TableCell>
-                    {video.link ? (
-                      <a href={video.link} target="_blank" rel="noopener noreferrer">
-                        {video.title}
-                      </a>
-                    ) : (
-                      video.title
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {video.status === 'Watched' ? (
-                      <Box display="flex" alignItems="center" color="success.main">
-                        <CheckIcon fontSize="small" sx={{ mr: 1 }} /> Watched
-                      </Box>
-                    ) : (
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<VisibilityIcon />}
-                        onClick={() => {
-                          setL2DialogVideo(video);
-                          setL2DialogOpen(true);
-                        }}
-                      >
-                        Mark as Watched
-                      </Button>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {video.watched_at
-                      ? new Date(video.watched_at).toLocaleDateString()
-                      : 'Not watched'}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        {allVideosWatched && (
-          <>
-            <Box mt={3}>
-              <Typography variant="subtitle2" mb={1}>
-                Shopfloor Training
-              </Typography>
-              {shopfloorError && (
-                <Alert severity="error" sx={{ mb: 1 }}>
-                  {shopfloorError}
-                </Alert>
-              )}
-              {shopfloorSuccess && (
-                <Alert severity="success" sx={{ mb: 1 }}>
-                  {shopfloorSuccess}
-                </Alert>
-              )}
-              {shopfloorCompleted ? (
-                <Box color="success.main" fontWeight={500} mb={2}>
-                  Shopfloor Training Completed
-                </Box>
-              ) : (
-                <Button
-                  color="success"
-                  variant="contained"
-                  onClick={handleShopfloorComplete}
-                  disabled={shopfloorLoading}
-                  sx={{ mb: 2 }}
-                >
-                  {shopfloorLoading ? 'Marking...' : 'Mark Shopfloor Training as Completed'}
-                </Button>
-              )}
-            </Box>
-            {shopfloorCompleted && (
-              <Box mt={2}>
-                <Typography variant="subtitle2" mb={1}>
-                  Shopfloor Training Form Upload
-                </Typography>
-                {uploadError && (
-                  <Alert severity="error" sx={{ mb: 1 }}>
-                    {uploadError}
-                  </Alert>
-                )}
-                {uploadSuccess && (
-                  <Alert severity="success" sx={{ mb: 1 }}>
-                    {uploadSuccess}
-                  </Alert>
-                )}
-                <label htmlFor="file-upload-l2">
-                  <input
-                    id="file-upload-l2"
-                    type="file"
-                    onChange={(e) => handleFileUpload(e, true)}
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-                    hidden
-                    disabled={uploading}
-                  />
-                  <Button
-                    variant="contained"
-                    startIcon={<UploadIcon />}
-                    component="span"
-                    disabled={uploading}
-                  >
-                    {uploading ? 'Uploading...' : 'Upload File'}
-                  </Button>
-                </label>
-                {Array.isArray(l2.form_files) && l2.form_files.length > 0 && (
-                  <Box mt={2}>
-                    <Typography variant="subtitle2">Uploaded Level 2 Forms</Typography>
-                    <List dense>
-                      {l2.form_files.map((file, idx) => (
-                        <ListItem
-                          key={idx}
-                          component="a"
-                          href={file}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ListItemIcon>
-                            <FileIcon fontSize="small" />
-                          </ListItemIcon>
-                          <ListItemText primary={file.split('/').pop()} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Box>
-                )}
-              </Box>
-            )}
-          </>
-        )}
-
-        {/* Mark as watched dialog */}
-        <ConfirmationDialog
-          open={l2DialogOpen}
-          onClose={(confirmed) => {
-            setL2DialogOpen(false);
-            if (confirmed && l2DialogVideo) handleMarkVideoWatched(l2DialogVideo, true);
-          }}
-          title="Mark video as watched?"
-          text={
-            l2DialogVideo
-              ? `Are you sure you want to mark "${l2DialogVideo.title}" as watched?`
-              : ''
-          }
-        />
-      </Paper>
+      <Level2Tab
+        employee={employee}
+        token={token}
+        level2Loading={level2Loading}
+        level2Error={level2Error}
+        level2Success={level2Success}
+        onInitializeLevel2={handleInitializeLevel2}
+        onFetchEmployee={fetchEmployee}
+      />
     );
   }
+
+  // Level 3 Tab
+  function renderLevel3Tab() {
+    return (
+      <Level3Tab
+        employee={employee}
+        token={token}
+        level3Loading={level3Loading}
+        level3Error={level3Error}
+        level3Success={level3Success}
+        onInitializeLevel3={handleInitializeLevel3}
+        onFetchEmployee={fetchEmployee}
+      />
+    );
+  }
+
+  // Level 4 Tab
+  function renderLevel4Tab() {
+    return (
+      <Level4Tab
+        employee={employee}
+        token={token}
+        level4Loading={level4Loading}
+        level4Error={level4Error}
+        level4Success={level4Success}
+        onInitializeLevel4={handleInitializeLevel4}
+        onFetchEmployee={fetchEmployee}
+      />
+    );
+  }
+
+  // ...existing code...
 
   // Main Loading/Error
   if (loading)
@@ -849,21 +413,18 @@ const EmployeeDetails = () => {
         </Box>
       </Container>
     );
-  if (error)
-    return (
-      <Container
-        sx={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <Box textAlign="center">
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-          <Button onClick={() => navigate(-1)} variant="outlined" startIcon={<ArrowBackIcon />}>
-            Go Back
-          </Button>
-        </Box>
-      </Container>
-    );
+  if (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error!',
+      text: error,
+      confirmButtonText: 'Go Back',
+      showCancelButton: false,
+    }).then(() => {
+      navigate(-1);
+    });
+    return null;
+  }
   if (!employee) return null;
 
   // Sidebar summary
@@ -936,7 +497,17 @@ const EmployeeDetails = () => {
           {renderSidebar()}
         </Grid>
         <Grid item xs={12} lg={9}>
-          <Paper sx={{ mb: 2, px: 1 }}>
+          <Paper
+            sx={{
+              mb: 2,
+              top: { lg: 24 },
+              px: 1,
+              position: 'sticky', // Makes the header stick
+            
+              zIndex: 1000, // Ensures it stays above other content
+              // backgroundColor: 'background.paper', // Optional: match theme
+            }}
+          >
             <Tabs
               value={tabIndex}
               onChange={handleTabChange}
@@ -944,15 +515,21 @@ const EmployeeDetails = () => {
               scrollButtons="auto"
             >
               {tabs.map((tab, idx) => (
-                <Tab key={tab.label} icon={tab.icon} label={tab.label} />
+                <Tab key={tab.label} icon={tab.icon} label={tab.label} value={idx} />
               ))}
             </Tabs>
           </Paper>
           <Box>
             {
-              [renderPersonalTab(), renderDocumentsTab(), renderInductionTab(), renderLevel2Tab()][
-                tabIndex
-              ]
+              [
+                renderPersonalTab(),
+                renderDocumentsTab(),
+                renderInductionTab(),
+                renderLevel1Tab(),
+                renderLevel2Tab(),
+                renderLevel3Tab(),
+                renderLevel4Tab(),
+              ][tabIndex]
             }
           </Box>
         </Grid>

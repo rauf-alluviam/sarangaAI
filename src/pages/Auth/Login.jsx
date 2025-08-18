@@ -14,7 +14,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { enqueueSnackbar } from "notistack";
 import colors from "../../utils/colors";
 
-const BACKEND_API= import.meta.env.VITE_BACKEND_API;
+const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const Login=({setFlag})=> {
   const sizeSmall = useMediaQuery("(max-width:992px)");
