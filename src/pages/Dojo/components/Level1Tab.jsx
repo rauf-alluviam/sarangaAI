@@ -650,7 +650,7 @@ const Level1Tab = ({
           variant="contained"
           onClick={handleInitializeLevel1}
           disabled={level1Loading}
-          startIcon={level1Loading ? <CircularProgress size={16} color="inherit" /> : null}
+          // startIcon={level1Loading ? <CircularProgress size={16} color="inherit" /> : null}
         >
           {level1Loading ? 'Initializing...' : 'Initialize Level 1'}
         </Button>
@@ -786,7 +786,7 @@ const Level1Tab = ({
                   disabled={settingResult || resultStatus === 'not_set'}
                   fullWidth
                   size="large"
-                  startIcon={settingResult ? <CircularProgress size={16} color="inherit" /> : null}
+                  // startIcon={settingResult ? <CircularProgress size={16} color="inherit" /> : null}
                 >
                   {settingResult ? 'Saving...' : 'Save Result'}
                 </Button>
@@ -806,7 +806,7 @@ const Level1Tab = ({
                     disabled={loading}
                     fullWidth
                     size="large"
-                    startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+                    // startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
                   >
                     {loading ? 'Reassigning...' : 'Reassign Level 1 Training'}
                   </Button>
@@ -887,9 +887,9 @@ const Level1Tab = ({
                     />
                     <Button
                       variant="contained"
-                      startIcon={
-                        uploading ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />
-                      }
+                      // startIcon={
+                      //   uploading ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />
+                      // }
                       component="span"
                       disabled={uploading}
                       fullWidth

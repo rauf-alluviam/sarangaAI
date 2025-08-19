@@ -373,6 +373,115 @@ const InductionTab = ({
                 </Box>
               )}
 
+              {resultStatus === 'passed' && (
+                <Grid item xs={12}>
+                  <Paper variant="outlined" sx={{ p: 3 }}>
+                    <Typography variant="h6" mb={2}>
+                      HR Induction Evaluation Test
+                    </Typography>
+
+                    {/* Upload Section */}
+                    <Box mb={3}>
+                      <label htmlFor="file-upload-induction">
+                        <input
+                          id="file-upload-induction"
+                          type="file"
+                          onChange={async (e) => {
+                            try {
+                              await onFileUpload(e, false);
+                              await Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'File uploaded successfully!',
+                                timer: 3000,
+                                showConfirmButton: false,
+                              });
+                            } catch (error) {
+                              await Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: error.message || 'Failed to upload file',
+                                timer: 3000,
+                                showConfirmButton: false,
+                              });
+                            }
+                          }}
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                          hidden
+                          disabled={uploading}
+                        />
+                        <Button
+                          variant="contained"
+                          startIcon={<UploadIcon />}
+                          component="span"
+                          disabled={uploading}
+                          fullWidth
+                          size="large"
+                        >
+                          {uploading ? 'Uploading...' : 'Upload File'}
+                        </Button>
+                      </label>
+                    </Box>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    {/* Uploaded Files Section */}
+                    <Typography variant="subtitle1" mb={2}>
+                      Uploaded Induction Forms
+                    </Typography>
+                    {Array.isArray(induction.form_files) && induction.form_files.length > 0 ? (
+                      <Paper
+                        variant="outlined"
+                        sx={{ p: 1, maxHeight: 250, overflow: 'auto', bgcolor: 'grey.50' }}
+                      >
+                        <List dense>
+                          {induction.form_files.map((file, idx) => (
+                            <ListItem
+                              key={idx}
+                              component="a"
+                              href={file}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                borderRadius: 1,
+                                mb: 0.5,
+                                '&:hover': { bgcolor: 'action.hover' },
+                                textDecoration: 'none',
+                                color: 'inherit',
+                              }}
+                            >
+                              <ListItemIcon>
+                                <FileIcon fontSize="small" color="primary" />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={file.split('/').pop()}
+                                primaryTypographyProps={{ noWrap: true }}
+                              />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Paper>
+                    ) : (
+                      <Box
+                        sx={{
+                          p: 3,
+                          textAlign: 'center',
+                          bgcolor: 'grey.50',
+                          border: '2px dashed',
+                          borderColor: 'grey.300',
+                          borderRadius: 2,
+                        }}
+                      >
+                        <FileIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
+                        <Typography variant="body2" color="textSecondary">
+                          No files uploaded yet
+                        </Typography>
+                      </Box>
+                    )}
+                  </Paper>
+                </Grid>
+              )}
+
               {/* Retrain History */}
               {employee?.induction?.retrain_history &&
                 employee.induction.retrain_history.length > 0 && (
@@ -391,8 +500,33 @@ const InductionTab = ({
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {employee.induction.retrain_history.map((timestamp, index) => {
-                            const date = new Date(timestamp);
+                          {employee.induction?.retrain_history?.map((datetimeStr, index) => {
+                            // Parse the date string in format "DD-MM-YYYY HH:MM:SS AM/PM"
+                            const [datePart, timePart] = datetimeStr.split(' ');
+                            const [day, month, year] = datePart.split('-').map(Number);
+                            const [time, period] = timePart.includes('AM')
+                              ? timePart.split('AM')
+                              : timePart.split('PM');
+                            const [hours, minutes, seconds] = time.split(':').map(Number);
+
+                            // Adjust hours for PM time
+                            let adjustedHours = hours;
+                            if (period === 'PM' && hours < 12) {
+                              adjustedHours += 12;
+                            } else if (period === 'AM' && hours === 12) {
+                              adjustedHours = 0;
+                            }
+
+                            // Create Date object
+                            const date = new Date(
+                              year,
+                              month - 1,
+                              day,
+                              adjustedHours,
+                              minutes,
+                              seconds
+                            );
+
                             return (
                               <TableRow key={index}>
                                 <TableCell>{index + 1}</TableCell>
@@ -420,116 +554,6 @@ const InductionTab = ({
                 )}
             </Paper>
           </Grid>
-
-          {/* Column 2: File Upload Section - Only shown when status is Passed */}
-          {resultStatus === 'passed' && (
-            <Grid item xs={12}>
-              <Paper variant="outlined" sx={{ p: 3 }}>
-                <Typography variant="h6" mb={2}>
-                  HR Induction Evaluation Test
-                </Typography>
-
-                {/* Upload Section */}
-                <Box mb={3}>
-                  <label htmlFor="file-upload-induction">
-                    <input
-                      id="file-upload-induction"
-                      type="file"
-                      onChange={async (e) => {
-                        try {
-                          await onFileUpload(e, false);
-                          await Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'File uploaded successfully!',
-                            timer: 3000,
-                            showConfirmButton: false,
-                          });
-                        } catch (error) {
-                          await Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: error.message || 'Failed to upload file',
-                            timer: 3000,
-                            showConfirmButton: false,
-                          });
-                        }
-                      }}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-                      hidden
-                      disabled={uploading}
-                    />
-                    <Button
-                      variant="contained"
-                      startIcon={<UploadIcon />}
-                      component="span"
-                      disabled={uploading}
-                      fullWidth
-                      size="large"
-                    >
-                      {uploading ? 'Uploading...' : 'Upload File'}
-                    </Button>
-                  </label>
-                </Box>
-
-                <Divider sx={{ my: 2 }} />
-
-                {/* Uploaded Files Section */}
-                <Typography variant="subtitle1" mb={2}>
-                  Uploaded Induction Forms
-                </Typography>
-                {Array.isArray(induction.form_files) && induction.form_files.length > 0 ? (
-                  <Paper
-                    variant="outlined"
-                    sx={{ p: 1, maxHeight: 250, overflow: 'auto', bgcolor: 'grey.50' }}
-                  >
-                    <List dense>
-                      {induction.form_files.map((file, idx) => (
-                        <ListItem
-                          key={idx}
-                          component="a"
-                          href={file}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            borderRadius: 1,
-                            mb: 0.5,
-                            '&:hover': { bgcolor: 'action.hover' },
-                            textDecoration: 'none',
-                            color: 'inherit',
-                          }}
-                        >
-                          <ListItemIcon>
-                            <FileIcon fontSize="small" color="primary" />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={file.split('/').pop()}
-                            primaryTypographyProps={{ noWrap: true }}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Paper>
-                ) : (
-                  <Box
-                    sx={{
-                      p: 3,
-                      textAlign: 'center',
-                      bgcolor: 'grey.50',
-                      border: '2px dashed',
-                      borderColor: 'grey.300',
-                      borderRadius: 2,
-                    }}
-                  >
-                    <FileIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
-                    <Typography variant="body2" color="textSecondary">
-                      No files uploaded yet
-                    </Typography>
-                  </Box>
-                )}
-              </Paper>
-            </Grid>
-          )}
         </Grid>
       </Box>
 
