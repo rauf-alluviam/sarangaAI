@@ -4,6 +4,11 @@ import {
   Button,
   Chip,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   FormControl,
   Grid,
@@ -33,6 +38,30 @@ import Swal from 'sweetalert2';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
+const ConfirmationDialog = ({ open, onClose, title, text }) => {
+  return (
+    <Dialog
+      open={open}
+      onClose={() => onClose(false)}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          {text}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => onClose(false)}>Cancel</Button>
+        <Button onClick={() => onClose(true)} autoFocus>
+          Confirm
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const Level1Tab = ({
   employee,
   token,
@@ -57,14 +86,15 @@ const Level1Tab = ({
       ? 'failed'
       : 'not_set'
   );
-  // // Initialize result status from employee data
-  // const [resultStatus, setResultStatus] = useState(() => {
-  //   if (!employee?.Level_1) return 'not_set';
-  //   const level1 = employee.Level_1;
-  //   if (level1.passed === true) return 'passed';
-  //   if (level1.passed === false) return 'failed';
-  //   return 'not_set';
-  // });
+  
+  // State for confirmation dialogs
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [videoDialogSection, setVideoDialogSection] = useState(null);
+  const [videoDialogVideo, setVideoDialogVideo] = useState(null);
+  
+  const [ojtDialogOpen, setOjtDialogOpen] = useState(false);
+  const [ojtDialogSection, setOjtDialogSection] = useState(null);
+  const [ojtDialogTask, setOjtDialogTask] = useState(null);
 
   // Update result status when employee data changes
   useEffect(() => {
@@ -79,6 +109,18 @@ const Level1Tab = ({
       }
     }
   }, [employee]);
+
+  // API endpoints mapping
+  const endpoints = {
+    horizontal_injection_molding: {
+      video: `${BACKEND_API}/mark_level_1_horizontal_injection_molding_video_watched`,
+      ojt: `${BACKEND_API}/mark_level_1_horizontal_injection_molding_OJT_task_completed`,
+    },
+    final_inspection_packaging: {
+      video: `${BACKEND_API}/mark_level_1_final_inspection_packaging_video_watched`,
+      ojt: `${BACKEND_API}/mark_level_1_final_inspection_packaging_OJT_completed`,
+    },
+  };
 
   // Error boundary helper
   const handleAsyncError = async (asyncFn, errorMessage = 'An error occurred') => {
@@ -147,6 +189,88 @@ const Level1Tab = ({
     return response;
   };
 
+  // Mark video as watched
+  const markVideoWatched = async (section, video) => {
+    if (!video?.title) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Video title is missing',
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    await handleAsyncError(async () => {
+      const url = endpoints[section]?.video;
+      if (!url) {
+        throw new Error(`No video endpoint found for section: ${section}`);
+      }
+
+      await makeApiRequest(url, {
+        method: 'PUT',
+        body: JSON.stringify({
+          user_id: employee.user_id,
+          video_title: video.title,
+        }),
+      });
+
+      if (onFetchEmployee) {
+        await onFetchEmployee();
+      }
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: `Video "${video.title}" marked as watched!`,
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }, `Failed to mark video "${video.title}" as watched`);
+  };
+
+  // Mark OJT task as completed
+  const markOjtCompleted = async (section, task) => {
+    if (!task?.title) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Task title is missing',
+        timer: 3000,
+        showConfirmButton: false,
+      });
+      return;
+    }
+
+    await handleAsyncError(async () => {
+      const url = endpoints[section]?.ojt;
+      if (!url) {
+        throw new Error(`No OJT endpoint found for section: ${section}`);
+      }
+
+      await makeApiRequest(url, {
+        method: 'PUT',
+        body: JSON.stringify({
+          user_id: employee.user_id,
+          title: task.title,
+        }),
+      });
+
+      if (onFetchEmployee) {
+        await onFetchEmployee();
+      }
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: `OJT task "${task.title}" marked as completed!`,
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }, `Failed to mark OJT task "${task.title}" as completed`);
+  };
+
   // Render table for a section
   function renderSection(sectionName, sectionData) {
     if (!sectionData) {
@@ -161,100 +285,6 @@ const Level1Tab = ({
         </Box>
       );
     }
-
-    // API endpoints for each section
-    const endpoints = {
-      horizontal_injection_molding: {
-        video: `${BACKEND_API}/mark_level_1_horizontal_injection_molding_video_watched`,
-        ojt: `${BACKEND_API}/mark_level_1_horizontal_injection_molding_OJT_task_completed`,
-      },
-      final_inspection_packaging: {
-        video: `${BACKEND_API}/mark_level_1_final_inspection_packaging_video_watched`,
-        ojt: `${BACKEND_API}/mark_level_1_final_inspection_packaging_OJT_completed`,
-      },
-    };
-
-    // Helper for video watched
-    const markVideoWatched = async (section, video) => {
-      if (!video?.title) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Video title is missing',
-          timer: 3000,
-          showConfirmButton: false,
-        });
-        return;
-      }
-
-      await handleAsyncError(async () => {
-        const url = endpoints[section]?.video;
-        if (!url) {
-          throw new Error(`No video endpoint found for section: ${section}`);
-        }
-
-        await makeApiRequest(url, {
-          method: 'PUT',
-          body: JSON.stringify({
-            user_id: employee.user_id,
-            video_title: video.title,
-          }),
-        });
-
-        if (onFetchEmployee) {
-          await onFetchEmployee();
-        }
-
-        await Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: `Video "${video.title}" marked as watched!`,
-          timer: 3000,
-          showConfirmButton: false,
-        });
-      }, `Failed to mark video "${video.title}" as watched`);
-    };
-
-    // Helper for OJT completed
-    const markOjtCompleted = async (section, task) => {
-      if (!task?.title) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Task title is missing',
-          timer: 3000,
-          showConfirmButton: false,
-        });
-        return;
-      }
-
-      await handleAsyncError(async () => {
-        const url = endpoints[section]?.ojt;
-        if (!url) {
-          throw new Error(`No OJT endpoint found for section: ${section}`);
-        }
-
-        await makeApiRequest(url, {
-          method: 'PUT',
-          body: JSON.stringify({
-            user_id: employee.user_id,
-            title: task.title,
-          }),
-        });
-
-        if (onFetchEmployee) {
-          await onFetchEmployee();
-        }
-
-        await Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: `OJT task "${task.title}" marked as completed!`,
-          timer: 3000,
-          showConfirmButton: false,
-        });
-      }, `Failed to mark OJT task "${task.title}" as completed`);
-    };
 
     return (
       <Box key={sectionName} mb={4}>
@@ -300,7 +330,11 @@ const Level1Tab = ({
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={() => markVideoWatched(sectionName, video)}
+                          onClick={() => {
+                            setVideoDialogSection(sectionName);
+                            setVideoDialogVideo(video);
+                            setVideoDialogOpen(true);
+                          }}
                           startIcon={<VisibilityIcon />}
                           disabled={!video.title}
                         >
@@ -330,7 +364,11 @@ const Level1Tab = ({
                         <Button
                           variant="outlined"
                           size="small"
-                          onClick={() => markOjtCompleted(sectionName, task)}
+                          onClick={() => {
+                            setOjtDialogSection(sectionName);
+                            setOjtDialogTask(task);
+                            setOjtDialogOpen(true);
+                          }}
                           startIcon={<CheckIcon />}
                           disabled={!task.title}
                         >
@@ -419,7 +457,6 @@ const Level1Tab = ({
             method: 'PUT',
             headers: {
               Authorization: `Bearer ${token}`,
-              // Don't set Content-Type for FormData, let browser set it
             },
             body: formData,
           }
@@ -628,6 +665,51 @@ const Level1Tab = ({
 
   return (
     <Paper sx={{ p: 3 }}>
+      {/* Confirmation dialogs */}
+      <ConfirmationDialog
+        open={videoDialogOpen}
+        onClose={async (confirmed) => {
+          setVideoDialogOpen(false);
+          if (confirmed && videoDialogVideo && videoDialogSection) {
+            try {
+              await markVideoWatched(videoDialogSection, videoDialogVideo);
+            } catch (error) {
+              // Error is already handled by handleAsyncError
+            }
+          }
+          setVideoDialogSection(null);
+          setVideoDialogVideo(null);
+        }}
+        title="Mark video as watched?"
+        text={
+          videoDialogVideo
+            ? `Are you sure you want to mark "${videoDialogVideo.title}" as watched?`
+            : ''
+        }
+      />
+      
+      <ConfirmationDialog
+        open={ojtDialogOpen}
+        onClose={async (confirmed) => {
+          setOjtDialogOpen(false);
+          if (confirmed && ojtDialogTask && ojtDialogSection) {
+            try {
+              await markOjtCompleted(ojtDialogSection, ojtDialogTask);
+            } catch (error) {
+              // Error is already handled by handleAsyncError
+            }
+          }
+          setOjtDialogSection(null);
+          setOjtDialogTask(null);
+        }}
+        title="Mark OJT task as completed?"
+        text={
+          ojtDialogTask
+            ? `Are you sure you want to mark "${ojtDialogTask.title}" as completed?`
+            : ''
+        }
+      />
+
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
         <Typography variant="h6">Level 1 Training Modules</Typography>
         <Box textAlign="right">
