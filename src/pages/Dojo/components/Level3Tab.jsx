@@ -310,7 +310,7 @@ const Level3Tab = ({
                           href={video.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ textDecoration: 'none', color: 'inherit' }}
+                          
                         >
                           {video.title || 'Untitled Video'}
                         </a>
@@ -340,11 +340,7 @@ const Level3Tab = ({
                         </Button>
                       )}
                     </TableCell>
-                    <TableCell>
-                      {video.watched_at
-                        ? new Date(video.watched_at).toLocaleString()
-                        : 'Not watched'}
-                    </TableCell>
+                    <TableCell>{video?.watched_at ? video?.watched_at : 'Not watched'}</TableCell>
                   </TableRow>
                 ))}
               {/* OJT Tasks */}
@@ -375,9 +371,7 @@ const Level3Tab = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      {task.completed_at
-                        ? new Date(task.completed_at).toLocaleString()
-                        : 'Not completed'}
+                      {task?.completed_at ? task?.completed_at : 'Not completed'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -397,7 +391,7 @@ const Level3Tab = ({
     );
   }
 
-  // Level 3 Evaluation Form upload handler
+  // Level 3  Evaluation Form upload handler
   const handleLevel3FormUpload = async (event) => {
     if (!event.target.files || event.target.files.length === 0) {
       await Swal.fire({
@@ -479,11 +473,11 @@ const Level3Tab = ({
         await Swal.fire({
           icon: 'success',
           title: 'Success!',
-          text: 'Level 3 evaluation form uploaded successfully!',
+          text: 'Level 3  evaluation form uploaded successfully!',
           timer: 3000,
           showConfirmButton: false,
         });
-      }, 'Failed to upload Level 3 evaluation form');
+      }, 'Failed to upload Level 3  evaluation form');
     } finally {
       setUploading(false);
       event.target.value = ''; // Clear input
@@ -522,7 +516,7 @@ const Level3Tab = ({
         await Swal.fire({
           icon: 'success',
           title: 'Success!',
-          text: data.message || 'Level 3 training result updated successfully!',
+          text: data.message || 'Level 3  training result updated successfully!',
           timer: 3000,
           showConfirmButton: false,
         });
@@ -534,7 +528,7 @@ const Level3Tab = ({
         if (onFetchEmployee) {
           await onFetchEmployee();
         }
-      }, 'Failed to set Level 3 training result');
+      }, 'Failed to set Level 3  training result');
     } catch (error) {
       // Revert to previous status on error
       if (employee?.Level_3) {
@@ -572,7 +566,7 @@ const Level3Tab = ({
         await Swal.fire({
           icon: 'success',
           title: 'Success!',
-          text: data?.message || 'Level 3 training reassigned successfully',
+          text: data?.message || 'Level 3  training reassigned successfully',
           timer: 3000,
           showConfirmButton: false,
         });
@@ -583,7 +577,7 @@ const Level3Tab = ({
         if (onFetchEmployee) {
           await onFetchEmployee();
         }
-      }, 'Failed to reassign Level 3 training');
+      }, 'Failed to reassign Level 3  training');
     } finally {
       setLoading(false);
     }
@@ -606,11 +600,11 @@ const Level3Tab = ({
       await Swal.fire({
         icon: 'success',
         title: 'Success!',
-        text: 'Level 3 training initialized successfully!',
+        text: 'Level 3  training initialized successfully!',
         timer: 3000,
         showConfirmButton: false,
       });
-    }, 'Failed to initialize Level 3 training');
+    }, 'Failed to initialize Level 3  training');
   };
 
   // Validation helpers
@@ -628,18 +622,18 @@ const Level3Tab = ({
           Employee Data Missing
         </Typography>
         <Typography color="textSecondary">
-          Unable to load Level 3 training data. Please ensure employee information is available.
+          Unable to load Level 3  training data. Please ensure employee information is available.
         </Typography>
       </Paper>
     );
   }
 
-  // Early return for uninitialized Level 3
+  // Early return for uninitialized Level 3 
   if (!level3) {
     return (
       <Paper sx={{ p: 3, minHeight: 320 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">Level 3 Training</Typography>
+          <Typography variant="h6">Level 3  Training</Typography>
           <Typography color="warning.main" variant="subtitle2">
             Not Started
           </Typography>
@@ -648,9 +642,9 @@ const Level3Tab = ({
           variant="contained"
           onClick={handleInitializeLevel3}
           disabled={level3Loading}
-          startIcon={level3Loading ? <CircularProgress size={16} color="inherit" /> : null}
+          // startIcon={level3Loading ? <CircularProgress size={16} color="inherit" /> : null}
         >
-          {level3Loading ? 'Initializing...' : 'Initialize Level 3'}
+          {level3Loading ? 'Initializing...' : 'Initialize Level 3 '}
         </Button>
         {level3Error && (
           <Typography color="error" variant="body2" mt={2}>
@@ -709,7 +703,7 @@ const Level3Tab = ({
       />
 
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-        <Typography variant="h6">Level 3 Training Modules</Typography>
+        <Typography variant="h6">Level 3  Training Modules</Typography>
         <Box textAlign="right">
           {formUploaded?.completed_at && (
             <Typography variant="body2" color="textSecondary">
@@ -729,11 +723,11 @@ const Level3Tab = ({
       {/* Evaluation Form and Result Section */}
       <Box mt={3}>
         <Grid container spacing={3}>
-          {/* Level 3 Result - Always shown first */}
+          {/* Level 3  Result - Always shown first */}
           <Grid item xs={12}>
             <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
               <Typography variant="h6" mb={2}>
-                Level 3 Result
+                Level 3  Result
               </Typography>
 
               {/* Current Status */}
@@ -784,7 +778,7 @@ const Level3Tab = ({
                   disabled={settingResult || resultStatus === 'not_set'}
                   fullWidth
                   size="large"
-                  startIcon={settingResult ? <CircularProgress size={16} color="inherit" /> : null}
+                  // startIcon={settingResult ? <CircularProgress size={16} color="inherit" /> : null}
                 >
                   {settingResult ? 'Saving...' : 'Save Result'}
                 </Button>
@@ -804,11 +798,102 @@ const Level3Tab = ({
                     disabled={loading}
                     fullWidth
                     size="large"
-                    startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+                    // startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
                   >
-                    {loading ? 'Reassigning...' : 'Reassign Level 3 Training'}
+                    {loading ? 'Reassigning...' : 'Reassign Level 3  Training'}
                   </Button>
                 </Box>
+              )}
+              {/* Level 3  Evaluation Form - Only shown when status is Passed */}
+              {employee?.Level_3?.pass_fail_status === true && (
+                <Grid item xs={12}>
+                  <Paper variant="outlined" sx={{ p: 3 }}>
+                    <Typography variant="h6" mb={2}>
+                      Level 3  Evaluation Form
+                    </Typography>
+
+                    <Box mb={3}>
+                      <label htmlFor="file-upload-level3">
+                        <input
+                          id="file-upload-level3"
+                          type="file"
+                          onChange={handleLevel3FormUpload}
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                          hidden
+                          disabled={uploading}
+                        />
+                        <Button
+                          variant="contained"
+                          // startIcon={
+                          //   uploading ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />
+                          // }
+                          component="span"
+                          disabled={uploading}
+                          fullWidth
+                          size="large"
+                        >
+                          {uploading ? 'Uploading...' : 'Upload File'}
+                        </Button>
+                      </label>
+                    </Box>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography variant="subtitle1" mb={2}>
+                      Uploaded Level 3  Evaluation Forms
+                    </Typography>
+                    {Array.isArray(formUploaded?.form_files) &&
+                    formUploaded.form_files.length > 0 ? (
+                      <Paper
+                        variant="outlined"
+                        sx={{ p: 1, maxHeight: 250, overflow: 'auto', bgcolor: 'grey.50' }}
+                      >
+                        <List dense>
+                          {formUploaded.form_files.map((file, idx) => (
+                            <ListItem
+                              key={idx}
+                              component="a"
+                              href={file}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                borderRadius: 1,
+                                mb: 0.5,
+                                '&:hover': { bgcolor: 'action.hover' },
+                                textDecoration: 'none',
+                                color: 'inherit',
+                              }}
+                            >
+                              <ListItemIcon>
+                                <FileIcon fontSize="small" color="primary" />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={file.split('/').pop() || 'Unknown file'}
+                                primaryTypographyProps={{ noWrap: true }}
+                              />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Paper>
+                    ) : (
+                      <Box
+                        sx={{
+                          p: 3,
+                          textAlign: 'center',
+                          bgcolor: 'grey.50',
+                          border: '2px dashed',
+                          borderColor: 'grey.300',
+                          borderRadius: 2,
+                        }}
+                      >
+                        <FileIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
+                        <Typography variant="body2" color="textSecondary">
+                          No files uploaded yet
+                        </Typography>
+                      </Box>
+                    )}
+                  </Paper>
+                </Grid>
               )}
 
               {Array.isArray(level3?.retrain_history) && level3.retrain_history.length > 0 && (
@@ -827,8 +912,33 @@ const Level3Tab = ({
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {level3.retrain_history.map((timestamp, index) => {
-                          const date = new Date(timestamp);
+                        {level3?.retrain_history?.map((datetimeStr, index) => {
+                          // Parse the date string in format "DD-MM-YYYY HH:MM:SS AM/PM"
+                          const [datePart, timePart] = datetimeStr.split(' ');
+                          const [day, month, year] = datePart.split('-').map(Number);
+                          const [time, period] = timePart.includes('AM')
+                            ? timePart.split('AM')
+                            : timePart.split('PM');
+                          const [hours, minutes, seconds] = time.split(':').map(Number);
+
+                          // Adjust hours for PM time
+                          let adjustedHours = hours;
+                          if (period === 'PM' && hours < 12) {
+                            adjustedHours += 12;
+                          } else if (period === 'AM' && hours === 12) {
+                            adjustedHours = 0;
+                          }
+
+                          // Create Date object
+                          const date = new Date(
+                            year,
+                            month - 1,
+                            day,
+                            adjustedHours,
+                            minutes,
+                            seconds
+                          );
+
                           return (
                             <TableRow key={index}>
                               <TableCell>{index + 1}</TableCell>
@@ -864,97 +974,6 @@ const Level3Tab = ({
               )}
             </Paper>
           </Grid>
-
-          {/* Level 3 Evaluation Form - Only shown when status is Passed */}
-          {resultStatus === 'passed' && (
-            <Grid item xs={12}>
-              <Paper variant="outlined" sx={{ p: 3 }}>
-                <Typography variant="h6" mb={2}>
-                  Level 3 Evaluation Form
-                </Typography>
-
-                <Box mb={3}>
-                  <label htmlFor="file-upload-level3">
-                    <input
-                      id="file-upload-level3"
-                      type="file"
-                      onChange={handleLevel3FormUpload}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-                      hidden
-                      disabled={uploading}
-                    />
-                    <Button
-                      variant="contained"
-                      startIcon={
-                        uploading ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />
-                      }
-                      component="span"
-                      disabled={uploading}
-                      fullWidth
-                      size="large"
-                    >
-                      {uploading ? 'Uploading...' : 'Upload File'}
-                    </Button>
-                  </label>
-                </Box>
-
-                <Divider sx={{ my: 2 }} />
-
-                <Typography variant="subtitle1" mb={2}>
-                  Uploaded Level 3 Evaluation Forms
-                </Typography>
-                {Array.isArray(formUploaded?.form_files) && formUploaded.form_files.length > 0 ? (
-                  <Paper
-                    variant="outlined"
-                    sx={{ p: 1, maxHeight: 250, overflow: 'auto', bgcolor: 'grey.50' }}
-                  >
-                    <List dense>
-                      {formUploaded.form_files.map((file, idx) => (
-                        <ListItem
-                          key={idx}
-                          component="a"
-                          href={file}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            borderRadius: 1,
-                            mb: 0.5,
-                            '&:hover': { bgcolor: 'action.hover' },
-                            textDecoration: 'none',
-                            color: 'inherit',
-                          }}
-                        >
-                          <ListItemIcon>
-                            <FileIcon fontSize="small" color="primary" />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={file.split('/').pop() || 'Unknown file'}
-                            primaryTypographyProps={{ noWrap: true }}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Paper>
-                ) : (
-                  <Box
-                    sx={{
-                      p: 3,
-                      textAlign: 'center',
-                      bgcolor: 'grey.50',
-                      border: '2px dashed',
-                      borderColor: 'grey.300',
-                      borderRadius: 2,
-                    }}
-                  >
-                    <FileIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
-                    <Typography variant="body2" color="textSecondary">
-                      No files uploaded yet
-                    </Typography>
-                  </Box>
-                )}
-              </Paper>
-            </Grid>
-          )}
         </Grid>
       </Box>
     </Paper>

@@ -48,9 +48,7 @@ const ConfirmationDialog = ({ open, onClose, title, text }) => {
     >
       <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          {text}
-        </DialogContentText>
+        <DialogContentText id="alert-dialog-description">{text}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={() => onClose(false)}>Cancel</Button>
@@ -86,12 +84,12 @@ const Level1Tab = ({
       ? 'failed'
       : 'not_set'
   );
-  
+
   // State for confirmation dialogs
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [videoDialogSection, setVideoDialogSection] = useState(null);
   const [videoDialogVideo, setVideoDialogVideo] = useState(null);
-  
+
   const [ojtDialogOpen, setOjtDialogOpen] = useState(false);
   const [ojtDialogSection, setOjtDialogSection] = useState(null);
   const [ojtDialogTask, setOjtDialogTask] = useState(null);
@@ -312,7 +310,7 @@ const Level1Tab = ({
                           href={video.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ textDecoration: 'none', color: 'inherit' }}
+                          
                         >
                           {video.title || 'Untitled Video'}
                         </a>
@@ -342,11 +340,7 @@ const Level1Tab = ({
                         </Button>
                       )}
                     </TableCell>
-                    <TableCell>
-                      {video.watched_at
-                        ? new Date(video.watched_at).toLocaleString()
-                        : 'Not watched'}
-                    </TableCell>
+                    <TableCell>{video?.watched_at ? video?.watched_at : 'Not watched'}</TableCell>
                   </TableRow>
                 ))}
               {/* OJT Tasks */}
@@ -377,9 +371,7 @@ const Level1Tab = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      {task.completed_at
-                        ? new Date(task.completed_at).toLocaleString()
-                        : 'Not completed'}
+                      {task?.completed_at ? task?.completed_at : 'Not completed'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -687,7 +679,7 @@ const Level1Tab = ({
             : ''
         }
       />
-      
+
       <ConfirmationDialog
         open={ojtDialogOpen}
         onClose={async (confirmed) => {
@@ -793,7 +785,7 @@ const Level1Tab = ({
               </Box>
 
               {/* Reassign Training Section - Only show if failed */}
-              {level1?.pass_fail_status === false &&  (
+              {level1?.pass_fail_status === false && (
                 <Box mb={3}>
                   <Divider sx={{ my: 2 }} />
                   <Typography variant="subtitle2" mb={2}>
@@ -812,6 +804,97 @@ const Level1Tab = ({
                   </Button>
                 </Box>
               )}
+              {/* Level 1 Evaluation Form - Only shown when status is Passed */}
+              {employee?.Level_1?.pass_fail_status === true && (
+                <Grid item xs={12}>
+                  <Paper variant="outlined" sx={{ p: 3 }}>
+                    <Typography variant="h6" mb={2}>
+                      Level 1 Evaluation Form
+                    </Typography>
+
+                    <Box mb={3}>
+                      <label htmlFor="file-upload-level1">
+                        <input
+                          id="file-upload-level1"
+                          type="file"
+                          onChange={handleLevel1FormUpload}
+                          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                          hidden
+                          disabled={uploading}
+                        />
+                        <Button
+                          variant="contained"
+                          // startIcon={
+                          //   uploading ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />
+                          // }
+                          component="span"
+                          disabled={uploading}
+                          fullWidth
+                          size="large"
+                        >
+                          {uploading ? 'Uploading...' : 'Upload File'}
+                        </Button>
+                      </label>
+                    </Box>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography variant="subtitle1" mb={2}>
+                      Uploaded Level 1 Evaluation Forms
+                    </Typography>
+                    {Array.isArray(formUploaded?.form_files) &&
+                    formUploaded.form_files.length > 0 ? (
+                      <Paper
+                        variant="outlined"
+                        sx={{ p: 1, maxHeight: 250, overflow: 'auto', bgcolor: 'grey.50' }}
+                      >
+                        <List dense>
+                          {formUploaded.form_files.map((file, idx) => (
+                            <ListItem
+                              key={idx}
+                              component="a"
+                              href={file}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                borderRadius: 1,
+                                mb: 0.5,
+                                '&:hover': { bgcolor: 'action.hover' },
+                                textDecoration: 'none',
+                                color: 'inherit',
+                              }}
+                            >
+                              <ListItemIcon>
+                                <FileIcon fontSize="small" color="primary" />
+                              </ListItemIcon>
+                              <ListItemText
+                                primary={file.split('/').pop() || 'Unknown file'}
+                                primaryTypographyProps={{ noWrap: true }}
+                              />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Paper>
+                    ) : (
+                      <Box
+                        sx={{
+                          p: 3,
+                          textAlign: 'center',
+                          bgcolor: 'grey.50',
+                          border: '2px dashed',
+                          borderColor: 'grey.300',
+                          borderRadius: 2,
+                        }}
+                      >
+                        <FileIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
+                        <Typography variant="body2" color="textSecondary">
+                          No files uploaded yet
+                        </Typography>
+                      </Box>
+                    )}
+                  </Paper>
+                </Grid>
+              )}
 
               {Array.isArray(level1?.retrain_history) && level1.retrain_history.length > 0 && (
                 <Box>
@@ -829,8 +912,33 @@ const Level1Tab = ({
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {level1.retrain_history.map((timestamp, index) => {
-                          const date = new Date(timestamp);
+                        {level1?.retrain_history?.map((datetimeStr, index) => {
+                          // Parse the date string in format "DD-MM-YYYY HH:MM:SS AM/PM"
+                          const [datePart, timePart] = datetimeStr.split(' ');
+                          const [day, month, year] = datePart.split('-').map(Number);
+                          const [time, period] = timePart.includes('AM')
+                            ? timePart.split('AM')
+                            : timePart.split('PM');
+                          const [hours, minutes, seconds] = time.split(':').map(Number);
+
+                          // Adjust hours for PM time
+                          let adjustedHours = hours;
+                          if (period === 'PM' && hours < 12) {
+                            adjustedHours += 12;
+                          } else if (period === 'AM' && hours === 12) {
+                            adjustedHours = 0;
+                          }
+
+                          // Create Date object
+                          const date = new Date(
+                            year,
+                            month - 1,
+                            day,
+                            adjustedHours,
+                            minutes,
+                            seconds
+                          );
+
                           return (
                             <TableRow key={index}>
                               <TableCell>{index + 1}</TableCell>
@@ -866,97 +974,6 @@ const Level1Tab = ({
               )}
             </Paper>
           </Grid>
-
-          {/* Level 1 Evaluation Form - Only shown when status is Passed */}
-          {resultStatus === 'passed' && (
-            <Grid item xs={12}>
-              <Paper variant="outlined" sx={{ p: 3 }}>
-                <Typography variant="h6" mb={2}>
-                  Level 1 Evaluation Form
-                </Typography>
-
-                <Box mb={3}>
-                  <label htmlFor="file-upload-level1">
-                    <input
-                      id="file-upload-level1"
-                      type="file"
-                      onChange={handleLevel1FormUpload}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-                      hidden
-                      disabled={uploading}
-                    />
-                    <Button
-                      variant="contained"
-                      // startIcon={
-                      //   uploading ? <CircularProgress size={16} color="inherit" /> : <UploadIcon />
-                      // }
-                      component="span"
-                      disabled={uploading}
-                      fullWidth
-                      size="large"
-                    >
-                      {uploading ? 'Uploading...' : 'Upload File'}
-                    </Button>
-                  </label>
-                </Box>
-
-                <Divider sx={{ my: 2 }} />
-
-                <Typography variant="subtitle1" mb={2}>
-                  Uploaded Level 1 Evaluation Forms
-                </Typography>
-                {Array.isArray(formUploaded?.form_files) && formUploaded.form_files.length > 0 ? (
-                  <Paper
-                    variant="outlined"
-                    sx={{ p: 1, maxHeight: 250, overflow: 'auto', bgcolor: 'grey.50' }}
-                  >
-                    <List dense>
-                      {formUploaded.form_files.map((file, idx) => (
-                        <ListItem
-                          key={idx}
-                          component="a"
-                          href={file}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            borderRadius: 1,
-                            mb: 0.5,
-                            '&:hover': { bgcolor: 'action.hover' },
-                            textDecoration: 'none',
-                            color: 'inherit',
-                          }}
-                        >
-                          <ListItemIcon>
-                            <FileIcon fontSize="small" color="primary" />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={file.split('/').pop() || 'Unknown file'}
-                            primaryTypographyProps={{ noWrap: true }}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Paper>
-                ) : (
-                  <Box
-                    sx={{
-                      p: 3,
-                      textAlign: 'center',
-                      bgcolor: 'grey.50',
-                      border: '2px dashed',
-                      borderColor: 'grey.300',
-                      borderRadius: 2,
-                    }}
-                  >
-                    <FileIcon sx={{ fontSize: 48, color: 'grey.400', mb: 1 }} />
-                    <Typography variant="body2" color="textSecondary">
-                      No files uploaded yet
-                    </Typography>
-                  </Box>
-                )}
-              </Paper>
-            </Grid>
-          )}
         </Grid>
       </Box>
     </Paper>

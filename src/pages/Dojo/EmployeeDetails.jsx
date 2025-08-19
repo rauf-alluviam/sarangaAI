@@ -85,7 +85,7 @@ const EmployeeDetails = () => {
     { label: 'Documents', icon: <ArticleIcon /> },
     { label: 'Induction', icon: <VideoIcon /> },
     { label: 'Level 1', icon: <AwardIcon /> },
-    // { label: 'Level 2', icon: <AwardIcon /> },
+    { label: 'Level 2', icon: <AwardIcon /> },
     // { label: 'Level 3', icon: <AwardIcon /> },
     // { label: 'Level 4', icon: <AwardIcon /> },
   ];
@@ -408,9 +408,9 @@ const EmployeeDetails = () => {
       <Container
         sx={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
-        <Box width="100%">
+        {/* <Box width="100%">
           <LinearProgress />
-        </Box>
+        </Box> */}
       </Container>
     );
   if (error) {

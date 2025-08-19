@@ -373,7 +373,7 @@ const InductionTab = ({
                 </Box>
               )}
 
-              {resultStatus === 'passed' && (
+              {employee?.induction?.pass_fail_status === true && (
                 <Grid item xs={12}>
                   <Paper variant="outlined" sx={{ p: 3 }}>
                     <Typography variant="h6" mb={2}>
