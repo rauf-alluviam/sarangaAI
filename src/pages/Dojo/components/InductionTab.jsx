@@ -280,11 +280,7 @@ const InductionTab = ({
                     </Button>
                   )}
                 </TableCell>
-                <TableCell>
-                  {video.watched_at
-                    ? new Date(video.watched_at).toLocaleDateString()
-                    : 'Not watched'}
-                </TableCell>
+                <TableCell>{video?.watched_at ? video.watched_at : 'Not watched'}</TableCell>
               </TableRow>
             ))}
           </TableBody>
