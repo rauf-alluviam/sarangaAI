@@ -86,7 +86,7 @@ const EmployeeDetails = () => {
     { label: 'Induction', icon: <VideoIcon /> },
     { label: 'Level 1', icon: <AwardIcon /> },
     { label: 'Level 2', icon: <AwardIcon /> },
-    // { label: 'Level 3', icon: <AwardIcon /> },
+    { label: 'Level 3', icon: <AwardIcon /> },
     // { label: 'Level 4', icon: <AwardIcon /> },
   ];
 

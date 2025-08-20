@@ -306,12 +306,7 @@ const Level3Tab = ({
                   <TableRow key={`video-${idx}`}>
                     <TableCell>
                       {video.link ? (
-                        <a
-                          href={video.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          
-                        >
+                        <a href={video.link} target="_blank" rel="noopener noreferrer">
                           {video.title || 'Untitled Video'}
                         </a>
                       ) : (
@@ -443,8 +438,9 @@ const Level3Tab = ({
         const formData = new FormData();
         formData.append('upload_file', file);
 
+        // CORRECTED ENDPOINT - changed to lowercase "level_3"
         const response = await fetch(
-          `${BACKEND_API}/upload_Level_3_form?user_id=${employee.user_id}`,
+          `${BACKEND_API}/upload_level_3_form?user_id=${employee.user_id}`,
           {
             method: 'PUT',
             headers: {
@@ -473,11 +469,11 @@ const Level3Tab = ({
         await Swal.fire({
           icon: 'success',
           title: 'Success!',
-          text: 'Level 3  evaluation form uploaded successfully!',
+          text: 'Level 3 evaluation form uploaded successfully!',
           timer: 3000,
           showConfirmButton: false,
         });
-      }, 'Failed to upload Level 3  evaluation form');
+      }, 'Failed to upload Level 3 evaluation form');
     } finally {
       setUploading(false);
       event.target.value = ''; // Clear input
@@ -622,18 +618,18 @@ const Level3Tab = ({
           Employee Data Missing
         </Typography>
         <Typography color="textSecondary">
-          Unable to load Level 3  training data. Please ensure employee information is available.
+          Unable to load Level 3 training data. Please ensure employee information is available.
         </Typography>
       </Paper>
     );
   }
 
-  // Early return for uninitialized Level 3 
+  // Early return for uninitialized Level 3
   if (!level3) {
     return (
       <Paper sx={{ p: 3, minHeight: 320 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">Level 3  Training</Typography>
+          <Typography variant="h6">Level 3 Training</Typography>
           <Typography color="warning.main" variant="subtitle2">
             Not Started
           </Typography>
@@ -703,7 +699,7 @@ const Level3Tab = ({
       />
 
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-        <Typography variant="h6">Level 3  Training Modules</Typography>
+        <Typography variant="h6">Level 3 Training Modules</Typography>
         <Box textAlign="right">
           {formUploaded?.completed_at && (
             <Typography variant="body2" color="textSecondary">
@@ -727,7 +723,7 @@ const Level3Tab = ({
           <Grid item xs={12}>
             <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
               <Typography variant="h6" mb={2}>
-                Level 3  Result
+                Level 3 Result
               </Typography>
 
               {/* Current Status */}
@@ -809,7 +805,7 @@ const Level3Tab = ({
                 <Grid item xs={12}>
                   <Paper variant="outlined" sx={{ p: 3 }}>
                     <Typography variant="h6" mb={2}>
-                      Level 3  Evaluation Form
+                      Level 3 Evaluation Form
                     </Typography>
 
                     <Box mb={3}>
@@ -840,7 +836,7 @@ const Level3Tab = ({
                     <Divider sx={{ my: 2 }} />
 
                     <Typography variant="subtitle1" mb={2}>
-                      Uploaded Level 3  Evaluation Forms
+                      Uploaded Level 3 Evaluation Forms
                     </Typography>
                     {Array.isArray(formUploaded?.form_files) &&
                     formUploaded.form_files.length > 0 ? (
@@ -913,31 +909,22 @@ const Level3Tab = ({
                       </TableHead>
                       <TableBody>
                         {level3?.retrain_history?.map((datetimeStr, index) => {
-                          // Parse the date string in format "DD-MM-YYYY HH:MM:SS AM/PM"
-                          const [datePart, timePart] = datetimeStr.split(' ');
-                          const [day, month, year] = datePart.split('-').map(Number);
-                          const [time, period] = timePart.includes('AM')
-                            ? timePart.split('AM')
-                            : timePart.split('PM');
-                          const [hours, minutes, seconds] = time.split(':').map(Number);
+                          let date;
+                          try {
+                            const [datePart, ...timeParts] = datetimeStr.split(' ');
+                            const timePart = timeParts.join(' ');
 
-                          // Adjust hours for PM time
-                          let adjustedHours = hours;
-                          if (period === 'PM' && hours < 12) {
-                            adjustedHours += 12;
-                          } else if (period === 'AM' && hours === 12) {
-                            adjustedHours = 0;
+                            return (
+                              <TableRow key={index}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>{datePart}</TableCell>
+                                <TableCell>{timePart}</TableCell>
+                              </TableRow>
+                            );
+                          } catch (error) {
+                            console.error('Invalid retrain_history entry:', datetimeStr, error);
+                            date = new Date(); // Fallback to current date
                           }
-
-                          // Create Date object
-                          const date = new Date(
-                            year,
-                            month - 1,
-                            day,
-                            adjustedHours,
-                            minutes,
-                            seconds
-                          );
 
                           return (
                             <TableRow key={index}>
