@@ -306,12 +306,7 @@ const Level2Tab = ({
                   <TableRow key={`video-${idx}`}>
                     <TableCell>
                       {video.link ? (
-                        <a
-                          href={video.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          
-                        >
+                        <a href={video.link} target="_blank" rel="noopener noreferrer">
                           {video.title || 'Untitled Video'}
                         </a>
                       ) : (
@@ -913,31 +908,41 @@ const Level2Tab = ({
                       </TableHead>
                       <TableBody>
                         {level2?.retrain_history?.map((datetimeStr, index) => {
-                          // Parse the date string in format "DD-MM-YYYY HH:MM:SS AM/PM"
-                          const [datePart, timePart] = datetimeStr.split(' ');
-                          const [day, month, year] = datePart.split('-').map(Number);
-                          const [time, period] = timePart.includes('AM')
-                            ? timePart.split('AM')
-                            : timePart.split('PM');
-                          const [hours, minutes, seconds] = time.split(':').map(Number);
+                          let date;
+                          try {
+                            // Handle both ISO format and custom format
+                            if (datetimeStr.includes('T')) {
+                              // ISO format
+                              date = new Date(datetimeStr);
+                            } else {
+                              // Original custom format handling
+                              const [datePart, timePart] = datetimeStr.split(' ');
+                              const [day, month, year] = datePart.split('-').map(Number);
+                              const [time, period] = timePart.includes('AM')
+                                ? timePart.split('AM')
+                                : timePart.split('PM');
+                              const [hours, minutes, seconds] = time.split(':').map(Number);
 
-                          // Adjust hours for PM time
-                          let adjustedHours = hours;
-                          if (period === 'PM' && hours < 12) {
-                            adjustedHours += 12;
-                          } else if (period === 'AM' && hours === 12) {
-                            adjustedHours = 0;
+                              let adjustedHours = hours;
+                              if (period === 'PM' && hours < 12) {
+                                adjustedHours += 12;
+                              } else if (period === 'AM' && hours === 12) {
+                                adjustedHours = 0;
+                              }
+
+                              date = new Date(
+                                year,
+                                month - 1,
+                                day,
+                                adjustedHours,
+                                minutes,
+                                seconds
+                              );
+                            }
+                          } catch (error) {
+                            console.error('Invalid retrain_history entry:', datetimeStr, error);
+                            date = new Date(); // Fallback to current date
                           }
-
-                          // Create Date object
-                          const date = new Date(
-                            year,
-                            month - 1,
-                            day,
-                            adjustedHours,
-                            minutes,
-                            seconds
-                          );
 
                           return (
                             <TableRow key={index}>
