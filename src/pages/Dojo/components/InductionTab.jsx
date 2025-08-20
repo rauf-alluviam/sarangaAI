@@ -37,8 +37,6 @@ const InductionTab = ({
   employee,
   token,
   uploading,
-  uploadError,
-  uploadSuccess,
   inductionLoading,
   onInitializeInduction,
   onFileUpload,
@@ -502,62 +500,14 @@ const InductionTab = ({
                         <TableBody>
                           {employee.induction?.retrain_history?.map((datetimeStr, index) => {
                             try {
-                              // Defensive parsing
-                              const parts = datetimeStr.split(' ');
-                              if (parts.length < 2) {
-                                throw new Error(`Invalid datetime string: ${datetimeStr}`);
-                              }
-
-                              const [datePart, rawTimePart] = parts;
-                              const [day, month, year] = datePart.split('-').map(Number);
-
-                              // Guard against unexpected cases
-                              let timePart = rawTimePart || '';
-                              let period = '';
-
-                              if (timePart.includes('AM')) {
-                                period = 'AM';
-                                timePart = timePart.replace('AM', '');
-                              } else if (timePart.includes('PM')) {
-                                period = 'PM';
-                                timePart = timePart.replace('PM', '');
-                              }
-
-                              const [hours = 0, minutes = 0, seconds = 0] = timePart
-                                .split(':')
-                                .map((v) => parseInt(v, 10));
-
-                              // Adjust hours for AM/PM
-                              let adjustedHours = hours;
-                              if (period === 'PM' && hours < 12) adjustedHours += 12;
-                              if (period === 'AM' && hours === 12) adjustedHours = 0;
-
-                              const date = new Date(
-                                year,
-                                month - 1,
-                                day,
-                                adjustedHours,
-                                minutes,
-                                seconds
-                              );
+                              const [datePart, ...timeParts] = datetimeStr.split(' ');
+                              const timePart = timeParts.join(' ');
 
                               return (
                                 <TableRow key={index}>
                                   <TableCell>{index + 1}</TableCell>
-                                  <TableCell>
-                                    {date.toLocaleDateString('en-US', {
-                                      year: 'numeric',
-                                      month: 'short',
-                                      day: 'numeric',
-                                    })}
-                                  </TableCell>
-                                  <TableCell>
-                                    {date.toLocaleTimeString('en-US', {
-                                      hour: '2-digit',
-                                      minute: '2-digit',
-                                      hour12: true,
-                                    })}
-                                  </TableCell>
+                                  <TableCell>{datePart}</TableCell>
+                                  <TableCell>{timePart}</TableCell>
                                 </TableRow>
                               );
                             } catch (err) {

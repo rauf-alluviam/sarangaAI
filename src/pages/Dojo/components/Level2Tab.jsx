@@ -910,35 +910,16 @@ const Level2Tab = ({
                         {level2?.retrain_history?.map((datetimeStr, index) => {
                           let date;
                           try {
-                            // Handle both ISO format and custom format
-                            if (datetimeStr.includes('T')) {
-                              // ISO format
-                              date = new Date(datetimeStr);
-                            } else {
-                              // Original custom format handling
-                              const [datePart, timePart] = datetimeStr.split(' ');
-                              const [day, month, year] = datePart.split('-').map(Number);
-                              const [time, period] = timePart.includes('AM')
-                                ? timePart.split('AM')
-                                : timePart.split('PM');
-                              const [hours, minutes, seconds] = time.split(':').map(Number);
+                            const [datePart, ...timeParts] = datetimeStr.split(' ');
+                            const timePart = timeParts.join(' ');
 
-                              let adjustedHours = hours;
-                              if (period === 'PM' && hours < 12) {
-                                adjustedHours += 12;
-                              } else if (period === 'AM' && hours === 12) {
-                                adjustedHours = 0;
-                              }
-
-                              date = new Date(
-                                year,
-                                month - 1,
-                                day,
-                                adjustedHours,
-                                minutes,
-                                seconds
-                              );
-                            }
+                            return (
+                              <TableRow key={index}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>{datePart}</TableCell>
+                                <TableCell>{timePart}</TableCell>
+                              </TableRow>
+                            );
                           } catch (error) {
                             console.error('Invalid retrain_history entry:', datetimeStr, error);
                             date = new Date(); // Fallback to current date
