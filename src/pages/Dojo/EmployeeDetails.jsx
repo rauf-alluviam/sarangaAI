@@ -315,7 +315,7 @@ const EmployeeDetails = () => {
 
   // Personal Tab
   function renderPersonalTab() {
-    return <PersonalTab employee={employee} />;
+    return <PersonalTab employee={employee} token={token} onFetchEmployee={fetchEmployee} />;
   }
 
   // Level 1 Tab
@@ -503,7 +503,7 @@ const EmployeeDetails = () => {
               top: { lg: 24 },
               px: 1,
               position: 'sticky', // Makes the header stick
-            
+
               zIndex: 1000, // Ensures it stays above other content
               // backgroundColor: 'background.paper', // Optional: match theme
             }}
