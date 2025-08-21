@@ -306,12 +306,7 @@ const Level4Tab = ({
                   <TableRow key={`video-${idx}`}>
                     <TableCell>
                       {video.link ? (
-                        <a
-                          href={video.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          
-                        >
+                        <a href={video.link} target="_blank" rel="noopener noreferrer">
                           {video.title || 'Untitled Video'}
                         </a>
                       ) : (
@@ -622,18 +617,18 @@ const Level4Tab = ({
           Employee Data Missing
         </Typography>
         <Typography color="textSecondary">
-          Unable to load Level 4  training data. Please ensure employee information is available.
+          Unable to load Level 4 training data. Please ensure employee information is available.
         </Typography>
       </Paper>
     );
   }
 
-  // Early return for uninitialized Level 4 
+  // Early return for uninitialized Level 4
   if (!level4) {
     return (
       <Paper sx={{ p: 3, minHeight: 320 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-          <Typography variant="h6">Level 4  Training</Typography>
+          <Typography variant="h6">Level 4 Training</Typography>
           <Typography color="warning.main" variant="subtitle2">
             Not Started
           </Typography>
@@ -703,7 +698,7 @@ const Level4Tab = ({
       />
 
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-        <Typography variant="h6">Level 4  Training Modules</Typography>
+        <Typography variant="h6">Level 4 Training Modules</Typography>
         <Box textAlign="right">
           {formUploaded?.completed_at && (
             <Typography variant="body2" color="textSecondary">
@@ -727,7 +722,7 @@ const Level4Tab = ({
           <Grid item xs={12}>
             <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
               <Typography variant="h6" mb={2}>
-                Level 4  Result
+                Level 4 Result
               </Typography>
 
               {/* Current Status */}
@@ -809,7 +804,7 @@ const Level4Tab = ({
                 <Grid item xs={12}>
                   <Paper variant="outlined" sx={{ p: 3 }}>
                     <Typography variant="h6" mb={2}>
-                      Level 4  Evaluation Form
+                      Level 4 Evaluation Form
                     </Typography>
 
                     <Box mb={3}>
@@ -840,7 +835,7 @@ const Level4Tab = ({
                     <Divider sx={{ my: 2 }} />
 
                     <Typography variant="subtitle1" mb={2}>
-                      Uploaded Level 4  Evaluation Forms
+                      Uploaded Level 4 Evaluation Forms
                     </Typography>
                     {Array.isArray(formUploaded?.form_files) &&
                     formUploaded.form_files.length > 0 ? (
@@ -913,31 +908,22 @@ const Level4Tab = ({
                       </TableHead>
                       <TableBody>
                         {level4?.retrain_history?.map((datetimeStr, index) => {
-                          // Parse the date string in format "DD-MM-YYYY HH:MM:SS AM/PM"
-                          const [datePart, timePart] = datetimeStr.split(' ');
-                          const [day, month, year] = datePart.split('-').map(Number);
-                          const [time, period] = timePart.includes('AM')
-                            ? timePart.split('AM')
-                            : timePart.split('PM');
-                          const [hours, minutes, seconds] = time.split(':').map(Number);
+                          let date;
+                          try {
+                            const [datePart, ...timeParts] = datetimeStr.split(' ');
+                            const timePart = timeParts.join(' ');
 
-                          // Adjust hours for PM time
-                          let adjustedHours = hours;
-                          if (period === 'PM' && hours < 12) {
-                            adjustedHours += 12;
-                          } else if (period === 'AM' && hours === 12) {
-                            adjustedHours = 0;
+                            return (
+                              <TableRow key={index}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>{datePart}</TableCell>
+                                <TableCell>{timePart}</TableCell>
+                              </TableRow>
+                            );
+                          } catch (error) {
+                            console.error('Invalid retrain_history entry:', datetimeStr, error);
+                            date = new Date(); // Fallback to current date
                           }
-
-                          // Create Date object
-                          const date = new Date(
-                            year,
-                            month - 1,
-                            day,
-                            adjustedHours,
-                            minutes,
-                            seconds
-                          );
 
                           return (
                             <TableRow key={index}>
