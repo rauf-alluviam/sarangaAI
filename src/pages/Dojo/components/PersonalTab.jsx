@@ -79,23 +79,49 @@ const PersonalTab = ({ employee, token, onFetchEmployee }) => {
   };
 
   // ✅ Update Workwear Status
+  // ✅ Update Workwear Status
   const handleUpdateWorkwear = async (title, completed) => {
     if (!employee?.user_id) {
       Swal.fire('Error!', 'Employee user ID missing', 'error');
       return;
     }
+    // 1️⃣ Ask for a date
+    const todayISO = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+    const { value: selectedDate } = await Swal.fire({
+      title: 'Select Completion Date',
+      input: 'date',
+      inputLabel: 'Choose the date for marking this as completed',
+      inputValue: todayISO, // Default today
+      inputAttributes: {
+        max: todayISO, // ⛔ Prevent future dates
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Next',
+    });
+
+    if (!selectedDate) return; // User cancelled
+
+    // 2️⃣ Confirm final action
+    // 2️⃣ Confirm final action
+    const confirm = await Swal.fire({
+      title: 'Are you sure?',
+      text: `Do you want to mark "${title}" as completed on ${selectedDate}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, update it!',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (!confirm.isConfirmed) return;
 
     setUpdatingWorkwear(true);
 
     try {
-      // Current date in DD/MM/YYYY
-      const today = new Date();
-      const formattedDate = today.toLocaleDateString('en-GB');
-
       const url = `${BACKEND_API}/update_workwear_status?user_id=${
         employee.user_id
       }&title=${encodeURIComponent(title)}&completed=${completed}&date=${encodeURIComponent(
-        formattedDate
+        selectedDate
       )}`;
 
       const response = await fetch(url, {
@@ -134,6 +160,14 @@ const PersonalTab = ({ employee, token, onFetchEmployee }) => {
     } finally {
       setUpdatingWorkwear(false);
     }
+  };
+  // Utility: format YYYY-MM-DD or full date string to DD/MM/YY
+  // Utility: format date to DD/MM/YYYY
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr; // fallback if invalid
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   return (
@@ -242,7 +276,8 @@ const PersonalTab = ({ employee, token, onFetchEmployee }) => {
                     <TableRow key={idx}>
                       <TableCell>{item.title}</TableCell>
                       <TableCell>{item.completed ? 'Completed' : 'Pending'}</TableCell>
-                      <TableCell>{item.date || 'N/A'}</TableCell>
+                      <TableCell>{formatDate(item.date)}</TableCell>
+
                       <TableCell>
                         {!item.completed ? (
                           <Button
