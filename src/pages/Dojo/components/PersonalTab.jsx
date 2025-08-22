@@ -123,7 +123,6 @@ const PersonalTab = ({ employee, token, onFetchEmployee }) => {
       if (onFetchEmployee) {
         await onFetchEmployee();
       }
-      
     } catch (error) {
       await Swal.fire({
         icon: 'error',
@@ -224,7 +223,7 @@ const PersonalTab = ({ employee, token, onFetchEmployee }) => {
       {employee?.workwear && (
         <Box mt={4}>
           <Typography variant="h6" gutterBottom>
-            Workwear
+            Work Wear
           </Typography>
 
           <TableContainer component={Paper} variant="outlined">
