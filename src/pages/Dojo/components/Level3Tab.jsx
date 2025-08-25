@@ -703,7 +703,7 @@ const Level3Tab = ({
         <Box textAlign="right">
           {formUploaded?.completed_at && (
             <Typography variant="body2" color="textSecondary">
-              {new Date(formUploaded.completed_at).toLocaleString()}
+              {formUploaded?.completed_at}
             </Typography>
           )}
           <Typography color={formUploaded?.completed ? 'success.main' : 'warning.main'}>
