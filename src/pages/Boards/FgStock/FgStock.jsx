@@ -735,7 +735,7 @@ const FgStock = () => {
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '76vh'
+          minHeight: '76vh',
         }}
       >
         <Paper
@@ -816,7 +816,7 @@ const FgStock = () => {
                   </TableCell>
 
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
-                    Today's Planning
+                    Dispatch Planning
                   </TableCell>
 
                   {/* <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>

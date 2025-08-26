@@ -60,7 +60,7 @@ const Auth = () => {
           >
             <img src={rabsLogo} alt="logo" width={400} style={{ marginTop: '6rem' }} />
             <p style={{ color: 'white' }}>
-              <span>"</span>Powering Industrial Safety & Efficiency with Smart Vision<span>"</span>
+              <span>"</span>Pioneering Precision, Engineering Standards.<span>"</span>
             </p>
             <p style={{ color: 'white', fontSize: '0.9rem', marginTop: '0.5rem' }}>
               Version: 1.0.10
@@ -83,7 +83,7 @@ const Auth = () => {
               <Box className="login-conditional-container" sx={{ textAlign: 'center', mt: '2rem' }}>
                 <img src={rabsLogo} alt="logo" width={200} style={{ marginTop: '6rem' }} />
                 <p style={{ color: 'white' }}>
-                  <span>"</span>Powering Industrial Safety & Efficiency with Smart Vision
+                  <span>"</span>Pioneering Precision, Engineering Standards.
                   <span>"</span>
                 </p>
                 <p style={{ color: 'white', fontSize: '0.9rem', marginTop: '0.5rem' }}>
