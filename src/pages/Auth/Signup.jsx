@@ -175,9 +175,12 @@ onChange={(e)=> setPhone_no(e.target.value)}
           onChange={(e) => setRole(e.target.value)}
           sx={{ height: '100%', flex: 1, mb: '20px' }}
         >
+          {/* HR,  admin, User, QC, Production. */}
           <MenuItem value={'user'}>User</MenuItem>
           <MenuItem value={'admin'}>Admin</MenuItem>
           <MenuItem value={'HR'}>HR</MenuItem>
+          <MenuItem value={'QC'}>QC</MenuItem>
+          <MenuItem value={'Production'}>Production</MenuItem>
         </Select>
       </FormControl>
 
