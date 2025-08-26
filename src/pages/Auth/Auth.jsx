@@ -63,7 +63,7 @@ const Auth = () => {
               <span>"</span>Pioneering Precision, Engineering Standards.<span>"</span>
             </p>
             <p style={{ color: 'white', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-              Version: 1.0.10
+              Version: 1.0.11
             </p>
           </Box>
         )}
