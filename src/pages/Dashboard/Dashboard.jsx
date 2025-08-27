@@ -368,7 +368,10 @@ const Dashboard = ({ setIsOpen }) => {
 
   return (
     <Box
-      sx={{ minHeight: '88vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      sx={{ minHeight: '88vh', display: 'flex' }}
+      flexDirection="row"
+      justifyContent="center"
+      alignItems="flex-start"
     >
       <Box
         display="flex"
