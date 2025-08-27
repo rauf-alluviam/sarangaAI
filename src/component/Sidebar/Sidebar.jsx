@@ -9,12 +9,11 @@ import {
   ListItemButton,
   useMediaQuery,
   Collapse,
-  Box,
   Tooltip,
+  Avatar,
 } from '@mui/material';
 import { MdHome, MdRateReview, MdStorefront } from 'react-icons/md';
 import { IoIosLogOut } from 'react-icons/io';
-// import logo from '../../assets/images/alluvium.png';
 import logo from '../../assets/rabsLogo.png';
 import {
   FaCircleChevronLeft,
@@ -25,7 +24,7 @@ import {
   FaChevronRight,
   FaThumbsDown,
 } from 'react-icons/fa6';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../Redux/Actions/authAction';
 import { GiFirstAidKit, GiSmokeBomb } from 'react-icons/gi';
 import { FaClipboardList, FaTools, FaUserCircle } from 'react-icons/fa';
@@ -34,78 +33,85 @@ import { IoFileTray } from 'react-icons/io5';
 import { RiBox3Fill } from 'react-icons/ri';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 
+// ----------------------
+// Sidebar Sections Config
+// ----------------------
+const allSections = [
+  {
+    id: 'compliance',
+    title: 'Compliance',
+    icon: <GiFirstAidKit />,
+    roles: ['admin'],
+    items: [
+      { icon: <FaFireFlameCurved />, title: 'Fire Detection', path: '/fire' },
+      { icon: <FaHelmetSafety />, title: 'PPE Kit', path: '/ppe-kit' },
+      { icon: <GiSmokeBomb />, title: 'Smoke Detection', path: '/smoke' },
+      { icon: <PiTruckFill />, title: 'Loading-Unloading', path: '/truck' },
+    ],
+  },
+  {
+    id: 'positioning',
+    title: 'Positioning',
+    icon: <IoFileTray />,
+    roles: ['admin', 'production'],
+    items: [
+      { icon: <IoFileTray />, title: 'Bracket-D', path: '/bracket-d' },
+      { icon: <IoFileTray />, title: 'Bracket-E', path: '/bracket-e' },
+      { icon: <IoFileTray />, title: 'Pes Cover-A', path: '/pes-cover-a' },
+      { icon: <IoFileTray />, title: 'Pes Cover-B', path: '/pes-cover-b' },
+    ],
+  },
+  {
+    id: 'inventory',
+    title: 'Inventory Management',
+    icon: <FaClipboardList />,
+    roles: ['admin', 'production'],
+    items: [
+      { icon: <RiBox3Fill />, title: 'Fg Stock', path: '/fg-stock' },
+      { icon: <MdStorefront />, title: 'Store Stock', path: '/store-stock' },
+      { icon: <FaTools />, title: 'Tool Management', path: '/tool-management' },
+      { icon: <MdRateReview />, title: 'Complaint Board', path: '/complaint-board' },
+      { icon: <FaThumbsDown />, title: 'Rejection', path: '/rejection' },
+      { icon: <PrecisionManufacturingIcon />, title: 'Production', path: '/production' },
+    ],
+  },
+  {
+    id: 'dojo',
+    title: 'DOJO2.0',
+    icon: <Avatar alt="DOJO" src="/images/dojo.png" />,
+    roles: ['admin', 'hr'],
+    path: '/dojo-employee', // ✅ Single direct path
+  },
+  {
+    id: 'complaint-board',
+    title: 'Complaint Board',
+    icon: <MdRateReview />,
+    roles: ['hr'],
+    path: '/complaint-board', // ✅ Direct path instead of nested items
+  },
+];
+
 const Sidebar = ({ setIsSliderOpen }) => {
   const navigate = useNavigate();
-  const [isMinimize, setIsMinimize] = useState(false);
   const location = useLocation();
-  let path = location.pathname;
+  const path = location.pathname;
+
   const dispatch = useDispatch();
+  const { userData } = useSelector((state) => state.auth);
 
-  // State for collapsible sections
-  const [expandedSections, setExpandedSections] = useState({
-    compliance: false,
-    positioning: false,
-    dojo2_0: false,
-    inventory: false,
-  });
-
+  const [isMinimize, setIsMinimize] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({});
   const isLargerThan900 = useMediaQuery('(min-width: 900px)');
 
-  const toggleSection = (section) => {
+  const toggleSection = (sectionId) => {
     setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section],
+      [sectionId]: !prev[sectionId],
     }));
   };
 
-  const sidebarSections = [
-    {
-      id: 'compliance',
-      title: 'Compliance',
-      icon: <GiFirstAidKit />,
-      items: [
-        { icon: <FaFireFlameCurved />, title: 'Fire Detection', path: '/fire' },
-        { icon: <FaHelmetSafety />, title: 'PPE Kit', path: '/ppe-kit' },
-        { icon: <GiSmokeBomb />, title: 'Smoke Detection', path: '/smoke' },
-        { icon: <PiTruckFill />, title: 'Loading-Unloading', path: '/truck' },
-      ],
-    },
-    {
-      id: 'positioning',
-      title: 'Positioning',
-      icon: <IoFileTray />,
-      items: [
-        { icon: <IoFileTray />, title: 'Bracket-D', path: '/bracket-d' },
-        { icon: <IoFileTray />, title: 'Bracket-E', path: '/bracket-e' },
-        { icon: <IoFileTray />, title: 'Pes Cover-A', path: '/pes-cover-a' },
-        { icon: <IoFileTray />, title: 'Pes Cover-B', path: '/pes-cover-b' },
-      ],
-    },
-
-    {
-      id: 'inventory',
-      title: 'Inventory Management',
-      icon: <FaClipboardList />,
-      items: [
-        { icon: <RiBox3Fill />, title: 'Fg Stock', path: '/fg-stock' },
-        { icon: <MdStorefront />, title: 'Store Stock', path: '/store-stock' },
-        { icon: <FaTools />, title: 'Tool Management', path: '/tool-management' },
-        { icon: <MdRateReview />, title: 'Complaint Board', path: '/complaint-board' },
-        { icon: <FaThumbsDown />, title: 'Rejection', path: '/rejection' },
-        { icon: <PrecisionManufacturingIcon />, title: 'Production', path: '/production' },
-      ],
-    },
-    {
-      id: 'dojo2.0',
-      title: 'DOJO2.0',
-      icon: <IoFileTray />,
-      items: [
-        { icon: <IoFileTray />, title: 'Dojo Employee', path: '/dojo-employee' },
-        { icon: <IoFileTray />, title: 'L1', path: '/dojo-l1' },
-        { icon: <IoFileTray />, title: 'L2', path: '/dojo-l2' },
-      ],
-    },
-  ];
+  const role = userData?.role?.toLowerCase?.();
+  const sidebarSections = allSections.filter((section) => section.roles.includes(role));
 
   return (
     <div
@@ -113,15 +119,13 @@ const Sidebar = ({ setIsSliderOpen }) => {
       style={{
         position: 'relative',
         width: isMinimize ? '5rem' : '15rem',
-        padding: '0',
         transition: '0.2s',
-        overflow: 'hidden',
         maxHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
       }}
     >
-      {/* Collapse/Expand Icons */}
+      {/* Collapse/Expand */}
       {(isMinimize || isLargerThan900) && (
         <FaCircleChevronLeft
           onClick={() => setIsMinimize(true)}
@@ -136,11 +140,9 @@ const Sidebar = ({ setIsSliderOpen }) => {
             zIndex: 9,
             display: !isMinimize ? 'flex' : 'none',
             cursor: 'pointer',
-            boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px',
           }}
         />
       )}
-
       {isMinimize && isLargerThan900 && (
         <div
           onClick={() => setIsMinimize(false)}
@@ -151,18 +153,16 @@ const Sidebar = ({ setIsSliderOpen }) => {
             left: '4rem',
             borderRadius: '50%',
             zIndex: 9,
-            display: isMinimize ? 'flex' : 'none',
             cursor: 'pointer',
             color: 'white',
             backgroundColor: 'grey',
-            boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px',
           }}
         >
           <FaCircleChevronRight />
         </div>
       )}
 
-      {/* Fixed Logo Section */}
+      {/* Logo */}
       <div
         style={{
           height: '8rem',
@@ -170,9 +170,6 @@ const Sidebar = ({ setIsSliderOpen }) => {
           alignItems: 'center',
           justifyContent: 'center',
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-          padding: isMinimize ? '0 10px' : '0 20px',
-
-          // backgroundColor: 'rgba(255, 255, 255, 0.27)',
         }}
       >
         {!isMinimize && (
@@ -181,36 +178,17 @@ const Sidebar = ({ setIsSliderOpen }) => {
             alt="logo"
             width={150}
             style={{ cursor: 'pointer' }}
-            onClick={() => {
-              navigate('/');
-            }}
-            // style={{boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px', borderRadius: '8px', backgroundColor: 'rgb(148, 148, 148)'}}
+            onClick={() => navigate('/')}
           />
         )}
       </div>
 
-      {/* Scrollable Content Area with disabled mouse wheel and hidden scrollbar */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          padding: isMinimize ? '0 10px' : '0 20px',
-          scrollbarWidth: 'none', // Firefox
-          msOverflowStyle: 'none', // Internet Explorer 10+
-        }}
-        onWheel={(e) => {
-          e.preventDefault(); // Disable mouse wheel scrolling
-        }}
-        sx={{
-          '&::-webkit-scrollbar': {
-            display: 'none', // Safari and Chrome
-          },
-        }}
-      >
+      {/* Menu Sections */}
+      <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         <List>
           {/* Dashboard */}
-          <ListItem disableGutters={true} className="sidebar-listItem">
+
+          <ListItem disableGutters className="sidebar-listItem">
             <Button
               onClick={() => {
                 navigate('/');
@@ -218,120 +196,117 @@ const Sidebar = ({ setIsSliderOpen }) => {
               }}
               className="sidebar-link"
               style={{
-                borderLeft: path === '/' && '5px solid #E08272',
-                borderRadius: '8px',
+                borderLeft: path === '/' ? '5px solid #E08272' : '',
               }}
             >
-              <ListItemButton
-                sx={{ textAlign: 'left' }}
-                className="appbar-links"
-                style={{ padding: '5px 0' }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}>
-                  <IconButton sx={{ color: '#ffffff9f' }}>
-                    <MdHome />
-                  </IconButton>
-                  {!isMinimize && <p className="sidebar-list-text">Dashboard</p>}
-                </div>
+              <ListItemButton>
+                <IconButton sx={{ color: '#ffffff9f' }}>
+                  <MdHome />
+                </IconButton>
+                {!isMinimize && <p className="sidebar-list-text">Dashboard</p>}
               </ListItemButton>
             </Button>
           </ListItem>
 
-          {/* Collapsible Sections */}
+          {/* Dynamic Sections */}
           {sidebarSections.map((section) => (
             <div key={section.id}>
-              {/* Section Header */}
-              <ListItem
-                disableGutters={true}
-                className="sidebar-listItem"
-                onClick={() => navigate(section.items[0].path)}
-              >
-                <Tooltip title={section.title} placement="right" disableHoverListener={!isMinimize}>
-                  <Button
-                    onClick={() => toggleSection(section.id)}
-                    className="sidebar-link section-header"
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <ListItemButton
-                      sx={{ textAlign: 'left' }}
-                      className="appbar-links"
-                      style={{ padding: '5px 0' }}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          padding: '0 10px',
-                          width: '100%',
-                        }}
-                      >
-                        <IconButton sx={{ color: '#ffffff9f' }}>{section.icon}</IconButton>
-                        {!isMinimize && (
-                          <>
-                            <p className="sidebar-list-text" style={{ flex: 1 }}>
-                              {section.title}
-                            </p>
-                            {expandedSections[section.id] ? <FaChevronDown /> : <FaChevronRight />}
-                          </>
-                        )}
-                      </div>
-                    </ListItemButton>
-                  </Button>
-                </Tooltip>
-              </ListItem>
-
-              {/* Section Items */}
-              <Collapse in={expandedSections[section.id]} timeout="auto" unmountOnExit>
-                {section.items.map((item, index) => (
-                  <ListItem key={index} disableGutters={true} className="sidebar-listItem">
+              {/* ✅ Case 1: Section has items (collapsible) */}
+              {section.items ? (
+                <>
+                  <ListItem disableGutters className="sidebar-listItem">
                     <Tooltip
-                      title={item.title}
+                      title={section.title}
                       placement="right"
                       disableHoverListener={!isMinimize}
                     >
                       <Button
-                        onClick={() => {
-                          navigate(item.path);
-                          setIsSliderOpen(false);
-                        }}
-                        className="sidebar-link"
-                        style={{
-                          marginLeft: isMinimize ? '0' : '2rem',
-                          borderLeft: path === item.path && '5px solid #E08272',
-                          borderRadius: '8px',
-                        }}
+                        onClick={() => toggleSection(section.id)}
+                        className="sidebar-link section-header"
                       >
-                        <ListItemButton
-                          sx={{ textAlign: 'left' }}
-                          className="appbar-links"
-                          style={{ padding: '5px 0' }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}>
-                            <IconButton sx={{ color: '#ffffff9f' }}>{item.icon}</IconButton>
-                            {!isMinimize && <p className="sidebar-list-text">{item.title}</p>}
-                          </div>
+                        <ListItemButton>
+                          <IconButton sx={{ color: '#ffffff9f' }}>{section.icon}</IconButton>
+                          {!isMinimize && (
+                            <>
+                              <p className="sidebar-list-text" style={{ flex: 1 }}>
+                                {section.title}
+                              </p>
+                              {expandedSections[section.id] ? (
+                                <FaChevronDown />
+                              ) : (
+                                <FaChevronRight />
+                              )}
+                            </>
+                          )}
                         </ListItemButton>
                       </Button>
                     </Tooltip>
                   </ListItem>
-                ))}
-              </Collapse>
+
+                  <Collapse in={expandedSections[section.id]} timeout="auto" unmountOnExit>
+                    {section.items.map((item, index) => (
+                      <ListItem key={index} disableGutters className="sidebar-listItem">
+                        <Tooltip
+                          title={item.title}
+                          placement="right"
+                          disableHoverListener={!isMinimize}
+                        >
+                          <Button
+                            onClick={() => {
+                              navigate(item.path);
+                              setIsSliderOpen(false);
+                            }}
+                            className="sidebar-link"
+                            style={{
+                              marginLeft: isMinimize ? '0' : '2rem',
+                              borderLeft: path === item.path ? '5px solid #E08272' : '',
+                            }}
+                          >
+                            <ListItemButton>
+                              <IconButton sx={{ color: '#ffffff9f' }}>{item.icon}</IconButton>
+                              {!isMinimize && <p className="sidebar-list-text">{item.title}</p>}
+                            </ListItemButton>
+                          </Button>
+                        </Tooltip>
+                      </ListItem>
+                    ))}
+                  </Collapse>
+                </>
+              ) : (
+                // ✅ Case 2: Direct path (like DOJO2.0)
+                <ListItem disableGutters className="sidebar-listItem">
+                  <Tooltip
+                    title={section.title}
+                    placement="right"
+                    disableHoverListener={!isMinimize}
+                  >
+                    <Button
+                      onClick={() => {
+                        navigate(section.path);
+                        setIsSliderOpen(false);
+                      }}
+                      className="sidebar-link"
+                      style={{
+                        borderLeft: path === section.path ? '5px solid #E08272' : '',
+                      }}
+                    >
+                      <ListItemButton>
+                        <IconButton sx={{ color: '#ffffff9f' }}>{section.icon}</IconButton>
+                        {!isMinimize && <p className="sidebar-list-text">{section.title}</p>}
+                      </ListItemButton>
+                    </Button>
+                  </Tooltip>
+                </ListItem>
+              )}
             </div>
           ))}
         </List>
       </div>
 
-      {/* Fixed Bottom Profile Section */}
-      <div
-        style={{
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-          padding: isMinimize ? '0 10px' : '0 20px',
-          backgroundColor: 'inherit',
-        }}
-      >
+      {/* Profile + Logout */}
+      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
         <List>
-          {/* My Profile */}
-          <ListItem disableGutters={true} className="sidebar-listItem">
+          <ListItem disableGutters className="sidebar-listItem">
             <Button
               onClick={() => {
                 navigate('/my-profile');
@@ -339,42 +314,25 @@ const Sidebar = ({ setIsSliderOpen }) => {
               }}
               className="sidebar-link"
               style={{
-                borderLeft: path === '/my-profile' && '5px solid #E08272',
-                borderRadius: '8px',
+                borderLeft: path === '/my-profile' ? '5px solid #E08272' : '',
               }}
             >
-              <ListItemButton
-                sx={{ textAlign: 'left' }}
-                className="appbar-links"
-                style={{ padding: '5px 0' }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}>
-                  <IconButton sx={{ color: '#ffffff9f' }}>
-                    <FaUserCircle />
-                  </IconButton>
-                  {!isMinimize && <p className="sidebar-list-text">My Profile</p>}
-                </div>
+              <ListItemButton>
+                <IconButton sx={{ color: '#ffffff9f' }}>
+                  <FaUserCircle />
+                </IconButton>
+                {!isMinimize && <p className="sidebar-list-text">My Profile</p>}
               </ListItemButton>
             </Button>
           </ListItem>
 
-          {/* Logout */}
-          <ListItem disableGutters={true} className="sidebar-listItem">
-            <Button className="sidebar-link">
-              <ListItemButton
-                sx={{ textAlign: 'left' }}
-                className="appbar-links"
-                style={{ padding: '5px 0' }}
-              >
-                <div
-                  onClick={() => dispatch(logout())}
-                  style={{ display: 'flex', alignItems: 'center', padding: '0 10px' }}
-                >
-                  <IconButton sx={{ color: '#ffffff9f' }}>
-                    <IoIosLogOut />
-                  </IconButton>
-                  {!isMinimize && <p className="sidebar-list-text">Logout</p>}
-                </div>
+          <ListItem disableGutters className="sidebar-listItem">
+            <Button className="sidebar-link" onClick={() => dispatch(logout())}>
+              <ListItemButton>
+                <IconButton sx={{ color: '#ffffff9f' }}>
+                  <IoIosLogOut />
+                </IconButton>
+                {!isMinimize && <p className="sidebar-list-text">Logout</p>}
               </ListItemButton>
             </Button>
           </ListItem>
