@@ -86,7 +86,7 @@ const allSections = [
     id: 'complaint-board',
     title: 'Complaint Board',
     icon: <MdRateReview />,
-    roles: ['hr'],
+    roles: ['qc'],
     path: '/complaint-board', // ✅ Direct path instead of nested items
   },
 ];

@@ -257,6 +257,14 @@ try {
       items: [
         { icon: MapPinIcon, title: 'Bracket-D', path: '/bracket-d', count: 28, status: 'active', color: '#FF1493', bgColor: '#FFE6F0' },
         { icon: MapPinIcon, title: 'Bracket-E', path: 'http://snapcheckv1.s3-website.ap-south-1.amazonaws.com/login', count: 15, status: 'active', color: '#00CED1', bgColor: '#E6FCFD' },
+      { icon: MapPinIcon, title: 'Pes Cover-A', path: '/pes-cover-a', status: 'active' },
+             { icon: MapPinIcon, title: 'Pes Cover-B', path: '/pes-cover-b', status: 'active' },
+      ],
+    },
+    {
+      title: 'DOJO2.0',
+      items: [
+        { icon: MapPinIcon, title: 'Bracket-D', path: '/dojo-employee', count: 28, status: 'active', color: '#FF1493', bgColor: '#FFE6F0' },
       ],
     },
   ];
