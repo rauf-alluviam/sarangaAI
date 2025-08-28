@@ -73,10 +73,21 @@ const Production = () => {
     const partMap = new Map();
 
     records.forEach((record) => {
-      const { part_description, machine, schedule, plan, actual, resp_person, timestamp, id } =
-        record;
-      const date = new Date(timestamp);
-      const day = date.getDate();
+      const {
+        part_description,
+        machine,
+        schedule,
+        plan,
+        actual_RH,
+        actual_LH,
+        resp_person,
+        timestamp,
+        id,
+      } = record;
+      // Parse day from "28-08-2025 11:10:40 AM" format explicitly
+      const [datePart] = timestamp.split(' ');
+      const [dayStr, monthStr, yearStr] = datePart.split('-');
+      const day = parseInt(dayStr, 10);
 
       const partKey = part_description;
 
@@ -87,7 +98,8 @@ const Production = () => {
           schedule: null, // Will be set from first available day
           dailyData: new Map(),
           totalPlan: 0,
-          totalActual: 0,
+          totalactual_RH: 0,
+          totalactual_LH: 0,
           recordIds: [],
           recordsByDay: new Map(),
         });
@@ -109,7 +121,8 @@ const Production = () => {
         const existingData = partData.dailyData.get(day);
         partData.dailyData.set(day, {
           plan: (existingData.plan || 0) + (parseFloat(plan) || 0),
-          actual: (existingData.actual || 0) + (parseFloat(actual) || 0),
+          actual_RH: (existingData.actual_RH || 0) + (parseFloat(actual_RH) || 0),
+          actual_LH: (existingData.actual_LH || 0) + (parseFloat(actual_LH) || 0),
           resp_person: resp_person || existingData.resp_person,
           recordIds: [...(existingData.recordIds || []), id],
           records: [...(existingData.records || []), record],
@@ -118,7 +131,8 @@ const Production = () => {
         // Create new entry for this day
         partData.dailyData.set(day, {
           plan: parseFloat(plan) || 0,
-          actual: parseFloat(actual) || 0,
+          actual_RH: parseFloat(actual_RH) || 0,
+          actual_LH: parseFloat(actual_LH) || 0,
           resp_person: resp_person || '',
           recordIds: [id],
           records: [record],
@@ -127,7 +141,8 @@ const Production = () => {
 
       // Add to totals
       partData.totalPlan += parseFloat(plan) || 0;
-      partData.totalActual += parseFloat(actual) || 0;
+      partData.totalactual_RH += parseFloat(actual_RH) || 0;
+      partData.totalactual_LH += parseFloat(actual_LH) || 0;
     });
 
     // Set schedule from first available day's entry for each part
@@ -194,16 +209,16 @@ const Production = () => {
       //   month: parseInt(month),
       //   schedule: 7200,
       //   production_plan: 770,
-      //   production_actual: 650,
+      //   production_actual_RH: 650,
       //   balance_plan: 6430,
-      //   balance_actual: 6550,
+      //   balance_actual_RH: 6550,
       //   records: [
       //     {
       //       part_description: "BRACKET-E",
       //       machine: "120T",
       //       schedule: "7200",
       //       plan: "770",
-      //       actual: "650",
+      //       actual_RH: "650",
       //       resp_person: "Shrikant",
       //       timestamp: "2025-07-01T15:38:19.746000",
       //       id: "6863c8b0ef2f5e276f759863"
@@ -213,7 +228,7 @@ const Production = () => {
       //       machine: "120T",
       //       schedule: null,
       //       plan: "100",
-      //       actual: "85",
+      //       actual_RH: "85",
       //       resp_person: "John",
       //       timestamp: "2025-07-01T11:38:24.164000",
       //       id: "6863c8b0ef2f5e276f759864"
@@ -223,7 +238,7 @@ const Production = () => {
       //       machine: "250T",
       //       schedule: "5000",
       //       plan: "400",
-      //       actual: "380",
+      //       actual_RH: "380",
       //       resp_person: "Mike",
       //       timestamp: "2025-07-01T11:38:24.180000",
       //       id: "6863c8b0ef2f5e276f759865"
@@ -260,7 +275,7 @@ const Production = () => {
 
   const processedData = data ? processData(data.records) : [];
 
-  const renderPlanActualRows = (dayData) => {
+  const renderPlanactual_RHRows = (dayData) => {
     return (
       <Box
         sx={{
@@ -298,14 +313,29 @@ const Production = () => {
           }}
         >
           <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
-            {dayData?.actual || '-'}
+            {dayData?.actual_RH || '-'}
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            fontSize: '0.7rem',
+            padding: '4px 8px',
+            backgroundColor: '#f8f9fa',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '25px',
+          }}
+        >
+          <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
+            {dayData?.actual_LH || '-'}
           </Typography>
         </Box>
       </Box>
     );
   };
 
-  const renderPlanActualLabels = () => {
+  const renderPlanactual_RHLabels = () => {
     return (
       <Box
         sx={{
@@ -349,7 +379,25 @@ const Production = () => {
             variant="caption"
             sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#d32f2f' }}
           >
-            Actual
+            Actual RH
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            fontSize: '0.7rem',
+            padding: '4px 8px',
+            backgroundColor: '#f8f9fa',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            minHeight: '25px',
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#d32f2f' }}
+          >
+            Actual LH
           </Typography>
         </Box>
       </Box>
@@ -362,7 +410,8 @@ const Production = () => {
         part_description: edit.part_description,
         schedule: edit.schedule?.toString() || '0',
         plan: edit.plan?.toString() || '0',
-        actual: edit.actual?.toString() || '0',
+        actual_RH: edit.actual_RH?.toString() || '0',
+        actual_LH: edit.actual_LH?.toString() || '0',
         resp_person: edit.resp_person || '',
         timestamp: edit.timestamp,
       };
@@ -436,9 +485,9 @@ const Production = () => {
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <Chip label={`Total Schedule: ${data.schedule}`} color="primary" />
               <Chip label={`Total Plan: ${data.production_plan}`} color="success" />
-              <Chip label={`Total Actual: ${data.production_actual}`} color="warning" />
+              <Chip label={`Total actual_RH: ${data.production_actual_RH}`} color="warning" />
               <Chip label={`Balance Plan: ${data.balance_plan}`} color="info" />
-              <Chip label={`Balance Actual: ${data.balance_actual}`} color="secondary" />
+              <Chip label={`Balance actual_RH: ${data.balance_actual_RH}`} color="secondary" />
             </Box>
           </CardContent>
         </Card>
@@ -525,7 +574,7 @@ const Production = () => {
                     Schedule
                   </TableCell>
 
-                  {/* Plan/Actual */}
+                  {/* Plan/actual_RH */}
                   <TableCell
                     sx={{
                       backgroundColor: 'inherit',
@@ -538,7 +587,7 @@ const Production = () => {
                       border: `1px solid #e0e0e0`,
                     }}
                   >
-                    Plan/Actual
+                    Plan/actual_RH
                   </TableCell>
 
                   {/* Date Columns (1-31) */}
@@ -650,7 +699,7 @@ const Production = () => {
                       </Typography>
                     </TableCell>
 
-                    {/* Plan/Actual Labels */}
+                    {/* Plan/actual_RH Labels */}
                     <TableCell
                       sx={{
                         backgroundColor: '#fff',
@@ -661,7 +710,7 @@ const Production = () => {
                         padding: '4px',
                       }}
                     >
-                      {renderPlanActualLabels()}
+                      {renderPlanactual_RHLabels()}
                     </TableCell>
 
                     {/* Date Columns */}
@@ -680,7 +729,7 @@ const Production = () => {
                         >
                           {dayData ? (
                             <Box sx={{ position: 'relative' }}>
-                              {renderPlanActualRows(dayData)}
+                              {renderPlanactual_RHRows(dayData)}
                               <Box
                                 sx={{
                                   position: 'absolute',
@@ -730,7 +779,8 @@ const Production = () => {
                                   machine: partData.machine,
                                   schedule: partData.schedule,
                                   plan: 0,
-                                  actual: 0,
+                                  actual_RH: 0,
+                                  actual_LH: 0,
                                   resp_person: '',
                                   timestamp: `${dateString}T${new Date()
                                     .toTimeString()
@@ -812,7 +862,25 @@ const Production = () => {
                               variant="caption"
                               sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
                             >
-                              {partData.totalActual}
+                              {partData.totalactual_RH}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              fontSize: '0.7rem',
+                              padding: '4px 8px',
+                              backgroundColor: '#f8f9fa',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              minHeight: '25px',
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
+                            >
+                              {partData.totalactual_LH}
                             </Typography>
                           </Box>
                         </Box>
@@ -861,7 +929,25 @@ const Production = () => {
                               variant="caption"
                               sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
                             >
-                              {(partData.schedule || 0) - partData.totalActual}
+                              {(partData.schedule || 0) - partData.totalactual_RH}
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              fontSize: '0.7rem',
+                              padding: '4px 8px',
+                              backgroundColor: '#f8f9fa',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              minHeight: '25px',
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
+                            >
+                              {(partData.schedule || 0) - partData.totalactual_LH}
                             </Typography>
                           </Box>
                         </Box>
@@ -902,7 +988,13 @@ const Production = () => {
           <Box
             sx={{ width: 16, height: 16, backgroundColor: '#f8f9fa', border: '1px solid #d32f2f' }}
           />
-          <Typography variant="body2">Actual</Typography>
+          <Typography variant="body2">actual_RH</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box
+            sx={{ width: 16, height: 16, backgroundColor: '#f8f9fa', border: '1px solid #d32f2f' }}
+          />
+          <Typography variant="body2">actual_LH</Typography>
         </Box>
         {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box sx={{ width: 16, height: 16, backgroundColor: '#e8f5e8', border: '1px solid #2e7d32' }} />
@@ -999,11 +1091,24 @@ const Production = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Actual"
+                  label="actual_RH"
                   type="number"
-                  value={edit.actual || ''}
+                  value={edit.actual_RH || ''}
                   onChange={(e) =>
-                    setEdit((prev) => ({ ...prev, actual: parseInt(e.target.value) || 0 }))
+                    setEdit((prev) => ({ ...prev, actual_RH: parseInt(e.target.value) || 0 }))
+                  }
+                  variant="outlined"
+                  inputProps={{ min: 0 }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="actual_LH"
+                  type="number"
+                  value={edit.actual_LH || ''}
+                  onChange={(e) =>
+                    setEdit((prev) => ({ ...prev, actual_LH: parseInt(e.target.value) || 0 }))
                   }
                   variant="outlined"
                   inputProps={{ min: 0 }}
