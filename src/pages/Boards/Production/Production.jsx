@@ -84,10 +84,13 @@ const Production = () => {
         timestamp,
         id,
       } = record;
-      // Parse day from "28-08-2025 11:10:40 AM" format explicitly
-      const [datePart] = timestamp.split(' ');
-      const [dayStr, monthStr, yearStr] = datePart.split('-');
+      const [datePart] = timestamp.split('T');
+
+      // Now split by "-"
+      const [yearStr, monthStr, dayStr] = datePart.split('-');
+
       const day = parseInt(dayStr, 10);
+      console.log(day); // 29 ✅
 
       const partKey = part_description;
 
