@@ -425,7 +425,7 @@ const Production = () => {
         timestamp: edit.timestamp,
       };
 
-      await axios.put(`${BACKEND_API}/update_production_plan_detail/${edit.id}`, updatePayload, {
+      await axios.put(`${BACKEND_API}/update_production_plan_detail/${edit._id}`, updatePayload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
