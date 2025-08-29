@@ -442,7 +442,8 @@ const StoreStock = () => {
                           ['p1', 'p2', 'p3'].map((key) => {
                             const val = elem.location[key] || '';
                             const match =
-                              typeof val === 'string' ? val.match(/^([a-zA-Z]+)(\d+)$/) : null;
+                              typeof val === 'string' ? val.match(/^([a-zA-Z]+)\s*(\d+)$/) : null;
+
                             return (
                               <TableCell align="center" key={key}>
                                 <Box
