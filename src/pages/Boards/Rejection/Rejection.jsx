@@ -661,28 +661,21 @@ const Rejection = () => {
         <Paper sx={{ overflow: 'hidden', border: `1px solid #e0e0e0`, boxShadow: 3 }}>
           <TableContainer
             sx={{
-              maxHeight: '70vh',
-              overflowX: 'auto',
-              overflowY: 'auto',
-              '&::-webkit-scrollbar': {
-                height: '12px',
-                width: '12px',
-              },
-              '&::-webkit-scrollbar-track': {
-                backgroundColor: '#f1f1f1',
-                borderRadius: '6px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: '#c1c1c1',
-                borderRadius: '6px',
-                '&:hover': {
-                  backgroundColor: '#a8a8a8',
-                },
-              },
-              '&::-webkit-scrollbar-corner': {
-                backgroundColor: '#f1f1f1',
-              },
-            }}
+      maxHeight: "73vh",   // limits height so vertical scrollbar appears
+      overflow: "auto",    // allow both scrollbars
+      scrollbarWidth: "thin",
+      "&::-webkit-scrollbar": {
+        width: "8px",
+        height: "8px",
+      },
+      "&::-webkit-scrollbar-thumb": {
+        backgroundColor: "#888",
+        borderRadius: "4px",
+      },
+      "&::-webkit-scrollbar-thumb:hover": {
+        backgroundColor: "#555",
+      },
+    }}
           >
             <Table stickyHeader>
               <TableHead>

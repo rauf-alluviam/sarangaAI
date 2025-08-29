@@ -246,7 +246,22 @@ const StoreStock = () => {
           }}
         >
           <Paper sx={{ maxHeight: '100%', overflow: 'hidden', mr: 'auto', width: '100%' }}>
-            <TableContainer sx={{ maxHeight: '100%' }}>
+            <TableContainer sx={{
+      maxHeight: "60vh",   // limits height so vertical scrollbar appears
+      overflow: "auto",    // allow both scrollbars
+      scrollbarWidth: "thin",
+      "&::-webkit-scrollbar": {
+        width: "8px",
+        height: "8px",
+      },
+      "&::-webkit-scrollbar-thumb": {
+        backgroundColor: "#888",
+        borderRadius: "4px",
+      },
+      "&::-webkit-scrollbar-thumb:hover": {
+        backgroundColor: "#555",
+      },
+    }}>
               <Table stickyHeader aria-label="sticky table" border={1}>
                 <TableHead>
                   <TableRow

@@ -194,6 +194,7 @@ console.log(complaintsLoading, complaints)
         display: "flex",
         flexDirection: "column",
         height: "88vh",
+        width: 'auto'
         // bgcolor: "lightgray",
       }}
     >
@@ -403,7 +404,7 @@ console.log(complaintsLoading, complaints)
         flexDirection="column"
         alignItems="start"
         sx={{
-          height: "80vh",
+          minHeight: "90vh",
           width: "100%",
           overflow: "auto",
           scrollbarWidth: "thin",
@@ -421,8 +422,23 @@ console.log(complaintsLoading, complaints)
         }}
        
       >
-        <Paper sx={{overflow: "hidden" }}>
-          <TableContainer sx={{ maxHeight: "65vh" }}>
+        <Paper sx={{ width: "100%", height: "75vh"}}>
+          <TableContainer sx={{
+      maxHeight: "75vh",   // limits height so vertical scrollbar appears
+      overflow: "auto",    // allow both scrollbars
+      scrollbarWidth: "thin",
+      "&::-webkit-scrollbar": {
+        width: "8px",
+        height: "8px",
+      },
+      "&::-webkit-scrollbar-thumb": {
+        backgroundColor: "#888",
+        borderRadius: "4px",
+      },
+      "&::-webkit-scrollbar-thumb:hover": {
+        backgroundColor: "#555",
+      },
+    }}>
             <Table stickyHeader aria-label="sticky table"  border={1} >
               <TableHead>
                 <TableRow sx={{ bgcolor: "#f5f5f5", borderBottom: "1px solid #ddd" }}>

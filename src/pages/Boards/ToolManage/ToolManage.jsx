@@ -127,7 +127,6 @@ const ToolManage = () => {
           boxShadow: colors.boxShadows.header,
           mb: '1rem',
           border: '1px solid rgba(0, 0, 0, 0.08)',
-          // bgcolor: 'red'
         }}
       >
         {/* Left Side - Responsible Person */}
@@ -437,7 +436,22 @@ const ToolManage = () => {
         }}
       >
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{ maxHeight: '100%' }}>
+          <TableContainer sx={{
+      maxHeight: "73vh",   // limits height so vertical scrollbar appears
+      overflow: "auto",    // allow both scrollbars
+      scrollbarWidth: "thin",
+      "&::-webkit-scrollbar": {
+        width: "8px",
+        height: "8px",
+      },
+      "&::-webkit-scrollbar-thumb": {
+        backgroundColor: "#888",
+        borderRadius: "4px",
+      },
+      "&::-webkit-scrollbar-thumb:hover": {
+        backgroundColor: "#555",
+      },
+    }}>
             <Table stickyHeader aria-label="sticky table" border={1}>
               <TableHead>
                 <TableRow sx={{ bgcolor: '#f5f5f5', borderBottom: '1px solid #ddd' }}>
