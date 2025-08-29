@@ -11,7 +11,6 @@ import {
   Typography,
   TextField,
   Button,
-  Chip,
   Card,
   CardContent,
   Alert,
@@ -28,9 +27,8 @@ import colors from '../../../utils/colors';
 import axios from 'axios';
 import { enqueueSnackbar } from 'notistack';
 import EditIcon from '@mui/icons-material/Edit';
-import CloseIcon from '@mui/icons-material/Close';
-import { MdDone } from 'react-icons/md';
 import AddIcon from '@mui/icons-material/Add';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import AddProduction from './AddProduction';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
@@ -39,12 +37,20 @@ const Production = () => {
   const { token } = useSelector((state) => state.auth);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 7)); // Format: YYYY-MM
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 7));
   const [hasInitialized, setHasInitialized] = useState(false);
   const [edit, setEdit] = useState({});
   const [addData, setAddData] = useState({});
-  console.log(data);
-  console.log(edit);
+
+  // Generate Production Plan states
+  const [generateModal, setGenerateModal] = useState(false);
+  const [generateData, setGenerateData] = useState({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    shift_hours: 8,
+  });
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Generate days array (1-31)
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -68,8 +74,114 @@ const Production = () => {
     return monthNames[monthNum - 1];
   };
 
+  // Validation function
+  const validateGenerateData = (data) => {
+    const errors = {};
+    const currentYear = new Date().getFullYear();
+
+    if (!data.year || data.year < 2020 || data.year > currentYear + 5) {
+      errors.year = `Year must be between 2020 and ${currentYear + 5}`;
+    }
+
+    if (!data.month || data.month < 1 || data.month > 12) {
+      errors.month = 'Month must be between 1 and 12';
+    }
+
+    if (!data.shift_hours || data.shift_hours < 1 || data.shift_hours > 24) {
+      errors.shift_hours = 'Shift hours must be between 1 and 24';
+    }
+
+    return errors;
+  };
+
+  // Input handlers with validation
+  const handleYearChange = (e) => {
+    const value = parseInt(e.target.value) || '';
+    setGenerateData((prev) => ({ ...prev, year: value }));
+
+    if (validationErrors.year) {
+      setValidationErrors((prev) => ({ ...prev, year: undefined }));
+    }
+  };
+
+  const handleMonthChange = (e) => {
+    const value = parseInt(e.target.value) || '';
+    if (value === '' || (value >= 1 && value <= 12)) {
+      setGenerateData((prev) => ({ ...prev, month: value }));
+    }
+
+    if (validationErrors.month) {
+      setValidationErrors((prev) => ({ ...prev, month: undefined }));
+    }
+  };
+
+  const handleShiftHoursChange = (e) => {
+    const value = parseInt(e.target.value) || '';
+    if (value === '' || (value >= 1 && value <= 24)) {
+      setGenerateData((prev) => ({ ...prev, shift_hours: value }));
+    }
+
+    if (validationErrors.shift_hours) {
+      setValidationErrors((prev) => ({ ...prev, shift_hours: undefined }));
+    }
+  };
+
+  // Generate Production Plan API Call
+  const handleGenerateProductionPlan = async () => {
+    if (!token) return;
+
+    const errors = validateGenerateData(generateData);
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      enqueueSnackbar('Please fix validation errors', { variant: 'error' });
+      return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      const response = await axios.post(
+        `${BACKEND_API}/generate_and_save_production_plan`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          params: {
+            year: generateData.year,
+            month: generateData.month,
+            shift_hours: generateData.shift_hours,
+          },
+        }
+      );
+
+      enqueueSnackbar('Production plan generated successfully', { variant: 'success' });
+      setGenerateModal(false);
+      setValidationErrors({});
+
+      const monthStr = generateData.month.toString().padStart(2, '0');
+      setSelectedDate(`${generateData.year}-${monthStr}`);
+
+      fetchData();
+    } catch (error) {
+      console.error('Error generating production plan:', error);
+
+      if (error.response?.status === 400) {
+        enqueueSnackbar(
+          error.response.data.detail || 'Production plan already exists for this period',
+          { variant: 'warning' }
+        );
+      } else {
+        enqueueSnackbar('Error generating production plan', { variant: 'error' });
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Process records to organize by part and date
-  const processData = (records) => {
+  const processData = useCallback((records) => {
     const partMap = new Map();
 
     records.forEach((record) => {
@@ -85,20 +197,15 @@ const Production = () => {
         id,
       } = record;
       const [datePart] = timestamp.split('T');
-
-      // Now split by "-"
       const [yearStr, monthStr, dayStr] = datePart.split('-');
-
       const day = parseInt(dayStr, 10);
-      console.log(day); // 29 ✅
-
       const partKey = part_description;
 
       if (!partMap.has(partKey)) {
         partMap.set(partKey, {
           part_description,
           machine: machine,
-          schedule: null, // Will be set from first available day
+          schedule: null,
           dailyData: new Map(),
           totalPlan: 0,
           totalactual_RH: 0,
@@ -109,17 +216,13 @@ const Production = () => {
       }
 
       const partData = partMap.get(partKey);
-
-      // Track the original record ID
       partData.recordIds.push(id);
 
-      // Track which day this record belongs to
       if (!partData.recordsByDay.has(day)) {
         partData.recordsByDay.set(day, []);
       }
       partData.recordsByDay.get(day).push(id);
 
-      // If this day already has data, accumulate the values
       if (partData.dailyData.has(day)) {
         const existingData = partData.dailyData.get(day);
         partData.dailyData.set(day, {
@@ -131,7 +234,6 @@ const Production = () => {
           records: [...(existingData.records || []), record],
         });
       } else {
-        // Create new entry for this day
         partData.dailyData.set(day, {
           plan: parseFloat(plan) || 0,
           actual_RH: parseFloat(actual_RH) || 0,
@@ -142,18 +244,15 @@ const Production = () => {
         });
       }
 
-      // Add to totals
       partData.totalPlan += parseFloat(plan) || 0;
       partData.totalactual_RH += parseFloat(actual_RH) || 0;
       partData.totalactual_LH += parseFloat(actual_LH) || 0;
     });
 
     // Set schedule from first available day's entry for each part
-    partMap.forEach((partData, partKey) => {
-      // Sort the days to find the earliest day with data
+    partMap.forEach((partData) => {
       const sortedDays = Array.from(partData.dailyData.keys()).sort((a, b) => a - b);
 
-      // Find the first day that has a valid schedule
       for (const day of sortedDays) {
         const dayData = partData.dailyData.get(day);
         if (dayData && dayData.records && dayData.records.length > 0) {
@@ -164,19 +263,18 @@ const Production = () => {
             firstRecord.schedule !== ''
           ) {
             partData.schedule = parseFloat(firstRecord.schedule) || 0;
-            break; // Found schedule, stop looking
+            break;
           }
         }
       }
 
-      // If still no schedule found, set to 0
       if (partData.schedule === null) {
         partData.schedule = 0;
       }
     });
 
     return Array.from(partMap.values());
-  };
+  }, []);
 
   // Fetch data from backend
   const fetchData = useCallback(async () => {
@@ -186,7 +284,6 @@ const Production = () => {
     setIsLoading(true);
 
     try {
-      // Updated API endpoint for production plan data
       const response = await axios.get(`${BACKEND_API}/get_production_plan_details_by_month`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -203,52 +300,6 @@ const Production = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
       enqueueSnackbar('Error fetching data', { variant: 'error' });
-      setIsLoading(false);
-
-      // Remove sample data fallback in production
-      // const sampleData = {
-      //   message: "Entries fetched from MongoDB",
-      //   year: parseInt(year),
-      //   month: parseInt(month),
-      //   schedule: 7200,
-      //   production_plan: 770,
-      //   production_actual_RH: 650,
-      //   balance_plan: 6430,
-      //   balance_actual_RH: 6550,
-      //   records: [
-      //     {
-      //       part_description: "BRACKET-E",
-      //       machine: "120T",
-      //       schedule: "7200",
-      //       plan: "770",
-      //       actual_RH: "650",
-      //       resp_person: "Shrikant",
-      //       timestamp: "2025-07-01T15:38:19.746000",
-      //       id: "6863c8b0ef2f5e276f759863"
-      //     },
-      //     {
-      //       part_description: "BRACKET-D",
-      //       machine: "120T",
-      //       schedule: null,
-      //       plan: "100",
-      //       actual_RH: "85",
-      //       resp_person: "John",
-      //       timestamp: "2025-07-01T11:38:24.164000",
-      //       id: "6863c8b0ef2f5e276f759864"
-      //     },
-      //     {
-      //       part_description: "PES COVER-B",
-      //       machine: "250T",
-      //       schedule: "5000",
-      //       plan: "400",
-      //       actual_RH: "380",
-      //       resp_person: "Mike",
-      //       timestamp: "2025-07-01T11:38:24.180000",
-      //       id: "6863c8b0ef2f5e276f759865"
-      //     }
-      //   ]
-      // };
-      // setData(sampleData);
     } finally {
       setIsLoading(false);
     }
@@ -270,13 +321,23 @@ const Production = () => {
     if (hasInitialized && token) {
       fetchData();
     }
-  }, [selectedDate]);
+  }, [selectedDate, hasInitialized, token, fetchData]);
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
 
   const processedData = data ? processData(data.records) : [];
+
+  // Common cell styling
+  const cellStyle = {
+    fontSize: '0.7rem',
+    padding: '4px 8px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '25px',
+  };
 
   const renderPlanactual_RHRows = (dayData) => {
     return (
@@ -288,48 +349,17 @@ const Production = () => {
           justifyContent: 'space-between',
         }}
       >
-        <Box
-          sx={{
-            fontSize: '0.7rem',
-            padding: '4px 8px',
-            backgroundColor: '#f0f8ff',
-            borderBottom: '1px solid #e0e0e0',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '25px',
-          }}
-        >
+        <Box sx={{ ...cellStyle, backgroundColor: '#f0f8ff', borderBottom: '1px solid #e0e0e0' }}>
           <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
             {dayData?.plan || '-'}
           </Typography>
         </Box>
-        <Box
-          sx={{
-            fontSize: '0.7rem',
-            padding: '4px 8px',
-            backgroundColor: '#f8f9fa',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '25px',
-          }}
-        >
+        <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa' }}>
           <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
             {dayData?.actual_RH || '-'}
           </Typography>
         </Box>
-        <Box
-          sx={{
-            fontSize: '0.7rem',
-            padding: '4px 8px',
-            backgroundColor: '#f8f9fa',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '25px',
-          }}
-        >
+        <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa' }}>
           <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}>
             {dayData?.actual_LH || '-'}
           </Typography>
@@ -350,14 +380,10 @@ const Production = () => {
       >
         <Box
           sx={{
-            fontSize: '0.7rem',
-            padding: '4px 8px',
+            ...cellStyle,
             backgroundColor: '#f0f8ff',
             borderBottom: '1px solid #e0e0e0',
-            display: 'flex',
             justifyContent: 'flex-start',
-            alignItems: 'center',
-            minHeight: '25px',
           }}
         >
           <Typography
@@ -367,17 +393,7 @@ const Production = () => {
             Plan
           </Typography>
         </Box>
-        <Box
-          sx={{
-            fontSize: '0.7rem',
-            padding: '4px 8px',
-            backgroundColor: '#f8f9fa',
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            minHeight: '25px',
-          }}
-        >
+        <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa', justifyContent: 'flex-start' }}>
           <Typography
             variant="caption"
             sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#d32f2f' }}
@@ -385,17 +401,7 @@ const Production = () => {
             Actual RH
           </Typography>
         </Box>
-        <Box
-          sx={{
-            fontSize: '0.7rem',
-            padding: '4px 8px',
-            backgroundColor: '#f8f9fa',
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            minHeight: '25px',
-          }}
-        >
+        <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa', justifyContent: 'flex-start' }}>
           <Typography
             variant="caption"
             sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#d32f2f' }}
@@ -419,21 +425,13 @@ const Production = () => {
         timestamp: edit.timestamp,
       };
 
-      console.log('Update payload:', updatePayload);
-      console.log('Document ID to update:', edit.id);
+      await axios.put(`${BACKEND_API}/update_production_plan_detail/${edit._id}`, updatePayload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-      const response = await axios.put(
-        `${BACKEND_API}/update_production_plan_detail/${edit.id}`,
-        updatePayload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      console.log('Update response:', response.data);
       enqueueSnackbar('Record updated successfully', { variant: 'success' });
       setEdit({});
       fetchData();
@@ -462,7 +460,32 @@ const Production = () => {
       {/* Search Controls */}
       <Card sx={{ mb: 2 }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'end' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'end', gap: 2 }}>
+            {/* Generate Production Plan Button */}
+            <Button
+              variant="contained"
+              startIcon={<AutoAwesomeIcon />}
+              onClick={() => {
+                const [year, month] = selectedDate.split('-');
+                setGenerateData({
+                  year: parseInt(year),
+                  month: parseInt(month),
+                  shift_hours: 8,
+                });
+                setGenerateModal(true);
+              }}
+              sx={{
+                bgcolor: colors.primary,
+                '&:hover': {
+                  bgcolor: colors.primary,
+                  opacity: 0.9,
+                },
+              }}
+            >
+              Generate Production Plan
+            </Button>
+
+            {/* Month/Year Selector */}
             <TextField
               label="Select Month & Year"
               type="month"
@@ -477,24 +500,6 @@ const Production = () => {
           </Box>
         </CardContent>
       </Card>
-
-      {/* Monthly Summary */}
-      {/* {data && (
-        <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-              Monthly Summary - {getMonthName(data.month)} {data.year}
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Chip label={`Total Schedule: ${data.schedule}`} color="primary" />
-              <Chip label={`Total Plan: ${data.production_plan}`} color="success" />
-              <Chip label={`Total actual_RH: ${data.production_actual_RH}`} color="warning" />
-              <Chip label={`Balance Plan: ${data.balance_plan}`} color="info" />
-              <Chip label={`Balance actual_RH: ${data.balance_actual_RH}`} color="secondary" />
-            </Box>
-          </CardContent>
-        </Card>
-      )} */}
 
       {/* Main Table */}
       {isLoading ? (
@@ -573,7 +578,7 @@ const Production = () => {
                     Schedule
                   </TableCell>
 
-                  {/* Plan/actual_RH */}
+                  {/* Plan/Actual */}
                   <TableCell
                     sx={{
                       backgroundColor: 'inherit',
@@ -586,7 +591,7 @@ const Production = () => {
                       border: `1px solid #e0e0e0`,
                     }}
                   >
-                    Plan/actual_RH
+                    Plan/Actual
                   </TableCell>
 
                   {/* Date Columns (1-31) */}
@@ -607,25 +612,7 @@ const Production = () => {
                     </TableCell>
                   ))}
 
-                  {/* Production */}
-                  {/* <TableCell
-                    sx={{
-                      backgroundColor: '#e8f5e8',
-                      color: '#2c3e50',
-                      fontWeight: 'bold',
-                      minWidth: '80px',
-                      maxWidth: '80px',
-                      width: '80px',
-                      border: `1px solid #e0e0e0`,
-                      position: 'sticky',
-                      right: 8,
-                      zIndex: 3
-                    }}
-                  >
-                    Production
-                  </TableCell> */}
-
-                  {/* Balance */}
+                  {/* Production & Balance */}
                   <TableCell
                     sx={{
                       backgroundColor: '#f3e5f5',
@@ -698,7 +685,7 @@ const Production = () => {
                       </Typography>
                     </TableCell>
 
-                    {/* Plan/actual_RH Labels */}
+                    {/* Plan/Actual Labels */}
                     <TableCell
                       sx={{
                         backgroundColor: '#fff',
@@ -740,16 +727,6 @@ const Production = () => {
                               >
                                 <IconButton
                                   onClick={() => {
-                                    console.log('=== EDIT ICON CLICKED ===');
-                                    console.log('Part Description:', partData.part_description);
-                                    console.log('Day:', day);
-                                    console.log('Day Data:', dayData);
-                                    console.log('Selected Record:', dayData.records[0]);
-                                    console.log('All Records for this day:', dayData.records);
-                                    console.log('Record IDs:', dayData.recordIds);
-                                    console.log('========================');
-
-                                    // Add day information to the edit state
                                     setEdit({ ...dayData.records[0], day: day });
                                   }}
                                   size="small"
@@ -829,14 +806,9 @@ const Production = () => {
                         >
                           <Box
                             sx={{
-                              fontSize: '0.7rem',
-                              padding: '4px 8px',
+                              ...cellStyle,
                               backgroundColor: '#f8f9fa',
                               borderBottom: '1px solid #e0e0e0',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              minHeight: '25px',
                             }}
                           >
                             <Typography
@@ -846,17 +818,7 @@ const Production = () => {
                               {partData.totalPlan}
                             </Typography>
                           </Box>
-                          <Box
-                            sx={{
-                              fontSize: '0.7rem',
-                              padding: '4px 8px',
-                              backgroundColor: '#f8f9fa',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              minHeight: '25px',
-                            }}
-                          >
+                          <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa' }}>
                             <Typography
                               variant="caption"
                               sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
@@ -864,17 +826,7 @@ const Production = () => {
                               {partData.totalactual_RH}
                             </Typography>
                           </Box>
-                          <Box
-                            sx={{
-                              fontSize: '0.7rem',
-                              padding: '4px 8px',
-                              backgroundColor: '#f8f9fa',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              minHeight: '25px',
-                            }}
-                          >
+                          <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa' }}>
                             <Typography
                               variant="caption"
                               sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
@@ -896,14 +848,9 @@ const Production = () => {
                         >
                           <Box
                             sx={{
-                              fontSize: '0.7rem',
-                              padding: '4px 8px',
+                              ...cellStyle,
                               backgroundColor: '#f8f9fa',
                               borderBottom: '1px solid #e0e0e0',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              minHeight: '25px',
                             }}
                           >
                             <Typography
@@ -913,17 +860,7 @@ const Production = () => {
                               {(partData.schedule || 0) - partData.totalPlan}
                             </Typography>
                           </Box>
-                          <Box
-                            sx={{
-                              fontSize: '0.7rem',
-                              padding: '4px 8px',
-                              backgroundColor: '#f8f9fa',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              minHeight: '25px',
-                            }}
-                          >
+                          <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa' }}>
                             <Typography
                               variant="caption"
                               sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
@@ -931,17 +868,7 @@ const Production = () => {
                               {(partData.schedule || 0) - partData.totalactual_RH}
                             </Typography>
                           </Box>
-                          <Box
-                            sx={{
-                              fontSize: '0.7rem',
-                              padding: '4px 8px',
-                              backgroundColor: '#f8f9fa',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              minHeight: '25px',
-                            }}
-                          >
+                          <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa' }}>
                             <Typography
                               variant="caption"
                               sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
@@ -987,23 +914,190 @@ const Production = () => {
           <Box
             sx={{ width: 16, height: 16, backgroundColor: '#f8f9fa', border: '1px solid #d32f2f' }}
           />
-          <Typography variant="body2">actual_RH</Typography>
+          <Typography variant="body2">Actual RH</Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box
             sx={{ width: 16, height: 16, backgroundColor: '#f8f9fa', border: '1px solid #d32f2f' }}
           />
-          <Typography variant="body2">actual_LH</Typography>
+          <Typography variant="body2">Actual LH</Typography>
         </Box>
-        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 16, height: 16, backgroundColor: '#e8f5e8', border: '1px solid #2e7d32' }} />
-          <Typography variant="body2">Production</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ width: 16, height: 16, backgroundColor: '#f3e5f5', border: '1px solid #7b1fa2' }} />
-          <Typography variant="body2">Balance</Typography>
-        </Box> */}
       </Box>
+
+      {/* Generate Production Plan Modal */}
+      <Dialog
+        open={generateModal}
+        onClose={() => {
+          setGenerateModal(false);
+          setValidationErrors({});
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.primary }}>
+            Generate Production Plan
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  label="Year"
+                  type="number"
+                  value={generateData.year}
+                  onChange={handleYearChange}
+                  variant="outlined"
+                  error={!!validationErrors.year}
+                  helperText={validationErrors.year}
+                  inputProps={{
+                    min: 2020,
+                    max: new Date().getFullYear() + 5,
+                    step: 1,
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      !/[0-9]/.test(e.key) &&
+                      ![
+                        'Backspace',
+                        'Delete',
+                        'Tab',
+                        'Escape',
+                        'Enter',
+                        'ArrowLeft',
+                        'ArrowRight',
+                      ].includes(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  label="Month"
+                  type="number"
+                  value={generateData.month}
+                  onChange={handleMonthChange}
+                  variant="outlined"
+                  error={!!validationErrors.month}
+                  helperText={validationErrors.month}
+                  inputProps={{
+                    min: 1,
+                    max: 12,
+                    step: 1,
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      !/[0-9]/.test(e.key) &&
+                      ![
+                        'Backspace',
+                        'Delete',
+                        'Tab',
+                        'Escape',
+                        'Enter',
+                        'ArrowLeft',
+                        'ArrowRight',
+                      ].includes(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  label="Shift Hours"
+                  type="number"
+                  value={generateData.shift_hours}
+                  onChange={handleShiftHoursChange}
+                  variant="outlined"
+                  error={!!validationErrors.shift_hours}
+                  helperText={validationErrors.shift_hours}
+                  inputProps={{
+                    min: 1,
+                    max: 24,
+                    step: 1,
+                  }}
+                  onKeyDown={(e) => {
+                    if (
+                      !/[0-9]/.test(e.key) &&
+                      ![
+                        'Backspace',
+                        'Delete',
+                        'Tab',
+                        'Escape',
+                        'Enter',
+                        'ArrowLeft',
+                        'ArrowRight',
+                      ].includes(e.key)
+                    ) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </Grid>
+            </Grid>
+
+            <Alert
+              severity={Object.keys(validationErrors).length > 0 ? 'error' : 'info'}
+              sx={{ mt: 2 }}
+            >
+              {Object.keys(validationErrors).length > 0 ? (
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    Please fix the following errors:
+                  </Typography>
+                  <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+                    {Object.values(validationErrors).map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </Box>
+              ) : (
+                <>
+                  This will generate a production plan for{' '}
+                  <strong>
+                    {getMonthName(generateData.month)} {generateData.year}
+                  </strong>{' '}
+                  with <strong>{generateData.shift_hours} hours</strong> shift duration.
+                </>
+              )}
+            </Alert>
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 3, gap: 1 }}>
+          <Button
+            onClick={() => {
+              setGenerateModal(false);
+              setValidationErrors({});
+            }}
+            color="error"
+            variant="outlined"
+            sx={{ minWidth: 100 }}
+            disabled={isGenerating}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleGenerateProductionPlan}
+            color="primary"
+            variant="contained"
+            sx={{ minWidth: 100 }}
+            disabled={isGenerating || Object.keys(validationErrors).length > 0}
+          >
+            {isGenerating ? <CircularProgress size={20} /> : 'Generate'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Add Production Modal */}
       <AddProduction addData={addData} setAddData={setAddData} fetchData={fetchData} />
@@ -1056,7 +1150,6 @@ const Production = () => {
                 />
               </Grid>
 
-              {/* Schedule field - only show for day 1 */}
               {edit.day === 1 && (
                 <Grid item xs={12} sm={6}>
                   <TextField
@@ -1090,7 +1183,7 @@ const Production = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="actual_RH"
+                  label="Actual RH"
                   type="number"
                   value={edit.actual_RH || ''}
                   onChange={(e) =>
@@ -1100,10 +1193,11 @@ const Production = () => {
                   inputProps={{ min: 0 }}
                 />
               </Grid>
+
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="actual_LH"
+                  label="Actual LH"
                   type="number"
                   value={edit.actual_LH || ''}
                   onChange={(e) =>
