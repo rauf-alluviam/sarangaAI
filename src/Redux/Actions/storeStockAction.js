@@ -56,84 +56,62 @@ export const addStoreStock = (stockData, token, onSuccess, onError) => async (di
   }
 };
 
-export const updateStoreStock = (stockData, token, onSuccess, onError) => async (dispatch) => {
-  dispatch({ type: UPDATE_STORE_STOCK_REQUEST });
-  try {
-    const updatedStock = {
-      item_description: stockData.item_description,
-      minimum_STOCK: 200,
-      maximum_STOCK: stockData.maximum,
-      current_STOCK: stockData.current || 0,
-      resp_person: stockData.resp_person || '',
-      location: stockData.location || '',
-      status: stockData.status || '',
-      plan: stockData.plan || '',
-      actual: stockData.actual || '',
-      timestamp: new Date().toISOString(),
-      _id: stockData._id, // Include the ID to update the specific stock entry
-    };
+export const updateStoreStock =
+  (stockData, token, date, onSuccess, onError) => async (dispatch) => {
+    dispatch({ type: UPDATE_STORE_STOCK_REQUEST });
+    try {
+      const updatedStock2 = {
+        item_description: stockData.item_description,
+        minimum: 200,
+        maximum: stockData.maximum,
+        current: stockData.current || 0,
+        resp_person: stockData.resp_person || '',
+        location: stockData.location || '',
+        status: stockData.status || '',
+        plan: stockData.plan || '',
+        actual: stockData.actual || '',
+        timestamp: new Date().toISOString(),
+        _id: stockData._id, // Include the ID to update the specific stock entry
+      };
 
-    const updatedStock2 = {
-      item_description: stockData.item_description,
-      minimum: 200,
-      maximum: stockData.maximum,
-      current: stockData.current || 0,
-      resp_person: stockData.resp_person || '',
-      location: stockData.location || '',
-      status: stockData.status || '',
-      plan: stockData.plan || '',
-      actual: stockData.actual || '',
-      timestamp: new Date().toISOString(),
-      _id: stockData._id, // Include the ID to update the specific stock entry
-    };
+      // {
+      //     "_id": "6863bd4734808737a60be94b",
+      //     "item_description": "PC - 10% DIFFUSION WHITE(CLEAR)",
+      //     "minimum": 200,
+      //     "maximum": 2000,
+      //     "current": null,
+      //     "location": "",
+      //     "actual": "",
+      //     "plan": "",
+      //     "status": "",
+      //     "resp_person": "",
+      //     "timestamp": "2025-07-01T10:49:43.611000",
+      //     "year": 2025,
+      //     "month": 7,
+      //     "day": 2
+      //   }
 
-    // {
-    //     "_id": "6863bd4734808737a60be94b",
-    //     "item_description": "PC - 10% DIFFUSION WHITE(CLEAR)",
-    //     "minimum": 200,
-    //     "maximum": 2000,
-    //     "current": null,
-    //     "location": "",
-    //     "actual": "",
-    //     "plan": "",
-    //     "status": "",
-    //     "resp_person": "",
-    //     "timestamp": "2025-07-01T10:49:43.611000",
-    //     "year": 2025,
-    //     "month": 7,
-    //     "day": 2
-    //   }
+      const response = await axios.put(
+        `${BACKEND_API}/update_store_stock_monitoring_sheet_entry/${stockData._id}`,
+        updatedStock2,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    const response = await axios.put(
-      `${BACKEND_API}/update_store_stock_monitoring_sheet_entry/${stockData._id}`,
-      updatedStock2,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+      dispatch({ type: UPDATE_STORE_STOCK_SUCCESS, payload: updatedStock2 });
 
-    // {
-    //     "item_description": "PC GRANITE-BLACK",
-    //     "minimum_STOCK": 200,
-    //     "maximum_STOCK": 2500,
-    //     "current_STOCK": 650,
-    //     "resp_person": "Shrikant",
-    //     "location": "C",
-    //     "status": "string",
-    //     "plan": "dsdsdsd",
-    //     "actual": "sddsds",
-    //     "timestamp": "2025-07-01T09:01:54.991Z"
-    //   }
+      // Refetch the store stock data after successful update
+      const [year, month, day] = date.split('-');
+      dispatch(fetchStoreStock(year, month, day, token));
 
-    console.log(response.data);
-    dispatch({ type: UPDATE_STORE_STOCK_SUCCESS, payload: updatedStock2 });
-    if (onSuccess) onSuccess(response?.data?.message || 'Stock Updated Successfully'); // clear form or close modal
-  } catch (error) {
-    console.log(error);
-    dispatch({ type: UPDATE_STORE_STOCK_FAILURE, payload: error.message });
-    if (onError) onError(error.response?.data?.detail || 'Failed to update store stock.'); // Pass error message
-  }
-};
+      if (onSuccess) onSuccess(response?.data?.message || 'Stock Updated Successfully');
+    } catch (error) {
+      console.log(error);
+      dispatch({ type: UPDATE_STORE_STOCK_FAILURE, payload: error.message });
+      if (onError) onError(error.response?.data?.detail || 'Failed to update store stock.');
+    }
+  };

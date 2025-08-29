@@ -23,7 +23,7 @@ import { fetchStoreStock, updateStoreStock } from '../../../store/actions/storeS
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { IoPersonSharp } from 'react-icons/io5';
-import { LuMoveLeft } from "react-icons/lu";
+import { LuMoveLeft } from 'react-icons/lu';
 
 const StoreStock = () => {
   const { storeStockArr } = useSelector((state) => state.storeStock);
@@ -42,9 +42,14 @@ const StoreStock = () => {
   // Track if GET request is already triggered for each field (P1, P2, P3)
   const [fetched, setFetched] = useState({ p1: false, p2: false, p3: false });
 
-  useEffect(() => {
+  // Function to refresh store stock data
+  const refreshStoreStock = () => {
     const [year, month, day] = date.split('-');
     dispatch(fetchStoreStock(year, month, day, token));
+  };
+
+  useEffect(() => {
+    refreshStoreStock();
   }, [date, isOpen, dispatch, token]);
 
   const handleSubmit = async () => {
@@ -76,6 +81,7 @@ const StoreStock = () => {
       updateStoreStock(
         edit,
         token,
+        date,
         (successMessage) => {
           Swal.fire({
             icon: 'success',
@@ -86,6 +92,8 @@ const StoreStock = () => {
           });
           setEdit({});
           setUpdateDialogOpen(false);
+          // Refresh data after successful update
+          // refreshStoreStock();
         },
         (errorMessage) => {
           Swal.fire({
@@ -117,9 +125,7 @@ const StoreStock = () => {
           sx={{
             fontSize: '2rem',
             textAlign: 'center',
-            // borderBottom: "1px solid #282828",
             width: '100%',
-            // marginLeft: "auto",
             mr: 'auto',
             marginBottom: '2rem',
             padding: '1rem 0rem',
@@ -246,22 +252,24 @@ const StoreStock = () => {
           }}
         >
           <Paper sx={{ maxHeight: '100%', overflow: 'hidden', mr: 'auto', width: '100%' }}>
-            <TableContainer sx={{
-      maxHeight: "60vh",   // limits height so vertical scrollbar appears
-      overflow: "auto",    // allow both scrollbars
-      scrollbarWidth: "thin",
-      "&::-webkit-scrollbar": {
-        width: "8px",
-        height: "8px",
-      },
-      "&::-webkit-scrollbar-thumb": {
-        backgroundColor: "#888",
-        borderRadius: "4px",
-      },
-      "&::-webkit-scrollbar-thumb:hover": {
-        backgroundColor: "#555",
-      },
-    }}>
+            <TableContainer
+              sx={{
+                maxHeight: '60vh',
+                overflow: 'auto',
+                scrollbarWidth: 'thin',
+                '&::-webkit-scrollbar': {
+                  width: '8px',
+                  height: '8px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  backgroundColor: '#888',
+                  borderRadius: '4px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  backgroundColor: '#555',
+                },
+              }}
+            >
               <Table stickyHeader aria-label="sticky table" border={1}>
                 <TableHead>
                   <TableRow
@@ -338,8 +346,7 @@ const StoreStock = () => {
                         fontWeight: 'bold',
                       }}
                     >
-                      {/* &larr;  */}
-                      <LuMoveLeft style={{fontSize: '1.3rem'}} />
+                      <LuMoveLeft style={{ fontSize: '1.3rem' }} />
                       <br />
                       <b>P2</b>
                     </TableCell>
@@ -354,8 +361,7 @@ const StoreStock = () => {
                         fontWeight: 'bold',
                       }}
                     >
-                      {/* &larr;  */}
-                      <LuMoveLeft style={{fontSize: '1.3rem'}} />
+                      <LuMoveLeft style={{ fontSize: '1.3rem' }} />
                       <br />
                       <b>P3</b>
                     </TableCell>
@@ -376,22 +382,10 @@ const StoreStock = () => {
                           {elem.maximum}
                         </TableCell>
                         <TableCell sx={{ width: '6rem' }} align="center">
-                          {edit._id === elem._id ? (
-                            <TextField
-                              fullWidth
-                              type="number"
-                              defaultValue={elem.current}
-                              onChange={(e) => setEdit({ ...edit, current: e.target.value })}
-                              sx={{ width: '100%' }}
-                              size="small"
-                            />
-                          ) : (
-                            elem.current
-                          )}
+                          {elem.current}
                         </TableCell>
 
                         {/* Location cells */}
-
                         {edit._id == elem._id ? (
                           (() => {
                             let locObj;
@@ -415,13 +409,11 @@ const StoreStock = () => {
                               // Only trigger GET if just filled and not already fetched
                               if (key === 'p1' && isFilled(value) && !fetched.p1) {
                                 setFetched((prev) => ({ ...prev, p1: true }));
-                                const [year, month, day] = date.split('-');
-                                dispatch(fetchStoreStock(year, month, day, token));
+                                refreshStoreStock();
                               }
                               if (key === 'p2' && isFilled(value) && !fetched.p2) {
                                 setFetched((prev) => ({ ...prev, p2: true }));
-                                const [year, month, day] = date.split('-');
-                                dispatch(fetchStoreStock(year, month, day, token));
+                                refreshStoreStock();
                               }
                             };
 
@@ -550,18 +542,7 @@ const StoreStock = () => {
                         </TableCell>
                         {/* Actual column */}
                         <TableCell sx={{ width: '14rem' }} align="center">
-                          {edit._id === elem._id ? (
-                            <TextField
-                              fullWidth
-                              type="text"
-                              defaultValue={elem.actual}
-                              onChange={(e) => setEdit({ ...edit, actual: e.target.value })}
-                              sx={{ width: '100%' }}
-                              size="small"
-                            />
-                          ) : (
-                            elem.actual
-                          )}
+                          {elem.actual}
                         </TableCell>
                         <TableCell sx={{ width: '6rem' }} align="center">
                           {edit._id === elem._id ? (
