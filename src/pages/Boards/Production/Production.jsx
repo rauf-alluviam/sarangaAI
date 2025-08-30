@@ -199,6 +199,7 @@ const Production = () => {
       const [datePart] = timestamp.split('T');
       const [yearStr, monthStr, dayStr] = datePart.split('-');
       const day = parseInt(dayStr, 10);
+      console.log(day);
       const partKey = part_description;
 
       if (!partMap.has(partKey)) {
@@ -507,25 +508,25 @@ const Production = () => {
           <CircularProgress size={50} />
         </Box>
       ) : processedData.length > 0 ? (
-       <Paper sx={{ overflow: 'hidden', border: `1px solid #e0e0e0`, boxShadow: 3 }}>
-                 <TableContainer
-                   sx={{
-             maxHeight: "73vh",   // limits height so vertical scrollbar appears
-             overflow: "auto",    // allow both scrollbars
-             scrollbarWidth: "thin",
-             "&::-webkit-scrollbar": {
-               width: "8px",
-               height: "8px",
-             },
-             "&::-webkit-scrollbar-thumb": {
-               backgroundColor: "#888",
-               borderRadius: "4px",
-             },
-             "&::-webkit-scrollbar-thumb:hover": {
-               backgroundColor: "#555",
-             },
-           }}
-                 >
+        <Paper sx={{ overflow: 'hidden', border: `1px solid #e0e0e0`, boxShadow: 3 }}>
+          <TableContainer
+            sx={{
+              maxHeight: '73vh', // limits height so vertical scrollbar appears
+              overflow: 'auto', // allow both scrollbars
+              scrollbarWidth: 'thin',
+              '&::-webkit-scrollbar': {
+                width: '8px',
+                height: '8px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#888',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                backgroundColor: '#555',
+              },
+            }}
+          >
             <Table stickyHeader>
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#f5f5f5 !important' }}>
@@ -1111,7 +1112,7 @@ const Production = () => {
       >
         <DialogTitle>
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: colors.primary }}>
-            Edit Production Data
+            Edit Production Data for Day {edit.day}
           </Typography>
         </DialogTitle>
 
