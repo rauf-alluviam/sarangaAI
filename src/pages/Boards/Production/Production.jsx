@@ -30,6 +30,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import AddProduction from './AddProduction';
+import SetMonthlySchedule from './SetMonthlySchedule.jsx';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -41,6 +42,7 @@ const Production = () => {
   const [hasInitialized, setHasInitialized] = useState(false);
   const [edit, setEdit] = useState({});
   const [addData, setAddData] = useState({});
+  const [monthlyScheduleModal, setMonthlyScheduleModal] = useState(false);
 
   // Generate Production Plan states
   const [generateModal, setGenerateModal] = useState(false);
@@ -462,6 +464,20 @@ const Production = () => {
       <Card sx={{ mb: 2 }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'end', gap: 2 }}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setMonthlyScheduleModal(true)}
+              sx={{
+                bgcolor: colors.secondary,
+                '&:hover': {
+                  bgcolor: colors.secondary,
+                  opacity: 0.9,
+                },
+              }}
+            >
+              Set Monthly Schedule
+            </Button>
             {/* Generate Production Plan Button */}
             <Button
               variant="contained"
@@ -1236,6 +1252,12 @@ const Production = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <SetMonthlySchedule
+        open={monthlyScheduleModal}
+        onClose={() => setMonthlyScheduleModal(false)}
+        selectedDate={selectedDate}
+        fetchData={fetchData}
+      />
     </Box>
   );
 };
