@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Box, TextField, Typography, CircularProgress } from '@mui/material';
+import {
+  Box,
+  TextField,
+  Typography,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -110,214 +122,219 @@ const MonthlyStoreStockNew = () => {
         ) : (
           <Box
             sx={{
-              minHeight: '77vh',
-              width: '100%',
-              overflow: 'auto',
-              scrollbarWidth: 'thin',
-              '&::-webkit-scrollbar': {
-                width: '8px',
-                height: '8px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: '#888',
-                borderRadius: '4px',
-              },
-              '&::-webkit-scrollbar-thumb:hover': {
-                backgroundColor: '#555',
-              },
+              flex: 1,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: '76vh',
             }}
           >
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                minWidth: '1400px',
+            <Paper
+              sx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
               }}
             >
-              {/* Enhanced Table Header with subcolumns */}
-              <thead>
-                <tr>
-                  <th
-                    style={{
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 3,
-                      backgroundColor: '#ffffff',
-                      minWidth: '220px',
-                      textAlign: 'left',
-                      padding: '12px',
-                      borderBottom: '1px solid #e0e0e0',
-                      fontWeight: 'bold',
-                      fontSize: '1rem',
-                      boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
-                    }}
-                    rowSpan={2}
-                  >
-                    Item Description
-                  </th>
-                  {monthNames.map((month, idx) => (
-                    <th
-                      key={month}
-                      colSpan={3}
-                      style={{
-                        backgroundColor: '#f5f5f5',
-                        textAlign: 'center',
-                        padding: '8px',
-                        borderBottom: '1px solid #e0e0e0',
-                        fontWeight: 'bold',
-                        fontSize: '1rem',
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 2,
-                        minWidth: '240px',
-                        borderRight:
-                          idx !== monthNames.length - 1 ? '2.5px solid #bdbdbd' : undefined,
-                        boxShadow: idx !== monthNames.length - 1 ? '2px 0 0 #bdbdbd' : undefined,
-                      }}
-                    >
-                      {month}
-                    </th>
-                  ))}
-                </tr>
-                <tr>
-                  {monthNames.map((_, idx) => [
-                    <th
-                      key={`current-${idx}`}
-                      style={{
-                        backgroundColor: '#f5f5f5',
-                        fontWeight: 'bold',
-                        fontSize: '0.95rem',
-                        borderBottom: '1px solid #e0e0e0',
-                        minWidth: '80px',
-                      }}
-                    >
-                      Current Stock
-                    </th>,
-                    <th
-                      key={`plan-${idx}`}
-                      style={{
-                        backgroundColor: '#f5f5f5',
-                        fontWeight: 'bold',
-                        fontSize: '0.95rem',
-                        borderBottom: '1px solid #e0e0e0',
-                        minWidth: '80px',
-                      }}
-                    >
-                      Schedule
-                    </th>,
-                    <th
-                      key={`actual-${idx}`}
-                      style={{
-                        backgroundColor: '#f5f5f5',
-                        fontWeight: 'bold',
-                        fontSize: '0.95rem',
-                        borderBottom: '1px solid #e0e0e0',
-                        minWidth: '80px',
-                        borderRight:
-                          idx !== monthNames.length - 1 ? '2.5px solid #bdbdbd' : undefined,
-                      }}
-                    >
-                      Actual
-                    </th>,
-                  ])}
-                </tr>
-              </thead>
-
-              {/* Table Body */}
-              <tbody>
-                {data.map((row, index) => (
-                  <tr
-                    key={row._id || index}
-                    style={{
-                      backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9',
-                    }}
-                  >
-                    <td
-                      style={{
-                        position: 'sticky',
-                        left: 0,
-                        zIndex: 1,
-                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9',
-                        padding: '12px',
-                        textAlign: 'left',
-                        fontWeight: 'bold',
-                        borderBottom: '1px solid #e0e0e0',
-                        boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {row.item_description}
-                    </td>
-                    {monthNames.map((_, idx) => {
-                      const monthData = row.monthly_data.find((m) => m.month === idx + 1) || {};
-                      return [
-                        <td
-                          key={`current-${idx}`}
-                          style={{
-                            padding: '8px',
-                            textAlign: 'center',
-                            borderBottom: '1px solid #e0e0e0',
-                          }}
-                        >
-                          <Box bgcolor={'#e3f2fd'} px={1} borderRadius={1}>
-                            {typeof monthData.total_current_stock === 'number'
-                              ? monthData.total_current_stock
-                              : '-'}
-                          </Box>
-                        </td>,
-                        <td
-                          key={`plan-${idx}`}
-                          style={{
-                            padding: '8px',
-                            textAlign: 'center',
-                            borderBottom: '1px solid #e0e0e0',
-                          }}
-                        >
-                          <Box bgcolor={'#fffde7'} px={1} borderRadius={1}>
-                            {typeof monthData.total_plan === 'number' ? monthData.total_plan : '-'}
-                          </Box>
-                        </td>,
-                        <td
-                          key={`actual-${idx}`}
-                          style={{
-                            padding: '8px',
-                            textAlign: 'center',
-                            borderBottom: '1px solid #e0e0e0',
-                            borderRight:
-                              idx !== monthNames.length - 1 ? '2.5px solid #bdbdbd' : undefined,
-                          }}
-                        >
-                          <Box bgcolor={'#e8f5e9'} px={1} borderRadius={1}>
-                            {typeof monthData.total_actual === 'number'
-                              ? monthData.total_actual
-                              : '-'}
-                          </Box>
-                        </td>,
-                      ];
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {data.length === 0 && !loading && (
-              <Box
+              <TableContainer
+                component={Paper}
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '200px',
-                  backgroundColor: '#ffffff',
-                  borderTop: '1px solid #e0e0e0',
+                  flex: 1,
+                  overflow: 'auto',
+                  maxHeight: '77vh', // enables vertical scroll
+                  scrollbarWidth: 'thin',
+                  '&::-webkit-scrollbar': {
+                    width: '8px',
+                    height: '8px', // enables horizontal scroll
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: '#888',
+                    borderRadius: '4px',
+                  },
+                  '&::-webkit-scrollbar-thumb:hover': {
+                    backgroundColor: '#555',
+                  },
                 }}
               >
-                <Typography variant="body1" color="textSecondary">
-                  No data available for {year}
-                </Typography>
-              </Box>
-            )}
+                <Table stickyHeader sx={{ minWidth: 1400, borderCollapse: 'collapse' }}>
+                  <TableHead>
+                    {/* First header row */}
+                    <TableRow>
+                      <TableCell
+                        rowSpan={2}
+                        sx={{
+                          position: 'sticky',
+                          left: 0,
+                          zIndex: 3,
+                          backgroundColor: '#ffffff',
+                          minWidth: 220,
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
+                        }}
+                      >
+                        Item Description
+                      </TableCell>
+                      {monthNames.map((month, idx) => (
+                        <TableCell
+                          key={month}
+                          colSpan={3}
+                          align="center"
+                          sx={{
+                            backgroundColor: '#f5f5f5',
+                            fontWeight: 'bold',
+                            fontSize: '1rem',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 2,
+                            minWidth: 240,
+                            borderRight:
+                              idx !== monthNames.length - 1 ? '2.5px solid #bdbdbd' : undefined,
+                            boxShadow:
+                              idx !== monthNames.length - 1 ? '2px 0 0 #bdbdbd' : undefined,
+                          }}
+                        >
+                          {month}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+
+                    {/* Second header row */}
+                    <TableRow>
+                      {monthNames.map((_, idx) => (
+                        <React.Fragment key={idx}>
+                          <TableCell
+                            align="center"
+                            sx={{
+                              backgroundColor: '#f5f5f5',
+                              fontWeight: 'bold',
+                              fontSize: '0.95rem',
+                              position: 'sticky',
+                              top: 41,
+                              zIndex: 2,
+                              minWidth: 80,
+                            }}
+                          >
+                            Current Stock
+                          </TableCell>
+                          <TableCell
+                            align="center"
+                            sx={{
+                              backgroundColor: '#f5f5f5',
+                              fontWeight: 'bold',
+                              fontSize: '0.95rem',
+                              position: 'sticky',
+                              top: 41,
+                              zIndex: 2,
+                              minWidth: 80,
+                            }}
+                          >
+                            Schedule
+                          </TableCell>
+                          <TableCell
+                            align="center"
+                            sx={{
+                              backgroundColor: '#f5f5f5',
+                              fontWeight: 'bold',
+                              fontSize: '0.95rem',
+                              position: 'sticky',
+                              top: 41,
+                              zIndex: 2,
+                              minWidth: 80,
+                              borderRight:
+                                idx !== monthNames.length - 1 ? '2.5px solid #bdbdbd' : undefined,
+                            }}
+                          >
+                            Actual
+                          </TableCell>
+                        </React.Fragment>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+
+                  <TableBody>
+                    {data.map((row, index) => (
+                      <TableRow
+                        key={row._id || index}
+                        sx={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9' }}
+                      >
+                        <TableCell
+                          sx={{
+                            position: 'sticky',
+                            left: 0,
+                            zIndex: 1,
+                            backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9',
+                            fontWeight: 'bold',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                            overflow: 'hidden',
+                            boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
+                          }}
+                        >
+                          {row.item_description}
+                        </TableCell>
+
+                        {monthNames.map((_, idx) => {
+                          const monthData = row.monthly_data.find((m) => m.month === idx + 1) || {};
+                          return (
+                            <React.Fragment key={idx}>
+                              <TableCell align="center">
+                                <Box bgcolor="#e3f2fd" px={1} borderRadius={1}>
+                                  {typeof monthData.total_current_stock === 'number'
+                                    ? monthData.total_current_stock
+                                    : '-'}
+                                </Box>
+                              </TableCell>
+                              <TableCell align="center">
+                                <Box bgcolor="#fffde7" px={1} borderRadius={1}>
+                                  {typeof monthData.total_plan === 'number'
+                                    ? monthData.total_plan
+                                    : '-'}
+                                </Box>
+                              </TableCell>
+                              <TableCell
+                                align="center"
+                                sx={{
+                                  borderRight:
+                                    idx !== monthNames.length - 1
+                                      ? '2.5px solid #bdbdbd'
+                                      : undefined,
+                                }}
+                              >
+                                <Box bgcolor="#e8f5e9" px={1} borderRadius={1}>
+                                  {typeof monthData.total_actual === 'number'
+                                    ? monthData.total_actual
+                                    : '-'}
+                                </Box>
+                              </TableCell>
+                            </React.Fragment>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {/* No Data */}
+                {data.length === 0 && !loading && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '200px',
+                      backgroundColor: '#ffffff',
+                      borderTop: '1px solid #e0e0e0',
+                    }}
+                  >
+                    <Typography variant="body1" color="textSecondary">
+                      No data available for {year}
+                    </Typography>
+                  </Box>
+                )}
+              </TableContainer>
+            </Paper>
           </Box>
         )}
       </Box>
