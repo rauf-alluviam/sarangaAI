@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Box, TextField, Typography, CircularProgress } from '@mui/material';
+import {
+  Box,
+  TextField,
+  Typography,
+  CircularProgress,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -129,215 +141,200 @@ const MonthlyFgStockNew = () => {
         ) : (
           <Box
             sx={{
-              minHeight: '77vh', // or a fixed height like "600px"
-              width: '100%', // Make sure it's not constrained by parent
-              //  bgcolor: 'lightblue',
-              overflow: 'auto', // Enables both vertical & horizontal scroll
-              scrollbarWidth: 'thin', // Firefox
-              '&::-webkit-scrollbar': {
-                width: '8px',
-                height: '8px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: '#888',
-                borderRadius: '4px',
-              },
-              '&::-webkit-scrollbar-thumb:hover': {
-                backgroundColor: '#555',
-              },
+              flex: 1,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: '76vh',
             }}
           >
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                minWidth: '2000px',
+            <Paper
+              sx={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
               }}
             >
-              {/* Table Header */}
-              <thead>
-                <tr>
-                  <th
-                    style={{
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 3,
-                      backgroundColor: '#ffffff',
-                      minWidth: '220px',
-                      textAlign: 'left',
-                      padding: '12px',
-                      borderBottom: '1px solid #e0e0e0',
-                      fontWeight: 'bold',
-                      fontSize: '1rem',
-                      boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
-                    }}
-                  >
-                    Item Description
-                  </th>
-                  {monthNames.map((month) => (
-                    <th
-                      key={month}
-                      colSpan={2}
-                      style={{
-                        backgroundColor: '#f5f5f5',
-                        textAlign: 'center',
-                        padding: '8px',
-                        borderBottom: '1px solid #e0e0e0',
-                        fontWeight: 'bold',
-                        fontSize: '1rem',
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 2,
-                      }}
-                    >
-                      {month}
-                    </th>
-                  ))}
-                </tr>
-                <tr>
-                  <th
-                    style={{
-                      position: 'sticky',
-                      left: 0,
-                      zIndex: 3,
-                      backgroundColor: '#ffffff',
-                      minWidth: '220px',
-                      textAlign: 'left',
-                      padding: '12px',
-                      borderBottom: '1px solid #e0e0e0',
-                      fontWeight: 'bold',
-                      fontSize: '0.9rem',
-                      boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
-                    }}
-                  ></th>
-                  {monthNames.map((month) => (
-                    <React.Fragment key={month}>
-                      <th
-                        style={{
-                          backgroundColor: '#f5f5f5',
-                          padding: '8px',
-                          borderBottom: '1px solid #e0e0e0',
-                          fontWeight: 'bold',
-                          fontSize: '0.9rem',
-                          position: 'sticky',
-                          top: '41px',
-                          zIndex: 2,
-                        }}
-                      >
-                        Schedule
-                      </th>
-                      <th
-                        style={{
-                          backgroundColor: '#f5f5f5',
-                          padding: '8px',
-                          borderBottom: '1px solid #e0e0e0',
-                          fontWeight: 'bold',
-                          fontSize: '0.9rem',
-                          position: 'sticky',
-                          top: '41px',
-                          zIndex: 2,
-                        }}
-                      >
-                        Dispatched
-                      </th>
-                    </React.Fragment>
-                  ))}
-                </tr>
-              </thead>
-
-              {/* Table Body */}
-              <tbody>
-                {data.map((row, index) => (
-                  <tr
-                    key={row._id || index}
-                    style={{
-                      backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9',
-                    }}
-                  >
-                    <td
-                      style={{
-                        position: 'sticky',
-                        left: 0,
-                        zIndex: 1,
-                        backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9',
-                        padding: '12px',
-                        textAlign: 'left',
-                        fontWeight: 'bold',
-                        borderBottom: '1px solid #e0e0e0',
-                        boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {row.item_description}
-                    </td>
-                    {monthNames.map((_, idx) => (
-                      <React.Fragment key={idx}>
-                        <td
-                          style={{
-                            padding: '8px',
-                            textAlign: 'center',
-                            borderBottom: '1px solid #e0e0e0',
-                          }}
-                        >
-                          <Box bgcolor={'#e3f2fd'} px={1} borderRadius={1}>
-                            {row.monthly_data[idx]?.monthly_schedule || '-'}
-                          </Box>
-                        </td>
-                        {(() => {
-                          const schedule = Number(row.monthly_data[idx]?.monthly_schedule) || 0;
-                          const dispatched = Number(row.monthly_data[idx]?.monthly_dispatched) || 0;
-                          let percent = schedule > 0 ? (dispatched / schedule) * 100 : null;
-                          let bgColor = '#f1f8e9';
-                          if (percent !== null) {
-                            if (percent < 80) bgColor = '#ff00269d'; // light red
-                            else if (percent >= 80 && percent <= 90)
-                              bgColor = '#c78212a9'; // light orange
-                            else if (percent > 90) bgColor = '#15881f7c'; // light green
-                          }
-                          return (
-                            <td
-                              style={{
-                                padding: '8px',
-                                textAlign: 'center',
-                                borderBottom: '1px solid #e0e0e0',
-                              }}
-                            >
-                              <Box bgcolor={bgColor} px={1} borderRadius={1}>
-                                {dispatched || '-'}
-                                {percent !== null && schedule > 0 ? (
-                                  <Typography variant="caption" fontSize={'0.9rem'} ml={1}>
-                                    ({percent.toFixed(0)}%)
-                                  </Typography>
-                                ) : null}
-                              </Box>
-                            </td>
-                          );
-                        })()}
-                      </React.Fragment>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {data.length === 0 && !loading && (
-              <Box
+              <TableContainer
                 sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '200px',
-                  backgroundColor: '#ffffff',
-                  borderTop: '1px solid #e0e0e0',
+                  flex: 1,
+                  overflow: 'auto',
+                  maxHeight: '76vh', // 🔑 ensures vertical scrolling
+                  scrollbarWidth: 'thin',
+                  '&::-webkit-scrollbar': {
+                    width: '20px',
+                    height: '20px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: '#888',
+                    borderRadius: '4px',
+                  },
+                  '&::-webkit-scrollbar-thumb:hover': {
+                    backgroundColor: '#555',
+                  },
                 }}
               >
-                <Typography variant="body1" color="textSecondary">
-                  No data available for {year}
-                </Typography>
-              </Box>
-            )}
+                <Table stickyHeader sx={{ minWidth: 'max-content' }}>
+                  <TableHead>
+                    {/* First row */}
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          position: 'sticky',
+                          left: 0,
+                          zIndex: 3,
+                          backgroundColor: '#ffffff',
+                          minWidth: '220px',
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
+                        }}
+                      >
+                        Item Description
+                      </TableCell>
+                      {monthNames.map((month) => (
+                        <TableCell
+                          key={month}
+                          colSpan={2}
+                          align="center"
+                          sx={{
+                            backgroundColor: '#f5f5f5',
+                            fontWeight: 'bold',
+                            fontSize: '1rem',
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 2,
+                          }}
+                        >
+                          {month}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+
+                    {/* Second row */}
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          position: 'sticky',
+                          left: 0,
+                          zIndex: 3,
+                          backgroundColor: '#ffffff',
+                          minWidth: '220px',
+                          boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
+                        }}
+                      />
+                      {monthNames.map((month) => (
+                        <React.Fragment key={month}>
+                          <TableCell
+                            align="center"
+                            sx={{
+                              backgroundColor: '#f5f5f5',
+                              fontWeight: 'bold',
+                              fontSize: '0.9rem',
+                              position: 'sticky',
+                              top: 41,
+                              zIndex: 2,
+                            }}
+                          >
+                            Schedule
+                          </TableCell>
+                          <TableCell
+                            align="center"
+                            sx={{
+                              backgroundColor: '#f5f5f5',
+                              fontWeight: 'bold',
+                              fontSize: '0.9rem',
+                              position: 'sticky',
+                              top: 41,
+                              zIndex: 2,
+                            }}
+                          >
+                            Dispatched
+                          </TableCell>
+                        </React.Fragment>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+
+                  <TableBody>
+                    {data.map((row, index) => (
+                      <TableRow
+                        key={row._id || index}
+                        sx={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9' }}
+                      >
+                        <TableCell
+                          sx={{
+                            position: 'sticky',
+                            left: 0,
+                            zIndex: 1,
+                            backgroundColor: index % 2 === 0 ? '#ffffff' : '#f9f9f9',
+                            fontWeight: 'bold',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                            overflow: 'hidden',
+                            boxShadow: '2px 0 3px rgba(0,0,0,0.1)',
+                          }}
+                        >
+                          {row.item_description}
+                        </TableCell>
+
+                        {monthNames.map((_, idx) => {
+                          const schedule = Number(row.monthly_data[idx]?.monthly_schedule) || 0;
+                          const dispatched = Number(row.monthly_data[idx]?.monthly_dispatched) || 0;
+                          const percent = schedule > 0 ? (dispatched / schedule) * 100 : null;
+
+                          let bgColor = '#f1f8e9';
+                          if (percent !== null) {
+                            if (percent < 80) bgColor = '#ff00269d';
+                            else if (percent >= 80 && percent <= 90) bgColor = '#c78212a9';
+                            else if (percent > 90) bgColor = '#15881f7c';
+                          }
+
+                          return (
+                            <React.Fragment key={idx}>
+                              <TableCell align="center">
+                                <Box bgcolor={'#e3f2fd'} px={1} borderRadius={1}>
+                                  {schedule || '-'}
+                                </Box>
+                              </TableCell>
+                              <TableCell align="center">
+                                <Box bgcolor={bgColor} px={1} borderRadius={1}>
+                                  {dispatched || '-'}
+                                  {percent !== null && schedule > 0 && (
+                                    <Typography variant="caption" ml={1}>
+                                      ({percent.toFixed(0)}%)
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </TableCell>
+                            </React.Fragment>
+                          );
+                        })}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {/* No Data */}
+              {data.length === 0 && !loading && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '200px',
+                    backgroundColor: '#ffffff',
+                    borderTop: '1px solid #e0e0e0',
+                  }}
+                >
+                  <Typography variant="body1" color="textSecondary">
+                    No data available for {year}
+                  </Typography>
+                </Box>
+              )}
+            </Paper>
           </Box>
         )}
       </Box>
