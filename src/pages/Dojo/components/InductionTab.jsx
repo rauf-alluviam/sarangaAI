@@ -78,9 +78,7 @@ const InductionTab = ({
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `Failed to set induction result: ${response.status} ${response.statusText} - ${errorText}`
-        );
+        throw new Error(`${errorText}`);
       }
 
       const data = await response.json();

@@ -52,7 +52,131 @@ const StoreStock = () => {
     refreshStoreStock();
   }, [date, isOpen, dispatch, token]);
 
+  // Add this validation check function at the top of your component (after state declarations)
+
+  const validateAllLocationFields = (locationObj) => {
+    const validateLocationField = (value) => {
+      if (!value) return { isValid: true, error: '' };
+
+      const trimmedValue = value.trim();
+
+      // Case 1: Check for spaces
+      if (value !== trimmedValue || value.includes(' ')) {
+        return { isValid: false, error: 'No spaces allowed' };
+      }
+
+      // Case 2: Check for special characters (only alphanumeric and decimal point allowed)
+      if (!/^[a-zA-Z0-9.]*$/.test(value)) {
+        return { isValid: false, error: 'No special characters allowed' };
+      }
+
+      // Case 3: Overall character limit - 10 characters max
+      if (value.length > 10) {
+        return { isValid: false, error: 'Maximum 10 characters allowed' };
+      }
+
+      // Case 4: Check if it starts with a number (pure numeric/decimal)
+      const isStartsWithNumber = /^[0-9]/.test(value);
+      if (isStartsWithNumber) {
+        const isNumeric = /^[0-9.]+$/.test(value);
+        if (isNumeric) {
+          // Max 7 digits for pure numeric, decimal allowed
+          const numericPart = value.replace(/\./g, '');
+          if (numericPart.length > 7) {
+            return { isValid: false, error: 'Max 7 numeric digits allowed' };
+          }
+          // Check for multiple decimal points
+          const decimalCount = (value.match(/\./g) || []).length;
+          if (decimalCount > 1) {
+            return { isValid: false, error: 'Only one decimal point allowed' };
+          }
+          return { isValid: true, error: '' };
+        }
+        // If starts with number but has letters, it's invalid
+        return { isValid: false, error: 'If starting with number, use numbers only' };
+      }
+
+      // Case 5: Check if it starts with letters
+      const isStartsWithLetter = /^[a-zA-Z]/.test(value);
+      if (isStartsWithLetter) {
+        // Check if it's only letters
+        const isOnlyLetters = /^[a-zA-Z]+$/.test(value);
+        if (isOnlyLetters) {
+          // Allow only letters without completion message
+          if (value.length > 3) {
+            return { isValid: false, error: 'Max 3 letters allowed' };
+          }
+          return { isValid: true, error: '' };
+        }
+
+        // Check alphanumeric pattern (letters + numbers)
+        const alphanumericMatch = value.match(/^([a-zA-Z]+)([0-9.]+)$/);
+        if (alphanumericMatch) {
+          const [, letters, numbers] = alphanumericMatch;
+
+          // Max 3 characters for letters
+          if (letters.length > 3) {
+            return { isValid: false, error: 'Max 3 letters allowed' };
+          }
+
+          // Max 7 digits for numbers (excluding decimal points)
+          const numericPart = numbers.replace(/\./g, '');
+          if (numericPart.length > 7) {
+            return { isValid: false, error: 'Max 7 numeric digits allowed' };
+          }
+
+          // Check for multiple decimal points
+          const decimalCount = (numbers.match(/\./g) || []).length;
+          if (decimalCount > 1) {
+            return { isValid: false, error: 'Only one decimal point allowed' };
+          }
+
+          // Accept any valid letter+number combination (no 10-character requirement)
+          return { isValid: true, error: '' };
+        }
+
+        // If starts with letter but doesn't match pattern
+        return { isValid: false, error: 'Format: letters + numbers (e.g., A123, AB12.34)' };
+      }
+
+      // Invalid pattern
+      return { isValid: false, error: 'Start with letters or numbers only' };
+    };
+
+    // Check all location fields
+    const results = {};
+    ['p1', 'p2', 'p3'].forEach((key) => {
+      const value = locationObj[key] || '';
+      results[key] = validateLocationField(value);
+    });
+
+    return results;
+  };
+
   const handleSubmit = async () => {
+    // Check if location data exists and validate it
+    if (edit.location) {
+      const validationResults = validateAllLocationFields(edit.location);
+
+      // Check if any field has validation errors
+      const hasValidationErrors = Object.values(validationResults).some(
+        (result) => !result.isValid
+      );
+
+      if (hasValidationErrors) {
+        // Show error message and prevent save
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          text: 'Please fix the location field errors before saving.',
+          timer: 3000,
+          showConfirmButton: true,
+        });
+        return; // Exit early, don't proceed with save
+      }
+    }
+
+    // Original handleSubmit logic continues here...
     const currentStock = Number(edit.current) || 0;
     let status = '';
     let color = '';
@@ -77,6 +201,27 @@ const StoreStock = () => {
   };
 
   const confirmUpdate = () => {
+    // Double-check validation before final save
+    if (edit.location) {
+      const validationResults = validateAllLocationFields(edit.location);
+      const hasValidationErrors = Object.values(validationResults).some(
+        (result) => !result.isValid
+      );
+
+      if (hasValidationErrors) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          text: 'Cannot save data with invalid location fields.',
+          timer: 3000,
+          showConfirmButton: true,
+        });
+        setUpdateDialogOpen(false);
+        return;
+      }
+    }
+
+    // Original confirmUpdate logic continues here...
     dispatch(
       updateStoreStock(
         edit,
@@ -92,6 +237,8 @@ const StoreStock = () => {
           });
           setEdit({});
           setUpdateDialogOpen(false);
+          // Reset fetched state when edit is cleared
+          setFetched({ p1: false, p2: false, p3: false });
           // Refresh data after successful update
           // refreshStoreStock();
         },
@@ -330,6 +477,9 @@ const StoreStock = () => {
                         zIndex: 2,
                         bgcolor: '#f5f5f5 !important',
                         fontWeight: 'bold',
+                        width: '120px',
+                        minWidth: '120px',
+                        maxWidth: '120px',
                       }}
                     >
                       Use me First <br />
@@ -344,6 +494,9 @@ const StoreStock = () => {
                         zIndex: 2,
                         bgcolor: '#f5f5f5 !important',
                         fontWeight: 'bold',
+                        width: '120px',
+                        minWidth: '120px',
+                        maxWidth: '120px',
                       }}
                     >
                       <LuMoveLeft style={{ fontSize: '1.3rem' }} />
@@ -359,6 +512,9 @@ const StoreStock = () => {
                         zIndex: 2,
                         bgcolor: '#f5f5f5 !important',
                         fontWeight: 'bold',
+                        width: '120px',
+                        minWidth: '120px',
+                        maxWidth: '120px',
                       }}
                     >
                       <LuMoveLeft style={{ fontSize: '1.3rem' }} />
@@ -397,43 +553,231 @@ const StoreStock = () => {
                             // Helper to check if a field is filled
                             const isFilled = (val) => val && val.trim() !== '';
 
-                            // Handler for onChange with GET request trigger
+                            // Validation function
+                            const validateLocationField = (value) => {
+                              if (!value) return { isValid: true, error: '' };
+
+                              const trimmedValue = value.trim();
+
+                              // Case 1: Check for spaces
+                              if (value !== trimmedValue || value.includes(' ')) {
+                                return { isValid: false, error: 'No spaces allowed' };
+                              }
+
+                              // Case 2: Check for special characters (only alphanumeric and decimal point allowed)
+                              if (!/^[a-zA-Z0-9.]*$/.test(value)) {
+                                return { isValid: false, error: 'No special characters allowed' };
+                              }
+
+                              // Case 3: Overall character limit - 10 characters max
+                              if (value.length > 10) {
+                                return { isValid: false, error: 'Maximum 10 characters allowed' };
+                              }
+
+                              // Case 4: Check if it starts with a number (pure numeric/decimal)
+                              const isStartsWithNumber = /^[0-9]/.test(value);
+                              if (isStartsWithNumber) {
+                                const isNumeric = /^[0-9.]+$/.test(value);
+                                if (isNumeric) {
+                                  // Max 7 digits for pure numeric, decimal allowed
+                                  const numericPart = value.replace(/\./g, '');
+                                  if (numericPart.length > 7) {
+                                    return {
+                                      isValid: false,
+                                      error: 'Max 7 numeric digits allowed',
+                                    };
+                                  }
+                                  // Check for multiple decimal points
+                                  const decimalCount = (value.match(/\./g) || []).length;
+                                  if (decimalCount > 1) {
+                                    return {
+                                      isValid: false,
+                                      error: 'Only one decimal point allowed',
+                                    };
+                                  }
+                                  return { isValid: true, error: '' };
+                                }
+                                // If starts with number but has letters, it's invalid
+                                return {
+                                  isValid: false,
+                                  error: 'If starting with number, use numbers only',
+                                };
+                              }
+
+                              // Case 5: Check if it starts with letters
+                              const isStartsWithLetter = /^[a-zA-Z]/.test(value);
+                              if (isStartsWithLetter) {
+                                // Check if it's only letters
+                                const isOnlyLetters = /^[a-zA-Z]+$/.test(value);
+                                if (isOnlyLetters) {
+                                  // Allow only letters without completion message
+                                  if (value.length > 3) {
+                                    return { isValid: false, error: 'Max 3 letters allowed' };
+                                  }
+                                  return { isValid: true, error: '' };
+                                }
+
+                                // Check alphanumeric pattern (letters + numbers)
+                                const alphanumericMatch = value.match(/^([a-zA-Z]+)([0-9.]+)$/);
+                                if (alphanumericMatch) {
+                                  const [, letters, numbers] = alphanumericMatch;
+
+                                  // Max 3 characters for letters
+                                  if (letters.length > 3) {
+                                    return { isValid: false, error: 'Max 3 letters allowed' };
+                                  }
+
+                                  // Max 7 digits for numbers (excluding decimal points)
+                                  const numericPart = numbers.replace(/\./g, '');
+                                  if (numericPart.length > 7) {
+                                    return {
+                                      isValid: false,
+                                      error: 'Max 7 numeric digits allowed',
+                                    };
+                                  }
+
+                                  // Check for multiple decimal points
+                                  const decimalCount = (numbers.match(/\./g) || []).length;
+                                  if (decimalCount > 1) {
+                                    return {
+                                      isValid: false,
+                                      error: 'Only one decimal point allowed',
+                                    };
+                                  }
+
+                                  // Accept any valid letter+number combination (no 10-character requirement)
+                                  return { isValid: true, error: '' };
+                                }
+
+                                // If starts with letter but doesn't match pattern
+                                return {
+                                  isValid: false,
+                                  error: 'Format: letters + numbers (e.g., A123, AB12.34)',
+                                };
+                              }
+
+                              // Invalid pattern
+                              return {
+                                isValid: false,
+                                error: 'Start with letters or numbers only',
+                              };
+                            };
+
+                            // Get validation state for each field
+                            const getValidation = (key) => {
+                              const value = locObj[key] || '';
+                              return validateLocationField(value);
+                            };
+
+                            // Handler for onChange with GET request trigger and input restriction
                             const handleLocationChange = (key, value) => {
+                              // Auto-trim spaces
+                              const trimmedValue = value.trim();
+
+                              // Input restriction logic
+                              let restrictedValue = trimmedValue;
+
+                              // If starts with number, restrict to max 7 numeric characters (excluding decimals)
+                              if (/^[0-9]/.test(trimmedValue)) {
+                                const isNumeric = /^[0-9.]+$/.test(trimmedValue);
+                                if (isNumeric) {
+                                  // Count only numeric digits (exclude decimal points)
+                                  const numericPart = trimmedValue.replace(/\./g, '');
+                                  if (numericPart.length > 7) {
+                                    // Don't allow more than 7 numeric digits
+                                    return;
+                                  }
+                                }
+                              }
+
+                              // If starts with letter, enforce 10 character limit
+                              if (/^[a-zA-Z]/.test(trimmedValue) && trimmedValue.length > 10) {
+                                // Don't allow more than 10 characters for letter+number format
+                                return;
+                              }
+
+                              // General 10 character limit
+                              if (trimmedValue.length > 10) {
+                                return;
+                              }
+
                               setEdit((prev) => ({
                                 ...prev,
                                 location: {
                                   ...locObj,
-                                  [key]: value,
+                                  [key]: restrictedValue,
                                 },
                               }));
-                              // Only trigger GET if just filled and not already fetched
-                              if (key === 'p1' && isFilled(value) && !fetched.p1) {
-                                setFetched((prev) => ({ ...prev, p1: true }));
-                                refreshStoreStock();
-                              }
-                              if (key === 'p2' && isFilled(value) && !fetched.p2) {
-                                setFetched((prev) => ({ ...prev, p2: true }));
-                                refreshStoreStock();
+
+                              // Only trigger GET if valid, just filled and not already fetched
+                              const validation = validateLocationField(restrictedValue);
+                              if (validation.isValid && isFilled(restrictedValue)) {
+                                if (key === 'p1' && !fetched.p1) {
+                                  setFetched((prev) => ({ ...prev, p1: true }));
+                                  refreshStoreStock();
+                                }
+                                if (key === 'p2' && !fetched.p2) {
+                                  setFetched((prev) => ({ ...prev, p2: true }));
+                                  refreshStoreStock();
+                                }
                               }
                             };
 
                             return ['p1', 'p2', 'p3'].map((key) => {
                               const val = locObj[key] || '';
+                              const validation = getValidation(key);
+
                               // Disable logic: P2 disabled if P1 not filled, P3 disabled if P2 not filled
                               let disabled = false;
                               if (key === 'p2' && !isFilled(locObj.p1)) disabled = true;
                               if (key === 'p3' && !isFilled(locObj.p2)) disabled = true;
+
                               return (
                                 <TableCell align="center" key={key}>
-                                  <TextField
-                                    fullWidth
-                                    size="small"
-                                    value={val}
-                                    onChange={(e) => handleLocationChange(key, e.target.value)}
-                                    sx={{ background: '#fff', borderRadius: 1 }}
-                                    placeholder={key.toUpperCase()}
-                                    disabled={disabled}
-                                  />
+                                  <Box>
+                                    <TextField
+                                      fullWidth
+                                      size="small"
+                                      value={val}
+                                      onChange={(e) => handleLocationChange(key, e.target.value)}
+                                      sx={{
+                                        background: '#fff',
+                                        borderRadius: 1,
+                                        '& .MuiOutlinedInput-root': {
+                                          '& fieldset': {
+                                            borderColor:
+                                              !validation.isValid && val ? '#d32f2f' : undefined,
+                                          },
+                                          '&:hover fieldset': {
+                                            borderColor:
+                                              !validation.isValid && val ? '#d32f2f' : undefined,
+                                          },
+                                          '&.Mui-focused fieldset': {
+                                            borderColor:
+                                              !validation.isValid && val ? '#d32f2f' : undefined,
+                                          },
+                                        },
+                                      }}
+                                      placeholder={key.toUpperCase()}
+                                      disabled={disabled}
+                                      error={!validation.isValid && val !== ''}
+                                    />
+                                    {!validation.isValid && val && (
+                                      <Typography
+                                        variant="caption"
+                                        color="error"
+                                        sx={{
+                                          display: 'block',
+                                          mt: 0.5,
+                                          fontSize: '0.70rem',
+                                          lineHeight: 1.2,
+                                          textAlign: 'left',
+                                        }}
+                                      >
+                                        {validation.error}
+                                      </Typography>
+                                    )}
+                                  </Box>
                                 </TableCell>
                               );
                             });
@@ -497,7 +841,6 @@ const StoreStock = () => {
                             </Box>
                           </TableCell>
                         )}
-
                         {/* Status column moved after Location columns */}
                         <TableCell sx={{ width: '7rem', padding: 0 }} align="center">
                           {Number(elem.current) < elem.minimum && (

@@ -117,7 +117,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
             </Grid>
 
             {/* Schedule field - only show for day 1 */}
-            {addData.day === 1 && (
+            {/* {addData.day === 1 && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -132,7 +132,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
                   required
                 />
               </Grid>
-            )}
+            )} */}
 
             <Grid item xs={12} sm={6}>
               <TextField

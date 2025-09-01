@@ -1167,7 +1167,7 @@ const Production = () => {
                 />
               </Grid>
 
-              {edit.day === 1 && (
+              {/* {edit.day === 1 && (
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
@@ -1181,7 +1181,7 @@ const Production = () => {
                     inputProps={{ min: 0 }}
                   />
                 </Grid>
-              )}
+              )} */}
 
               <Grid item xs={12} sm={6}>
                 <TextField
