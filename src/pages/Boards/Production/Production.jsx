@@ -31,6 +31,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import AddProduction from './AddProduction';
 import SetMonthlySchedule from './SetMonthlySchedule.jsx';
+import Swal from 'sweetalert2';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -39,10 +40,10 @@ const Production = () => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 7));
-  const [hasInitialized, setHasInitialized] = useState(false);
   const [edit, setEdit] = useState({});
   const [addData, setAddData] = useState({});
   const [monthlyScheduleModal, setMonthlyScheduleModal] = useState(false);
+  const dataFetchedRef = useRef(false);
 
   // Generate Production Plan states
   const [generateModal, setGenerateModal] = useState(false);
@@ -165,11 +166,29 @@ const Production = () => {
       const monthStr = generateData.month.toString().padStart(2, '0');
       setSelectedDate(`${generateData.year}-${monthStr}`);
 
+      // Reset fetch flag and fetch new data
+      dataFetchedRef.current = false;
       fetchData();
     } catch (error) {
       console.error('Error generating production plan:', error);
 
-      if (error.response?.status === 400) {
+      // Handle specific error message with SweetAlert2
+      if (
+        error.response?.status === 500 &&
+        error.response.data?.detail?.includes('Please set the monthly schedule for')
+      ) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Schedule Not Set',
+          text: error.response.data.detail,
+          confirmButtonText: 'Set Schedule',
+          confirmButtonColor: colors.primary,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            setMonthlyScheduleModal(true);
+          }
+        });
+      } else if (error.response?.status === 400) {
         enqueueSnackbar(
           error.response.data.detail || 'Production plan already exists for this period',
           { variant: 'warning' }
@@ -201,7 +220,6 @@ const Production = () => {
       const [datePart] = timestamp.split('T');
       const [yearStr, monthStr, dayStr] = datePart.split('-');
       const day = parseInt(dayStr, 10);
-      console.log(day);
       const partKey = part_description;
 
       if (!partMap.has(partKey)) {
@@ -283,6 +301,10 @@ const Production = () => {
   const fetchData = useCallback(async () => {
     if (!token) return;
 
+    // Prevent duplicate calls
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
+
     const [year, month] = selectedDate.split('-');
     setIsLoading(true);
 
@@ -302,29 +324,42 @@ const Production = () => {
       enqueueSnackbar('Data fetched successfully', { variant: 'success' });
     } catch (error) {
       console.error('Error fetching data:', error);
-      enqueueSnackbar('Error fetching data', { variant: 'error' });
+
+      // Handle specific error message with SweetAlert2
+      if (
+        error.response?.status === 500 &&
+        error.response.data?.detail?.includes('Please set the monthly schedule for')
+      ) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Schedule Not Set',
+          text: error.response.data.detail,
+          confirmButtonText: 'Set Schedule',
+          confirmButtonColor: colors.primary,
+        }).then((result) => {
+          if (result.isConfirmed) {
+            setMonthlyScheduleModal(true);
+          }
+        });
+      } else {
+        enqueueSnackbar('Error fetching data', { variant: 'error' });
+      }
     } finally {
       setIsLoading(false);
     }
   }, [token, selectedDate]);
 
-  const initialCallMade = useRef(false);
-
+  // Reset the dataFetchedRef when selectedDate changes
   useEffect(() => {
-    if (!hasInitialized && token) {
-      setHasInitialized(true);
-      if (!initialCallMade.current) {
-        initialCallMade.current = true;
-        fetchData();
-      }
-    }
-  }, [token, hasInitialized, fetchData]);
+    dataFetchedRef.current = false;
+  }, [selectedDate]);
 
+  // Use a single useEffect for data fetching
   useEffect(() => {
-    if (hasInitialized && token) {
+    if (token) {
       fetchData();
     }
-  }, [selectedDate, hasInitialized, token, fetchData]);
+  }, [token, selectedDate, fetchData]);
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
@@ -396,7 +431,7 @@ const Production = () => {
             Plan
           </Typography>
         </Box>
-        <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa', justifyContent: 'flex-start' }}>
+        <Box sx={{ ...cellStyle, backgroundColor: ' #f8f9fa', justifyContent: 'flex-start' }}>
           <Typography
             variant="caption"
             sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#d32f2f' }}
@@ -437,6 +472,8 @@ const Production = () => {
 
       enqueueSnackbar('Record updated successfully', { variant: 'success' });
       setEdit({});
+      // Reset fetch flag and fetch updated data
+      dataFetchedRef.current = false;
       fetchData();
     } catch (error) {
       console.error('Error updating record:', error);
@@ -1166,22 +1203,6 @@ const Production = () => {
                   }}
                 />
               </Grid>
-
-              {/* {edit.day === 1 && (
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Schedule"
-                    type="number"
-                    value={edit.schedule || ''}
-                    onChange={(e) =>
-                      setEdit((prev) => ({ ...prev, schedule: parseInt(e.target.value) || 0 }))
-                    }
-                    variant="outlined"
-                    inputProps={{ min: 0 }}
-                  />
-                </Grid>
-              )} */}
 
               <Grid item xs={12} sm={6}>
                 <TextField
