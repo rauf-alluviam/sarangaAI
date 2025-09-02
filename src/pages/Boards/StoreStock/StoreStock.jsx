@@ -886,10 +886,25 @@ const StoreStock = () => {
                             elem.plan
                           )}
                         </TableCell>
-                        {/* Actual column */}
                         <TableCell sx={{ width: '14rem' }} align="center">
-                          {elem.actual}
+                          {edit._id === elem._id ? (
+                            <TextField
+                              fullWidth
+                              type="text"
+                              defaultValue={elem.actual}
+                              onChange={(e) => setEdit({ ...edit, actual: e.target.value })}
+                              sx={{ width: '100%' }}
+                              size="small"
+                            />
+                          ) : (
+                            elem.actual
+                          )}
+                        
                         </TableCell>
+                        {/* Actual column */}
+                        {/* <TableCell sx={{ width: '14rem' }} align="center">
+                          {elem.actual}
+                        </TableCell> */}
                         <TableCell sx={{ width: '6rem' }} align="center">
                           {edit._id === elem._id ? (
                             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
