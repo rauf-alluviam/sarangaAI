@@ -35,6 +35,7 @@ import { IoPersonSharp } from 'react-icons/io5';
 import { enqueueSnackbar } from 'notistack';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import AddIcon from '@mui/icons-material/Add';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -387,14 +388,21 @@ const FgStock = () => {
 
         <Button
           variant="contained"
-          sx={{ mr: '0.8rem', bgcolor: colors.primary }}
+          startIcon={<AddIcon />}
           onClick={() => setIsMonthlyUpdateOpen(true)}
+          sx={{
+            bgcolor: colors.secondary,
+            '&:hover': {
+              bgcolor: colors.secondary,
+              opacity: 0.9,
+            },
+          }}
         >
-          Monthly Update
+          Set Monthly Schedule
         </Button>
         <Button
           variant="contained"
-          sx={{ mr: '0.8rem', bgcolor: colors.primary }}
+          sx={{ mr: '0.8rem', ml: '0.8rem', bgcolor: colors.primary }}
           onClick={() => navigate('/monthly-fg-stock')}
         >
           Monthly Sheet
@@ -477,7 +485,7 @@ const FgStock = () => {
             p={'2rem'}
           >
             <Typography fontSize={'1.8rem'} textAlign={'center'} mb={2}>
-              Monthly Update
+              Set Monthly Schedule
             </Typography>
 
             <form
