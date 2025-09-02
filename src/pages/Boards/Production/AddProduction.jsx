@@ -19,7 +19,7 @@ import colors from '../../../utils/colors';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
-const AddProduction = ({ addData, setAddData, fetchData }) => {
+const AddProduction = ({ addData, setAddData, fetchData, resetDataFlag }) => {
   const { token } = useSelector((state) => state.auth);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,6 +58,7 @@ const AddProduction = ({ addData, setAddData, fetchData }) => {
 
       enqueueSnackbar('Production data added successfully', { variant: 'success' });
       handleClose();
+      resetDataFlag();
       fetchData(); // Refresh the data
     } catch (error) {
       console.error('Error adding production data:', error);

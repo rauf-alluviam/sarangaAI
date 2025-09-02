@@ -19,7 +19,7 @@ import colors from '../../../utils/colors';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
-const SetMonthlySchedule = ({ open, onClose, selectedDate, fetchData }) => {
+const SetMonthlySchedule = ({ open, onClose, selectedDate, fetchData, resetDataFlag }) => {
   const { token } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
     year: new Date().getFullYear(),
@@ -71,6 +71,7 @@ const SetMonthlySchedule = ({ open, onClose, selectedDate, fetchData }) => {
 
       enqueueSnackbar('Monthly schedule set successfully', { variant: 'success' });
       onClose();
+      if (resetDataFlag) resetDataFlag();
       if (fetchData) fetchData(); // Refresh the data if callback provided
     } catch (error) {
       console.error('Error setting monthly schedule:', error);

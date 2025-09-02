@@ -333,7 +333,7 @@ const Production = () => {
         Swal.fire({
           icon: 'error',
           title: 'Schedule Not Set',
-          text: error.response.data.detail,
+          text: error.response.data.detail.split(': ').slice(1).join(': '),
           confirmButtonText: 'Set Schedule',
           confirmButtonColor: colors.primary,
         }).then((result) => {
@@ -348,6 +348,10 @@ const Production = () => {
       setIsLoading(false);
     }
   }, [token, selectedDate]);
+
+  const resetDataFlag = useCallback(() => {
+    dataFetchedRef.current = false;
+  }, []);
 
   // Reset the dataFetchedRef when selectedDate changes
   useEffect(() => {
@@ -1154,7 +1158,12 @@ const Production = () => {
       </Dialog>
 
       {/* Add Production Modal */}
-      <AddProduction addData={addData} setAddData={setAddData} fetchData={fetchData} />
+      <AddProduction
+        addData={addData}
+        setAddData={setAddData}
+        fetchData={fetchData}
+        resetDataFlag={resetDataFlag}
+      />
 
       {/* Update Modal */}
       <Dialog
@@ -1278,6 +1287,7 @@ const Production = () => {
         onClose={() => setMonthlyScheduleModal(false)}
         selectedDate={selectedDate}
         fetchData={fetchData}
+        resetDataFlag={resetDataFlag}  // Add this line
       />
     </Box>
   );
