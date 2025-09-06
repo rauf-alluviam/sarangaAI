@@ -31,6 +31,7 @@ import FourM from './pages/Boards/FourM/FourM';
 import ToolManage from './pages/Boards/ToolManage/ToolManage';
 import BracketD from './pages/Detection/BracketD/BracketD';
 import DojoEmployee from './pages/Dojo/DojoEmployee.jsx';
+import OnboardingForm from './pages/Dojo/OnboardingForm.jsx';
 import DojoL1 from './pages/Dojo/DojoL1.jsx';
 import DojoL2 from './pages/Dojo/DojoL2.jsx';
 import EmployeeDetails from './pages/Dojo/EmployeeDetails.jsx';
@@ -298,6 +299,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DojoEmployee />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dojo-onboarding-form"
+              element={
+                <ProtectedRoute>
+                  <OnboardingForm />
                 </ProtectedRoute>
               }
             />

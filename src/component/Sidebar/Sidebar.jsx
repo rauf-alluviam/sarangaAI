@@ -83,6 +83,13 @@ const allSections = [
     path: '/dojo-employee', // ✅ Single direct path
   },
   {
+    id: 'dojo',
+    title: 'DOJO Onboarding',
+    icon: <Avatar alt="Onboarding" src="/images/dojo.png" />,
+    roles: ['admin', 'hr'],
+    path: '/dojo-onboarding-form', // ✅ Single direct path
+  },
+  {
     id: 'complaint-board',
     title: 'Complaint Board',
     icon: <MdRateReview />,
