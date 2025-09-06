@@ -51,6 +51,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { BusinessCenter, PersonOutline } from '@mui/icons-material';
 
 const API_URL = `${import.meta.env.VITE_BACKEND_API}`;
@@ -353,9 +354,27 @@ const OnboardingForm = () => {
         throw new Error('Submission failed');
       }
     } catch (err) {
-      setError(
-        'Failed to submit form. Please try again.' + (err?.message ? ` (${err.message})` : '')
-      );
+      // Check if it's a specific API error with detail message
+      if (
+        err.response &&
+        err.response.status === 400 &&
+        err.response.data &&
+        err.response.data.detail
+      ) {
+        // Show SweetAlert2 for specific API errors
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Error',
+          text: err.response.data.detail,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#d33',
+        });
+      } else {
+        // Show regular error for other types of errors
+        setError(
+          'Failed to submit form. Please try again.' + (err?.message ? ` (${err.message})` : '')
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -1016,36 +1035,50 @@ const OnboardingForm = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       {/* Header */}
-      <Paper
-        elevation={3}
+      {/* Sticky Container for Header + Stepper */}
+      <Box
         sx={{
-          mb: 4,
-          p: 4,
-          background: 'linear-gradient(135deg, #3A4B5E 0%, #764ba2 100%)',
-          color: 'white',
+          position: 'sticky',
+          top: 0,
+          zIndex: 1100,
+          backgroundColor: 'background.default',
+          pb: 2,
         }}
       >
-        <Stack direction="row" alignItems="center" spacing={2}>
-          <User size={32} />
-          <Box>
-            <Typography variant="h4" fontWeight="bold">
-              Employee Onboarding
-            </Typography>
-            <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
-              Complete your profile to get started
-            </Typography>
-          </Box>
-        </Stack>
-      </Paper>
+        {/* Header */}
+        <Paper
+          elevation={3}
+          sx={{
+            mb: 2,
+            p: 4,
+            background: 'linear-gradient(135deg, #3A4B5E 0%, #764ba2 100%)',
+            color: 'white',
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <User size={32} />
+            <Box>
+              <Typography variant="h4" fontWeight="bold">
+                Employee Onboarding
+              </Typography>
+              <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                Complete your profile to get started
+              </Typography>
+            </Box>
+          </Stack>
+        </Paper>
 
-      {/* Stepper */}
-      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+        {/* Stepper */}
+        <Paper elevation={2} sx={{ p: 2, backgroundColor: 'background.paper' }}>
+          <Stepper activeStep={activeStep}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+        </Paper>
+      </Box>
 
       {/* Status Messages */}
       {success && (
