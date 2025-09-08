@@ -132,28 +132,11 @@ const PesCoverReport = ({ addedItem, totalCrateCount }) => {
                     {/* <TableCell align="center">{report.file_id.split('_')[0]}</TableCell>
                             <TableCell align="center">{report.file_id.split('_')[1]}</TableCell> */}
                     <TableCell align="center">
-                      {new Date(
-                        report.file_id.slice(0, 8).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') +
-                          'T' +
-                          report.file_id.slice(9, 15).replace(/(\d{2})(\d{2})(\d{2})/, '$1:$2:$3')
-                      ).toLocaleDateString(undefined, {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
+                      {report.timestamp.split(' ')[0].split('-').reverse().join('-')}
                     </TableCell>
 
                     <TableCell align="center">
-                      {new Date(
-                        report.file_id.slice(0, 8).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') +
-                          'T' +
-                          report.file_id.slice(9, 15).replace(/(\d{2})(\d{2})(\d{2})/, '$1:$2:$3')
-                      ).toLocaleTimeString(undefined, {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: true,
-                      })}
+                      {report.timestamp.split(' ')[1]} {report.timestamp.split(' ')[2]}
                     </TableCell>
                     <TableCell align="center">
                       <img
