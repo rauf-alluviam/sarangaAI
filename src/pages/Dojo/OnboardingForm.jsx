@@ -150,6 +150,12 @@ const OnboardingForm = () => {
         if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
           error = 'Please enter a valid email address';
         break;
+      case 'experience':
+        // Check only numbers allowed & within a reasonable range (0-50 years for example)
+        if (value && (!/^\d+$/.test(value) || value < 0 || value > 50)) {
+          error = 'Please enter a valid experience (0-50 years)';
+        }
+        break;
       case 'aadhaar_number':
         if (!value) error = 'Aadhaar number is required';
         else if (!/^\d{12}$/.test(value)) error = 'Please enter a valid 12-digit Aadhaar number';
