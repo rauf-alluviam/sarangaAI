@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+
 import {
   Container,
   Typography,
@@ -96,6 +97,7 @@ const OnboardingForm = () => {
     experience_letters: [],
     other_documents: [],
   };
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState(initialFormData);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -1069,8 +1071,16 @@ const OnboardingForm = () => {
         </Paper>
 
         {/* Stepper */}
-        <Paper elevation={2} sx={{ p: 2, backgroundColor: 'background.paper' }}>
-          <Stepper activeStep={activeStep}>
+        <Paper
+          elevation={2}
+          sx={{
+            p: 2,
+            backgroundColor: 'background.paper',
+            overflowX: 'auto', // allows horizontal scroll
+            '&::-webkit-scrollbar': { display: 'none' }, // optional, hides scrollbar
+          }}
+        >
+          <Stepper activeStep={activeStep} sx={{ minWidth: '600px' }}>
             {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
