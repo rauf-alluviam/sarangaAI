@@ -302,14 +302,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/dojo-onboarding-form"
-              element={
-                <ProtectedRoute>
-                  <OnboardingForm />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/dojo-onboarding-form" element={<OnboardingForm />} />
             <Route
               path="/dojo-l1"
               element={
