@@ -130,6 +130,13 @@ const BracketDReport = ({ addedItem, totalCrateCount }) => {
                     </TableCell>
                     {/* <TableCell align="center">{report.file_id.split('_')[0]}</TableCell>
                             <TableCell align="center">{report.file_id.split('_')[1]}</TableCell> */}
+                    {/* <TableCell align="center">
+                      {report.timestamp.split(' ')[0].split('-').reverse().join('-')}
+                    </TableCell>
+
+                    <TableCell align="center">
+                      {report.timestamp.split(' ')[1]} {report.timestamp.split(' ')[2]}
+                    </TableCell> */}
                     <TableCell align="center">
                       {report.timestamp.split(' ')[0].split('-').reverse().join('-')}
                     </TableCell>
