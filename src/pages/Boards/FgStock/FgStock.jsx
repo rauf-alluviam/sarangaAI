@@ -19,6 +19,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  CircularProgress,
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
@@ -42,6 +43,7 @@ const FgStock = () => {
   const { fgStockArr } = useSelector((state) => state.fgStock);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isUpdating, setIsUpdating] = useState(false);
 
   // State management
   const [isOpen, setIsOpen] = useState(false);
@@ -139,6 +141,8 @@ const FgStock = () => {
   };
 
   const confirmUpdate = () => {
+    setIsUpdating(true); // Start loading
+
     dispatch(
       editFgStock(
         edit,
@@ -146,10 +150,12 @@ const FgStock = () => {
         (successMsg) => {
           setEdit({});
           setUpdateDialogOpen(false);
+          setIsUpdating(false); // Stop loading on success
           enqueueSnackbar(successMsg, { variant: 'success' });
         },
         (errorMsg) => {
           setUpdateDialogOpen(false);
+          setIsUpdating(false); // Stop loading on error
           enqueueSnackbar(errorMsg, { variant: 'error' });
         }
       )
@@ -603,15 +609,20 @@ const FgStock = () => {
               <Button
                 variant="contained"
                 onClick={confirmUpdate}
+                disabled={isUpdating} // Disable during loading
                 sx={{
                   bgcolor: colors.primary,
                   flex: 1,
                   '&:hover': {
                     backgroundColor: colors.buttonHover || colors.primary,
                   },
+                  '&:disabled': {
+                    backgroundColor: '#ccc',
+                  },
                 }}
+                startIcon={isUpdating ? <CircularProgress size={16} color="inherit" /> : null}
               >
-                Confirm Update
+                {isUpdating ? 'Updating...' : 'Confirm Update'}
               </Button>
             </Box>
           </Box>
