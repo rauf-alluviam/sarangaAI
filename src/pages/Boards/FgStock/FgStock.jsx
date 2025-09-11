@@ -93,6 +93,7 @@ const FgStock = () => {
   const handleEditClick = (elem) => {
     setEdit({
       ...elem,
+      dispatched: '0',
       todays_planning: '0', // Reset dispatch planning to 0
       next_action: elem.next_action || '', // Ensure it has a value
     });
@@ -101,10 +102,10 @@ const FgStock = () => {
   // Enhanced validation for mandatory fields
   const handleSubmit = async () => {
     // Validate mandatory fields
-    if (!edit.dispatched || edit.dispatched === '') {
-      enqueueSnackbar('Please enter a valid dispatched value', { variant: 'error' });
-      return;
-    }
+    // if (!edit.dispatched || edit.dispatched === '') {
+    //   enqueueSnackbar('Please enter a valid dispatched value', { variant: 'error' });
+    //   return;
+    // }
 
     if (!edit.next_action || edit.next_action === '') {
       enqueueSnackbar('Next Action is required', { variant: 'error' });
@@ -704,7 +705,7 @@ const FgStock = () => {
                     Current Stock
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
-                    Dispatched
+                    Dispatched *
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Balance
@@ -797,11 +798,13 @@ const FgStock = () => {
                         {edit._id == elem._id ? (
                           <TextField
                             type="number"
-                            defaultValue={elem.dispatched}
+                            value={edit.dispatched || '0'}
                             onChange={(e) => setEdit({ ...edit, dispatched: e.target.value })}
                             sx={{ width: '100%' }}
                             size="small"
                             required
+                            error={!edit.dispatched || edit.dispatched === 0}
+                            helperText={!edit.dispatched || edit.dispatched === 0 ? 'Required' : ''}
                           />
                         ) : (
                           elem.dispatched
