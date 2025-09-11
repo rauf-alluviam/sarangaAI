@@ -2,7 +2,6 @@ import {
   Alert,
   Box,
   Button,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -25,9 +24,8 @@ import {
 import React, { useEffect, useState } from 'react';
 import colors from '../../../utils/colors';
 import AddStock from './AddStock';
-// import axios from "axios";
 import { useDispatch, useSelector } from 'react-redux';
-import { MdDone, MdOutlineCancel, MdOutlineEdit } from 'react-icons/md';
+import { MdDone } from 'react-icons/md';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { editFgStock, getAllFgStock } from '../../../Redux/Actions/fgStockActions';
@@ -42,22 +40,14 @@ const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 const FgStock = () => {
   const { userData, token } = useSelector((state) => state.auth);
   const { fgStockArr } = useSelector((state) => state.fgStock);
-  console.log(fgStockArr);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [isMonthlyUpdateOpen, setIsMonthlyUpdateOpen] = React.useState(false);
-  const [currentDate, setCurrentDate] = useState(
-    new Date().toISOString().split('T')[0].split('-')[2]
-  );
+
+  // State management
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMonthlyUpdateOpen, setIsMonthlyUpdateOpen] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  console.log(date);
-  const [stock, setStock] = useState([]);
-  console.log(stock);
-  // const [isLoading, setIsLoading] = useState(false);
   const [edit, setEdit] = useState({});
-  console.log(edit);
-  const [status, setStatus] = useState('all');
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState({
     status: '',
@@ -88,51 +78,42 @@ const FgStock = () => {
 
   // Monthly Update form states
   const [monthlyUpdateData, setMonthlyUpdateData] = useState({
-    item_code: '',
+    item_description: '',
     schedule: '',
     maximum: '',
   });
-
-  // useEffect(() => {
-  //   const [year, month, day] = date.split("-");
-  //   async function fetchData() {
-  //     try {
-  //       setIsLoading(true);
-  //       const response = await axios.get(
-  //         `${BACKEND_API}/get_daily_fg_stock_monitoring_sheets/${year}/${month}/${day}`,
-  //         {
-  //           headers: {
-  //             "Content-Type": "application/json",
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-  //       setIsLoading(false);
-  //       setStock(response.data);
-  //       console.log(response.data);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   fetchData();
-  // }, [date, isOpen, edit]);
 
   useEffect(() => {
     dispatch(getAllFgStock(date, setMessage));
   }, [date, monthlyUpdateData]);
 
+  // Handle edit button click - set dispatch planning to 0
+  const handleEditClick = (elem) => {
+    setEdit({
+      ...elem,
+      todays_planning: '0', // Reset dispatch planning to 0
+      next_action: elem.next_action || '', // Ensure it has a value
+    });
+  };
+
+  // Enhanced validation for mandatory fields
   const handleSubmit = async () => {
-    if (!edit.current) {
-      enqueueSnackbar('Please enter a valid current stock value', { variant: 'error' });
-      // setUpdateDialogOpen(false);
+    // Validate mandatory fields
+    if (!edit.dispatched || edit.dispatched === '') {
+      enqueueSnackbar('Please enter a valid dispatched value', { variant: 'error' });
       return;
     }
 
-    if (!edit.dispatched) {
-      enqueueSnackbar('Please enter a valid dispatched value', { variant: 'error' });
-      // setUpdateDialogOpen(false);
+    if (!edit.next_action || edit.next_action === '') {
+      enqueueSnackbar('Next Action is required', { variant: 'error' });
       return;
     }
+
+    // if (!edit.todays_planning || edit.todays_planning === '') {
+    //   enqueueSnackbar('Dispatch Planning is required', { variant: 'error' });
+    //   return;
+    // }
+
     // Calculate status based on current stock value
     const currentStock = Number(edit.current) || 0;
     let status = '';
@@ -186,10 +167,6 @@ const FgStock = () => {
         year: date.split('-')[0],
       };
 
-      console.log('Monthly Update Data:', data);
-      // TODO: Add API call to submit monthly update data
-      // dispatch(monthlyUpdateAction(data, onSuccess, onError));
-
       const response = await axios.post(
         `${BACKEND_API}/set_monthly_schedule_and_maximum_quantity_in_fgstock`,
         data,
@@ -201,9 +178,6 @@ const FgStock = () => {
         }
       );
 
-      console.log(response);
-
-      // For now, show success message
       enqueueSnackbar(response?.data?.message || 'Monthly update submitted successfully', {
         variant: 'success',
       });
@@ -212,11 +186,8 @@ const FgStock = () => {
         item_description: '',
         schedule: '',
         maximum: '',
-        month: date.split('-')[1],
-        year: date.split('-')[0],
       });
     } catch (error) {
-      console.log(error);
       enqueueSnackbar('Failed to submit monthly update', { variant: 'error' });
     }
   };
@@ -231,7 +202,6 @@ const FgStock = () => {
         display: 'flex',
         flexDirection: 'column',
         height: '88vh',
-        // bgcolor: "lightgray",
         padding: '1rem',
       }}
     >
@@ -239,9 +209,7 @@ const FgStock = () => {
         sx={{
           fontSize: '2rem',
           textAlign: 'center',
-          // borderBottom: "1px solid #282828",
           width: '100%',
-          // marginLeft: "auto",
           mr: 'auto',
           padding: '1rem 0rem',
           bgcolor: 'white',
@@ -252,10 +220,7 @@ const FgStock = () => {
         FG STOCK MONITORING BOARD
       </Typography>
 
-      {/* <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
-      Here is a gentle confirmation that your action was successful.
-    </Alert> */}
-
+      {/* Header Controls */}
       <Box
         sx={{
           width: '100%',
@@ -266,17 +231,11 @@ const FgStock = () => {
           ml: 'auto',
           mr: 'auto',
           padding: '0.5rem',
-          // bgcolor: 'red'
         }}
       >
-        {/* <Box bgcolor={'white'} color={'#282828'} display={'flex'} alignItems={'center'} fontSize={'1.2rem'} padding={'0.5rem 0.8rem'} borderRadius={'8px'} boxShadow={'rgba(56, 56, 56, 0.4) 0px 2px 8px 0px;'} mr={'auto'}>
-        <IoPersonSharp style={{color: '#282828'}} />
-        <Typography ml={'1rem'} display={'flex'} >Responsible Person- 
-          <div style={{backgroundColor: 'red', height: '2rem',borderRadius: '14px'}}>{fgStockArr[0]?.resp || 'Not mentioned'}</div></Typography>
-        </Box> */}
-
+        {/* Responsible Person Section */}
         <Box
-          bgcolor={'#f9f9f9'} // Light background color for highlighting
+          bgcolor={'#f9f9f9'}
           color={'#282828'}
           display={'flex'}
           alignItems={'center'}
@@ -284,14 +243,12 @@ const FgStock = () => {
           padding={'0.5rem 0.8rem'}
           borderRadius={'8px'}
           boxShadow={'rgba(56, 56, 56, 0.4) 0px 2px 8px 0px'}
-          // border={`1px solid #282828`} // Green border for highlighting
           mr={'auto'}
           sx={{
-            cursor: 'pointer', // Pointer cursor for hover effect
-            transition: '0.3s ease-in-out', // Smooth transition for hover effect
+            cursor: 'pointer',
+            transition: '0.3s ease-in-out',
             '&:hover': {
-              // backgroundColor: "rgba(53, 53, 53, 0.5)", // Light green background on hover
-              boxShadow: '0px 4px 12px rgba(10, 12, 10, 0.38)', // Stronger shadow on hover
+              boxShadow: '0px 4px 12px rgba(10, 12, 10, 0.38)',
             },
           }}
         >
@@ -309,7 +266,7 @@ const FgStock = () => {
               <Typography>Responsible Person-</Typography>
             </Box>
 
-            {fgStockArr.length > 0 ? ( // Check if there is at least one item in fgStockArr
+            {fgStockArr.length > 0 ? (
               edit._id === fgStockArr[0]._id ? (
                 <>
                   <TextField
@@ -365,27 +322,18 @@ const FgStock = () => {
               </Typography>
             )}
 
-            {fgStockArr.length > 0 &&
-              edit._id !== fgStockArr[0]?._id && ( // Show Edit button only if data exists
-                <IconButton
-                  onClick={() => setEdit(fgStockArr[0])}
-                  style={{ color: 'grey', marginLeft: '1rem' }}
-                >
-                  <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
-                </IconButton>
-              )}
+            {fgStockArr.length > 0 && edit._id !== fgStockArr[0]?._id && (
+              <IconButton
+                onClick={() => setEdit(fgStockArr[0])}
+                style={{ color: 'grey', marginLeft: '1rem' }}
+              >
+                <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
+              </IconButton>
+            )}
           </Box>
         </Box>
-        {/* <Button
-          sx={{ 
-            bgcolor: colors.primary,
-            width: "10rem", mr: "1rem" }}
-          variant="contained"
-          onClick={() => setIsOpen(true)} 
-        >
-          Add New Item  
-        </Button> */}
 
+        {/* Action Buttons */}
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -400,6 +348,7 @@ const FgStock = () => {
         >
           Set Monthly Schedule
         </Button>
+
         <Button
           variant="contained"
           sx={{ mr: '0.8rem', ml: '0.8rem', bgcolor: colors.primary }}
@@ -407,38 +356,20 @@ const FgStock = () => {
         >
           Monthly Sheet
         </Button>
+
         <TextField
           size="small"
           label="Date"
-          // sx={{ width: '45rem' }}
           sx={{ width: '15rem' }}
-          // placeholder="Select Date"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
           required
         />
-
-        {/* <FormControl sx={{width: '14rem'}}>
-                       <InputLabel id="Status">Status</InputLabel>
-                       <Select
-                        // size='small'
-                         labelId="Status"
-                         id="Status-select"
-                         value={status}
-                         label="Status"
-                         defaultValue="all"
-                         onChange={(e) => setStatus(e.target.value)}
-                       >
-                         <MenuItem value={'all'}>All</MenuItem>
-                         <MenuItem value={'excess'}>Excess</MenuItem>
-                         <MenuItem value={'ok'}>Ok</MenuItem>
-                         
-                         
-                       </Select>
-                     </FormControl> */}
       </Box>
+
+      {/* Add Stock Modal */}
       {isOpen && (
         <Box
           bgcolor={'rgba(0, 0, 0, 0.6)'}
@@ -687,56 +618,7 @@ const FgStock = () => {
         </Box>
       )}
 
-      {/* --------------Table------------------- */}
-      {/* <Box
-        position={"relative"}
-        // bgcolor={"green"}
-        // mr={"1rem"}
-        p={"0.7rem"}
-        borderRadius={"6px"}
-        display={"flex"}
-        flexDirection={"column"}
-        alignItems={"start"}
-        overflow={'auto'}
-        // sx={{
-        //   minHeight: "77vh", // or a fixed height like "600px"
-        //   width: "100%",  // Make sure it's not constrained by parent
-        // //  bgcolor: 'lightblue',
-        //   overflow: "auto", // Enables both vertical & horizontal scroll
-        //   scrollbarWidth: "thin", // Firefox
-        //   "&::-webkit-scrollbar": {
-        //     width: "8px",
-        //     height: "8px",
-        //   },
-        //   "&::-webkit-scrollbar-thumb": {
-        //     backgroundColor: "#888",
-        //     borderRadius: "4px",
-        //   },
-        //   "&::-webkit-scrollbar-thumb:hover": {
-        //     backgroundColor: "#555",
-        //   },
-        // }}
-         
-                sx={{
-                  height: '100vh',
-                  width: '100%',
-                  overflowX: 'auto', // horizontal
-                  overflowY: 'auto', // vertical
-                  scrollbarWidth: 'thin',
-                  '&::-webkit-scrollbar': {
-                    width: '8px',
-                    height: '8px',
-                  },
-                  '&::-webkit-scrollbar-thumb': {
-                    backgroundColor: '#888',
-                    borderRadius: '4px',
-                  },
-                  '&::-webkit-scrollbar-thumb:hover': {
-                    backgroundColor: '#555',
-                  },
-                }}
-              
-      > */}
+      {/* Main Table */}
       <Box
         sx={{
           flex: 1,
@@ -789,7 +671,6 @@ const FgStock = () => {
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Item Code
                   </TableCell>
-                  {/* <TableCell align="center" sx={{fontSize: '1.2rem'}}>Count</TableCell> */}
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Minimum
                   </TableCell>
@@ -799,7 +680,6 @@ const FgStock = () => {
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Schedule
                   </TableCell>
-
                   <TableCell
                     align="center"
                     sx={{
@@ -812,7 +692,6 @@ const FgStock = () => {
                   >
                     Current Stock
                   </TableCell>
-
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Dispatched
                   </TableCell>
@@ -820,16 +699,11 @@ const FgStock = () => {
                     Balance
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
-                    Next Action
+                    Next Action *
                   </TableCell>
-
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
-                    Dispatch Planning
+                    Dispatch Planning *
                   </TableCell>
-
-                  {/* <TableCell align="center" sx={{ fontSize: "1.2rem", backgroundColor: "inherit" }}>
-                    Next Day Target
-                  </TableCell> */}
                   <TableCell
                     align="center"
                     sx={{
@@ -849,13 +723,6 @@ const FgStock = () => {
               </TableHead>
 
               <TableBody>
-                {/* {isLoading && (
-                  <TableRow>
-                    <TableCell colSpan={12} align="center">
-                      <Typography>Loading...</Typography>
-                    </TableCell>
-                  </TableRow>
-                )} */}
                 {fgStockArr.length > 0 ? (
                   fgStockArr.map((elem, index) => (
                     <TableRow
@@ -901,125 +768,60 @@ const FgStock = () => {
                         align="center"
                       >
                         {elem.schedule}
-                        {/* {edit._id == elem._id ? (
-                          
-                          <TextField
-                            fullWidth
-                            // label="Schedule"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="text"
-                            defaultValue={elem.schedule}
-                            onChange={(e) =>
-                              setEdit({ ...edit, schedule: e.target.value })
-                            }
-                            sx={{ width: "100%" }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.schedule
-                        )} */}
                       </TableCell>
 
+                      {/* Current Stock - NOT EDITABLE */}
                       <TableCell
                         sx={{ width: '6rem', maxWidth: '6rem', minWidth: '6rem' }}
                         align="center"
                       >
-                        {edit._id == elem._id ? (
-                          <TextField
-                            fullWidth
-                            // label="Current Stock"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="number"
-                            defaultValue={elem.current}
-                            onChange={(e) => setEdit({ ...edit, current: e.target.value })}
-                            sx={{ width: '100%', height: '100%' }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.current
-                        )}
+                        {elem.current}
                       </TableCell>
 
-                      {/* <TableCell align="center">
-                  {edit._id ==elem._id? <TextField
-                                fullWidth
-                                label="Dispatched"
-                                // placeholder='rtsp://192.168.1.100:554/stream1'
-                                type="number"
-                                defaultValue={elem.current}
-                                onChange={(e) => setEdit({...edit, current: e.target.value})}
-                                sx={{width: '8rem'}}
-                                size='small'
-                              />:elem.current}</TableCell> */}
+                      {/* Dispatched */}
                       <TableCell
                         sx={{ width: '4rem', maxWidth: '4rem', minWidth: '4rem' }}
                         align="center"
                       >
                         {edit._id == elem._id ? (
                           <TextField
-                            // fullWidth
-                            // label="Dispatched"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="number"
                             defaultValue={elem.dispatched}
                             onChange={(e) => setEdit({ ...edit, dispatched: e.target.value })}
                             sx={{ width: '100%' }}
                             size="small"
+                            required
                           />
                         ) : (
                           elem.dispatched
                         )}
                       </TableCell>
+
+                      {/* Balance */}
                       <TableCell
                         sx={{ width: '5rem', maxWidth: '5rem', minWidth: '5rem' }}
                         align="center"
                       >
-                        {/* {edit._id == elem._id ? (
-                          <TextField
-                            fullWidth
-                            // label="Dispatched"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="number"
-                            defaultValue={elem.balance}
-                            onChange={(e) =>
-                              setEdit({ ...edit, balance: e.target.value })
-                            }
-                            sx={{ width: "100%" }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.schedule- elem.dispatched
-                        )} */}
                         {elem.schedule - elem.dispatched}
                       </TableCell>
 
+                      {/* Next Action - MANDATORY */}
                       <TableCell
                         sx={{ width: '9rem', maxWidth: '9rem', minWidth: '9rem' }}
                         align="center"
                       >
                         {edit._id == elem._id ? (
-                          // <TextField
-                          //   fullWidth
-                          //   // label="Dispatched"
-                          //   // placeholder='rtsp://192.168.1.100:554/stream1'
-                          //   type="text"
-                          //   defaultValue={elem.next_action}
-                          //   onChange={(e) =>
-                          //     setEdit({ ...edit, next_action: e.target.value })
-                          //   }
-                          //   sx={{ width: "100%" }}
-                          //   size="small"
-                          // />
                           <TextField
                             size="small"
                             label="Select Date"
-                            // sx={{ width: '45rem' }}
                             sx={{ width: '100%' }}
                             type="date"
                             defaultValue={elem.next_action}
-                            // onChange={(e) => setDate(e.target.value)}
                             InputLabelProps={{ shrink: true }}
                             onChange={(e) => setEdit({ ...edit, next_action: e.target.value })}
+                            required
+                            error={!edit.next_action}
+                            helperText={!edit.next_action ? 'Required' : ''}
                           />
                         ) : elem.next_action ? (
                           elem.next_action
@@ -1028,6 +830,7 @@ const FgStock = () => {
                         )}
                       </TableCell>
 
+                      {/* Dispatch Planning - MANDATORY, starts with 0 when editing */}
                       <TableCell
                         sx={{ width: '4rem', maxWidth: '4rem', minWidth: '4rem' }}
                         align="center"
@@ -1035,42 +838,21 @@ const FgStock = () => {
                         {edit._id == elem._id ? (
                           <TextField
                             fullWidth
-                            // label="Current Stock"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="number"
-                            defaultValue={elem.todays_planning}
+                            value={edit.todays_planning}
                             onChange={(e) => setEdit({ ...edit, todays_planning: e.target.value })}
                             sx={{ width: '100%', height: '100%' }}
                             size="small"
+                            required
+                            error={!edit.todays_planning}
+                            helperText={!edit.todays_planning ? 'Required' : ''}
                           />
                         ) : (
                           elem.todays_planning
                         )}
                       </TableCell>
 
-                      {/* <TableCell sx={{ width: "6rem", maxWidth: '6rem', minWidth: '6rem' }} align="center"> 
-                        {edit._id == elem._id ? (
-                          <TextField
-                            fullWidth
-                            // label="Dispatched"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="text"
-                            defaultValue={elem.next_day_target
-                            }
-                            onChange={(e) =>
-                              setEdit({ ...edit, next_day_target
-                                : e.target.value })
-                            }
-                            sx={{ width: "100%" }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.next_day_target
-
-                        )}
-                      </TableCell> */}
-                      {/* <TableCell>{elem.todays_target * 2 <= elem.current ? 
-                      <Box bgcolor={'green'}  height={'3rem'} width={'4rem'}></Box>: <Box  bgcolor={'red'} height={'3rem'} width={'4rem'}></Box> }</TableCell> */}
+                      {/* Status */}
                       <TableCell>
                         {elem.current < elem.minimum && (
                           <Box
@@ -1079,7 +861,7 @@ const FgStock = () => {
                             bgcolor={'red'}
                             borderRadius={'50%'}
                             margin={'auto'}
-                          ></Box>
+                          />
                         )}
                         {elem.current >= elem.minimum && elem.current < 400 && (
                           <Box
@@ -1088,7 +870,7 @@ const FgStock = () => {
                             bgcolor={'orange'}
                             borderRadius={'50%'}
                             margin={'auto'}
-                          ></Box>
+                          />
                         )}
                         {elem.current >= 400 && (
                           <Box
@@ -1097,10 +879,11 @@ const FgStock = () => {
                             bgcolor={'green'}
                             borderRadius={'50%'}
                             margin={'auto'}
-                          ></Box>
+                          />
                         )}
                       </TableCell>
 
+                      {/* Edit Actions */}
                       <TableCell sx={{ width: '5rem', maxWidth: '5rem' }} align="center">
                         {edit._id == elem._id ? (
                           <Box
@@ -1109,42 +892,38 @@ const FgStock = () => {
                               width: '100%',
                               justifyContent: 'center',
                               alignItems: 'center',
-                              // bgcolor: 'pink'
                             }}
                           >
-                            {/* <Button variant="outlined" sx={{}} color="error" onClick={()=> setEdit({})} size="small">Cancel</Button> */}
                             <IconButton onClick={() => setEdit({})}>
                               <CloseIcon style={{ color: '#CC7C7C' }} />
                             </IconButton>
-                            {/* import CloseIcon from '@mui/icons-material/Close'; */}
-                            {/* <Button variant="contained"  color="success" onClick={handleSubmit}>Submit</Button> */}
                             <IconButton onClick={handleSubmit} style={{ color: 'green' }}>
                               <MdDone />
                             </IconButton>
                           </Box>
                         ) : (
-                          // <Button onClick={()=> setEdit(elem)}>Edit</Button>
-                          <IconButton onClick={() => setEdit(elem)} style={{ color: 'grey' }}>
+                          <IconButton
+                            onClick={() => handleEditClick(elem)}
+                            style={{ color: 'grey' }}
+                          >
                             <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
                           </IconButton>
                         )}
                       </TableCell>
-
-                      {/* <TableCell align="center">{elem.timestamp}</TableCell> */}
-                      {/* <TableCell onClick={()=> {setSelectedImg(elem.path), setIsShowImg(true)}} align="center" sx={{height:"10rem", width: '10rem'}}><img src={elem.path} style={{height: '100%', cursor: 'pointer'}} alt="" /></TableCell> */}
                     </TableRow>
                   ))
                 ) : (
-                  <Typography p={'1rem'}>No Result found</Typography>
+                  <TableRow>
+                    <TableCell colSpan={13} align="center">
+                      <Typography p={'1rem'}>No Result found</Typography>
+                    </TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
           </TableContainer>
         </Paper>
       </Box>
-      {/* 
-      <Dialog open={true} onClose={false}>
-      </Dialog> */}
     </Box>
   );
 };
