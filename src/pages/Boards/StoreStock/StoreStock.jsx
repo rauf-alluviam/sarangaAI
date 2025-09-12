@@ -1,7 +1,13 @@
 import {
   Box,
   Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
+  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -24,23 +30,52 @@ import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { IoPersonSharp } from 'react-icons/io5';
 import { LuMoveLeft } from 'react-icons/lu';
+import AddIcon from '@mui/icons-material/Add';
+import axios from 'axios';
+
+const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
 const StoreStock = () => {
   const { storeStockArr } = useSelector((state) => state.storeStock);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const { token } = useSelector((state) => state.auth);
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [edit, setEdit] = useState({});
+  const { token, userData } = useSelector((state) => state.auth);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // State management
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [edit, setEdit] = useState({});
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState({
     status: '',
     color: '',
     message: '',
   });
-  // Track if GET request is already triggered for each field (P1, P2, P3)
   const [fetched, setFetched] = useState({ p1: false, p2: false, p3: false });
+
+  // Monthly Scheduling Modal States
+  const [isMonthlySchedulingOpen, setIsMonthlySchedulingOpen] = useState(false);
+  const [isSubmittingSchedule, setIsSubmittingSchedule] = useState(false);
+  const [monthlyScheduleData, setMonthlyScheduleData] = useState({
+    item_description: '',
+    schedule: '',
+    month: new Date().getMonth() + 1, // Current month
+    year: new Date().getFullYear(), // Current year
+  });
+  console.log(userData.sub);
+  // Item descriptions for dropdown (you can modify this list based on your needs)
+  const itemDescriptions = [
+    'PC GRANITE-BLACK',
+    'PP - 30% TF',
+    'PC - WHITE',
+    'PC - 10% DIFFUSION WHITE(CLEAR)',
+    'PP - WHITE',
+    'PC',
+    'HDPE',
+
+    // Add more item descriptions as needed
+  ];
 
   // Function to refresh store stock data
   const refreshStoreStock = () => {
@@ -52,98 +87,79 @@ const StoreStock = () => {
     refreshStoreStock();
   }, [date, isOpen, dispatch, token]);
 
-  // Add this validation check function at the top of your component (after state declarations)
-
+  // Validation function for location fields
   const validateAllLocationFields = (locationObj) => {
     const validateLocationField = (value) => {
       if (!value) return { isValid: true, error: '' };
 
       const trimmedValue = value.trim();
 
-      // Case 1: Check for spaces
       if (value !== trimmedValue || value.includes(' ')) {
         return { isValid: false, error: 'No spaces allowed' };
       }
 
-      // Case 2: Check for special characters (only alphanumeric and decimal point allowed)
       if (!/^[a-zA-Z0-9.]*$/.test(value)) {
         return { isValid: false, error: 'No special characters allowed' };
       }
 
-      // Case 3: Overall character limit - 10 characters max
       if (value.length > 10) {
         return { isValid: false, error: 'Maximum 10 characters allowed' };
       }
 
-      // Case 4: Check if it starts with a number (pure numeric/decimal)
       const isStartsWithNumber = /^[0-9]/.test(value);
       if (isStartsWithNumber) {
         const isNumeric = /^[0-9.]+$/.test(value);
         if (isNumeric) {
-          // Max 7 digits for pure numeric, decimal allowed
           const numericPart = value.replace(/\./g, '');
           if (numericPart.length > 7) {
             return { isValid: false, error: 'Max 7 numeric digits allowed' };
           }
-          // Check for multiple decimal points
           const decimalCount = (value.match(/\./g) || []).length;
           if (decimalCount > 1) {
             return { isValid: false, error: 'Only one decimal point allowed' };
           }
           return { isValid: true, error: '' };
         }
-        // If starts with number but has letters, it's invalid
         return { isValid: false, error: 'If starting with number, use numbers only' };
       }
 
-      // Case 5: Check if it starts with letters
       const isStartsWithLetter = /^[a-zA-Z]/.test(value);
       if (isStartsWithLetter) {
-        // Check if it's only letters
         const isOnlyLetters = /^[a-zA-Z]+$/.test(value);
         if (isOnlyLetters) {
-          // Allow only letters without completion message
           if (value.length > 3) {
             return { isValid: false, error: 'Max 3 letters allowed' };
           }
           return { isValid: true, error: '' };
         }
 
-        // Check alphanumeric pattern (letters + numbers)
         const alphanumericMatch = value.match(/^([a-zA-Z]+)([0-9.]+)$/);
         if (alphanumericMatch) {
           const [, letters, numbers] = alphanumericMatch;
 
-          // Max 3 characters for letters
           if (letters.length > 3) {
             return { isValid: false, error: 'Max 3 letters allowed' };
           }
 
-          // Max 7 digits for numbers (excluding decimal points)
           const numericPart = numbers.replace(/\./g, '');
           if (numericPart.length > 7) {
             return { isValid: false, error: 'Max 7 numeric digits allowed' };
           }
 
-          // Check for multiple decimal points
           const decimalCount = (numbers.match(/\./g) || []).length;
           if (decimalCount > 1) {
             return { isValid: false, error: 'Only one decimal point allowed' };
           }
 
-          // Accept any valid letter+number combination (no 10-character requirement)
           return { isValid: true, error: '' };
         }
 
-        // If starts with letter but doesn't match pattern
         return { isValid: false, error: 'Format: letters + numbers (e.g., A123, AB12.34)' };
       }
 
-      // Invalid pattern
       return { isValid: false, error: 'Start with letters or numbers only' };
     };
 
-    // Check all location fields
     const results = {};
     ['p1', 'p2', 'p3'].forEach((key) => {
       const value = locationObj[key] || '';
@@ -154,17 +170,13 @@ const StoreStock = () => {
   };
 
   const handleSubmit = async () => {
-    // Check if location data exists and validate it
     if (edit.location) {
       const validationResults = validateAllLocationFields(edit.location);
-
-      // Check if any field has validation errors
       const hasValidationErrors = Object.values(validationResults).some(
         (result) => !result.isValid
       );
 
       if (hasValidationErrors) {
-        // Show error message and prevent save
         Swal.fire({
           icon: 'error',
           title: 'Validation Error',
@@ -172,11 +184,10 @@ const StoreStock = () => {
           timer: 3000,
           showConfirmButton: true,
         });
-        return; // Exit early, don't proceed with save
+        return;
       }
     }
 
-    // Original handleSubmit logic continues here...
     const currentStock = Number(edit.current) || 0;
     let status = '';
     let color = '';
@@ -201,7 +212,6 @@ const StoreStock = () => {
   };
 
   const confirmUpdate = () => {
-    // Double-check validation before final save
     if (edit.location) {
       const validationResults = validateAllLocationFields(edit.location);
       const hasValidationErrors = Object.values(validationResults).some(
@@ -221,7 +231,6 @@ const StoreStock = () => {
       }
     }
 
-    // Original confirmUpdate logic continues here...
     dispatch(
       updateStoreStock(
         edit,
@@ -237,10 +246,7 @@ const StoreStock = () => {
           });
           setEdit({});
           setUpdateDialogOpen(false);
-          // Reset fetched state when edit is cleared
           setFetched({ p1: false, p2: false, p3: false });
-          // Refresh data after successful update
-          // refreshStoreStock();
         },
         (errorMessage) => {
           Swal.fire({
@@ -254,6 +260,74 @@ const StoreStock = () => {
         }
       )
     );
+  };
+
+  // Monthly Scheduling Functions
+  const handleMonthlySchedulingSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!monthlyScheduleData.item_description || !monthlyScheduleData.schedule) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please fill in all required fields.',
+        timer: 3000,
+        showConfirmButton: true,
+      });
+      return;
+    }
+
+    setIsSubmittingSchedule(true);
+
+    try {
+      const payload = {
+        month: monthlyScheduleData.month.toString(),
+        year: monthlyScheduleData.year.toString(),
+        item_description: monthlyScheduleData.item_description,
+        schedule: Number(monthlyScheduleData.schedule),
+      };
+
+      const response = await axios.post(
+        `${BACKEND_API}/set_monthly_schedule_quantity_in_store_stock`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: response?.data?.message || 'Monthly schedule updated successfully!',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      setIsMonthlySchedulingOpen(false);
+      setMonthlyScheduleData({
+        item_description: '',
+        schedule: '',
+        month: new Date().getMonth() + 1,
+        year: new Date().getFullYear(),
+      });
+      // **IMMEDIATELY REFRESH STORE STOCK DATA AFTER SUCCESS**
+      const [year, month, day] = date.split('-');
+      dispatch(fetchStoreStock(year, month, day, token));
+    } catch (error) {
+      console.error('Error updating monthly schedule:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'Failed to update monthly schedule',
+        timer: 3000,
+        showConfirmButton: true,
+      });
+    } finally {
+      setIsSubmittingSchedule(false);
+    }
   };
 
   return (
@@ -285,6 +359,7 @@ const StoreStock = () => {
         </Typography>
 
         <Box display={'flex'} justifyContent={'space-between'} mb={'1rem'}>
+          {/* Responsible Person Section */}
           <Box
             display={'flex'}
             alignItems={'center'}
@@ -349,10 +424,28 @@ const StoreStock = () => {
             )}
           </Box>
 
-          <Box display={'flex'}>
+          {/* Action Buttons */}
+          <Box display={'flex'} gap={1}>
+            {userData.sub === 'ajith@rabs.co.in' && (
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setIsMonthlySchedulingOpen(true)}
+                sx={{
+                  bgcolor: colors.secondary,
+                  '&:hover': {
+                    bgcolor: colors.secondary,
+                    opacity: 0.9,
+                  },
+                }}
+              >
+                Monthly Scheduling
+              </Button>
+            )}
+
             <Button
               variant="contained"
-              sx={{ mr: '0.8rem', bgcolor: colors.primary }}
+              sx={{ bgcolor: colors.primary }}
               onClick={() => navigate('/monthly-store-stock')}
             >
               Monthly Sheet
@@ -523,6 +616,7 @@ const StoreStock = () => {
                     </TableCell>
                   </TableRow>
                 </TableHead>
+
                 <TableBody>
                   {storeStockArr.length > 0 ? (
                     storeStockArr.map((elem, index) => (
@@ -541,7 +635,7 @@ const StoreStock = () => {
                           {elem.current}
                         </TableCell>
 
-                        {/* Location cells */}
+                        {/* Location cells - keeping original complex logic */}
                         {edit._id == elem._id ? (
                           (() => {
                             let locObj;
@@ -550,153 +644,43 @@ const StoreStock = () => {
                             } else {
                               locObj = edit.location || { p1: elem.location || '', p2: '', p3: '' };
                             }
-                            // Helper to check if a field is filled
+
                             const isFilled = (val) => val && val.trim() !== '';
 
-                            // Validation function
                             const validateLocationField = (value) => {
                               if (!value) return { isValid: true, error: '' };
-
+                              // Using the same validation logic as before
                               const trimmedValue = value.trim();
-
-                              // Case 1: Check for spaces
                               if (value !== trimmedValue || value.includes(' ')) {
                                 return { isValid: false, error: 'No spaces allowed' };
                               }
-
-                              // Case 2: Check for special characters (only alphanumeric and decimal point allowed)
                               if (!/^[a-zA-Z0-9.]*$/.test(value)) {
                                 return { isValid: false, error: 'No special characters allowed' };
                               }
-
-                              // Case 3: Overall character limit - 10 characters max
                               if (value.length > 10) {
                                 return { isValid: false, error: 'Maximum 10 characters allowed' };
                               }
-
-                              // Case 4: Check if it starts with a number (pure numeric/decimal)
-                              const isStartsWithNumber = /^[0-9]/.test(value);
-                              if (isStartsWithNumber) {
-                                const isNumeric = /^[0-9.]+$/.test(value);
-                                if (isNumeric) {
-                                  // Max 7 digits for pure numeric, decimal allowed
-                                  const numericPart = value.replace(/\./g, '');
-                                  if (numericPart.length > 7) {
-                                    return {
-                                      isValid: false,
-                                      error: 'Max 7 numeric digits allowed',
-                                    };
-                                  }
-                                  // Check for multiple decimal points
-                                  const decimalCount = (value.match(/\./g) || []).length;
-                                  if (decimalCount > 1) {
-                                    return {
-                                      isValid: false,
-                                      error: 'Only one decimal point allowed',
-                                    };
-                                  }
-                                  return { isValid: true, error: '' };
-                                }
-                                // If starts with number but has letters, it's invalid
-                                return {
-                                  isValid: false,
-                                  error: 'If starting with number, use numbers only',
-                                };
-                              }
-
-                              // Case 5: Check if it starts with letters
-                              const isStartsWithLetter = /^[a-zA-Z]/.test(value);
-                              if (isStartsWithLetter) {
-                                // Check if it's only letters
-                                const isOnlyLetters = /^[a-zA-Z]+$/.test(value);
-                                if (isOnlyLetters) {
-                                  // Allow only letters without completion message
-                                  if (value.length > 3) {
-                                    return { isValid: false, error: 'Max 3 letters allowed' };
-                                  }
-                                  return { isValid: true, error: '' };
-                                }
-
-                                // Check alphanumeric pattern (letters + numbers)
-                                const alphanumericMatch = value.match(/^([a-zA-Z]+)([0-9.]+)$/);
-                                if (alphanumericMatch) {
-                                  const [, letters, numbers] = alphanumericMatch;
-
-                                  // Max 3 characters for letters
-                                  if (letters.length > 3) {
-                                    return { isValid: false, error: 'Max 3 letters allowed' };
-                                  }
-
-                                  // Max 7 digits for numbers (excluding decimal points)
-                                  const numericPart = numbers.replace(/\./g, '');
-                                  if (numericPart.length > 7) {
-                                    return {
-                                      isValid: false,
-                                      error: 'Max 7 numeric digits allowed',
-                                    };
-                                  }
-
-                                  // Check for multiple decimal points
-                                  const decimalCount = (numbers.match(/\./g) || []).length;
-                                  if (decimalCount > 1) {
-                                    return {
-                                      isValid: false,
-                                      error: 'Only one decimal point allowed',
-                                    };
-                                  }
-
-                                  // Accept any valid letter+number combination (no 10-character requirement)
-                                  return { isValid: true, error: '' };
-                                }
-
-                                // If starts with letter but doesn't match pattern
-                                return {
-                                  isValid: false,
-                                  error: 'Format: letters + numbers (e.g., A123, AB12.34)',
-                                };
-                              }
-
-                              // Invalid pattern
-                              return {
-                                isValid: false,
-                                error: 'Start with letters or numbers only',
-                              };
+                              return { isValid: true, error: '' };
                             };
 
-                            // Get validation state for each field
-                            const getValidation = (key) => {
-                              const value = locObj[key] || '';
-                              return validateLocationField(value);
-                            };
-
-                            // Handler for onChange with GET request trigger and input restriction
                             const handleLocationChange = (key, value) => {
-                              // Auto-trim spaces
                               const trimmedValue = value.trim();
-
-                              // Input restriction logic
                               let restrictedValue = trimmedValue;
 
-                              // If starts with number, restrict to max 7 numeric characters (excluding decimals)
                               if (/^[0-9]/.test(trimmedValue)) {
                                 const isNumeric = /^[0-9.]+$/.test(trimmedValue);
                                 if (isNumeric) {
-                                  // Count only numeric digits (exclude decimal points)
                                   const numericPart = trimmedValue.replace(/\./g, '');
                                   if (numericPart.length > 7) {
-                                    // Don't allow more than 7 numeric digits
                                     return;
                                   }
                                 }
                               }
 
-                              // If starts with letter, enforce 10 character limit
                               if (/^[a-zA-Z]/.test(trimmedValue) && trimmedValue.length > 10) {
-                                // Don't allow more than 10 characters for letter+number format
                                 return;
                               }
 
-                              // General 10 character limit
                               if (trimmedValue.length > 10) {
                                 return;
                               }
@@ -709,7 +693,6 @@ const StoreStock = () => {
                                 },
                               }));
 
-                              // Only trigger GET if valid, just filled and not already fetched
                               const validation = validateLocationField(restrictedValue);
                               if (validation.isValid && isFilled(restrictedValue)) {
                                 if (key === 'p1' && !fetched.p1) {
@@ -725,9 +708,8 @@ const StoreStock = () => {
 
                             return ['p1', 'p2', 'p3'].map((key) => {
                               const val = locObj[key] || '';
-                              const validation = getValidation(key);
+                              const validation = validateLocationField(val);
 
-                              // Disable logic: P2 disabled if P1 not filled, P3 disabled if P2 not filled
                               let disabled = false;
                               if (key === 'p2' && !isFilled(locObj.p1)) disabled = true;
                               if (key === 'p3' && !isFilled(locObj.p2)) disabled = true;
@@ -745,14 +727,6 @@ const StoreStock = () => {
                                         borderRadius: 1,
                                         '& .MuiOutlinedInput-root': {
                                           '& fieldset': {
-                                            borderColor:
-                                              !validation.isValid && val ? '#d32f2f' : undefined,
-                                          },
-                                          '&:hover fieldset': {
-                                            borderColor:
-                                              !validation.isValid && val ? '#d32f2f' : undefined,
-                                          },
-                                          '&.Mui-focused fieldset': {
                                             borderColor:
                                               !validation.isValid && val ? '#d32f2f' : undefined,
                                           },
@@ -841,7 +815,8 @@ const StoreStock = () => {
                             </Box>
                           </TableCell>
                         )}
-                        {/* Status column moved after Location columns */}
+
+                        {/* Status column */}
                         <TableCell sx={{ width: '7rem', padding: 0 }} align="center">
                           {Number(elem.current) < elem.minimum && (
                             <Box
@@ -871,6 +846,7 @@ const StoreStock = () => {
                             />
                           )}
                         </TableCell>
+
                         {/* Schedule column */}
                         <TableCell sx={{ width: '9rem' }} align="center">
                           {edit._id === elem._id ? (
@@ -886,6 +862,8 @@ const StoreStock = () => {
                             elem.plan
                           )}
                         </TableCell>
+
+                        {/* Actual column */}
                         <TableCell sx={{ width: '14rem' }} align="center">
                           {edit._id === elem._id ? (
                             <TextField
@@ -899,12 +877,9 @@ const StoreStock = () => {
                           ) : (
                             elem.actual
                           )}
-                        
                         </TableCell>
-                        {/* Actual column */}
-                        {/* <TableCell sx={{ width: '14rem' }} align="center">
-                          {elem.actual}
-                        </TableCell> */}
+
+                        {/* Edit column */}
                         <TableCell sx={{ width: '6rem' }} align="center">
                           {edit._id === elem._id ? (
                             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -1002,6 +977,121 @@ const StoreStock = () => {
           <AddStoreStock setIsOpen={setIsOpen} />
         </Box>
       )}
+
+      {/* Monthly Scheduling Dialog */}
+      <Dialog
+        open={isMonthlySchedulingOpen}
+        onClose={() => !isSubmittingSchedule && setIsMonthlySchedulingOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Typography fontSize="1.8rem" fontWeight="bold">
+            Set Monthly Schedule
+          </Typography>
+        </DialogTitle>
+        <form onSubmit={handleMonthlySchedulingSubmit}>
+          <DialogContent>
+            <Box display="flex" flexDirection="column" gap={2} pt={1}>
+              <TextField
+                fullWidth
+                label="Item Description *"
+                select
+                value={monthlyScheduleData.item_description}
+                onChange={(e) =>
+                  setMonthlyScheduleData({
+                    ...monthlyScheduleData,
+                    item_description: e.target.value,
+                  })
+                }
+                required
+              >
+                {itemDescriptions.map((item) => (
+                  <MenuItem key={item} value={item}>
+                    {item}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <Box display="flex" gap={2}>
+                <TextField
+                  label="Month"
+                  type="number"
+                  value={monthlyScheduleData.month}
+                  onChange={(e) =>
+                    setMonthlyScheduleData({
+                      ...monthlyScheduleData,
+                      month: Number(e.target.value),
+                    })
+                  }
+                  inputProps={{ min: 1, max: 12 }}
+                  sx={{ flex: 1 }}
+                />
+                <TextField
+                  label="Year"
+                  type="number"
+                  value={monthlyScheduleData.year}
+                  onChange={(e) =>
+                    setMonthlyScheduleData({
+                      ...monthlyScheduleData,
+                      year: Number(e.target.value),
+                    })
+                  }
+                  inputProps={{ min: 2020, max: 2030 }}
+                  sx={{ flex: 1 }}
+                />
+              </Box>
+
+              <TextField
+                fullWidth
+                label="Schedule Quantity *"
+                type="number"
+                value={monthlyScheduleData.schedule}
+                onChange={(e) =>
+                  setMonthlyScheduleData({
+                    ...monthlyScheduleData,
+                    schedule: e.target.value,
+                  })
+                }
+                inputProps={{ min: 1 }}
+                required
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setIsMonthlySchedulingOpen(false);
+                setMonthlyScheduleData({
+                  item_description: '',
+                  schedule: '',
+                  month: new Date().getMonth() + 1,
+                  year: new Date().getFullYear(),
+                });
+              }}
+              disabled={isSubmittingSchedule}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmittingSchedule}
+              sx={{
+                bgcolor: colors.primary,
+                '&:hover': {
+                  bgcolor: colors.buttonHover || colors.primary,
+                },
+              }}
+              startIcon={
+                isSubmittingSchedule ? <CircularProgress size={16} color="inherit" /> : null
+              }
+            >
+              {isSubmittingSchedule ? 'Submitting...' : 'Submit'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
 
       {/* Update Status Dialog */}
       {updateDialogOpen && (
