@@ -32,6 +32,7 @@ import { IoPersonSharp } from 'react-icons/io5';
 import { LuMoveLeft } from 'react-icons/lu';
 import AddIcon from '@mui/icons-material/Add';
 import axios from 'axios';
+import DailyActualLocationComponent from './DailyActualLocationComponent.jsx';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
@@ -590,6 +591,20 @@ const StoreStock = () => {
 
           {/* Action Buttons */}
           <Box display={'flex'} gap={1}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setIsMonthlySchedulingOpen(true)}
+              sx={{
+                bgcolor: colors.secondary,
+                '&:hover': {
+                  bgcolor: colors.secondary,
+                  opacity: 0.9,
+                },
+              }}
+            >
+              Daily Actual & Location
+            </Button>
             {userData.sub === 'ajith@rabs.co.in' && (
               <Button
                 variant="contained"
@@ -606,7 +621,6 @@ const StoreStock = () => {
                 Monthly Scheduling
               </Button>
             )}
-
             <Button
               variant="contained"
               sx={{ bgcolor: colors.primary }}
@@ -614,7 +628,6 @@ const StoreStock = () => {
             >
               Monthly Sheet
             </Button>
-
             <TextField
               size="small"
               label="Select Date"
@@ -1150,6 +1163,81 @@ const StoreStock = () => {
           </Box>
         </Box>
       )}
+      {/* Daily Actual & Location Modal */}
+      <Dialog
+        open={isMonthlySchedulingOpen}
+        onClose={() => setIsMonthlySchedulingOpen(false)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            maxHeight: '90vh',
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            m: 0,
+            p: 2,
+            backgroundColor: colors.primary,
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography variant="h6" component="div">
+            Daily Actual & Location Data
+          </Typography>
+          <IconButton
+            aria-label="close"
+            onClick={() => setIsMonthlySchedulingOpen(false)}
+            sx={{
+              color: 'white',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent
+          sx={{
+            p: 0,
+            backgroundColor: '#f5f5f5',
+          }}
+        >
+          <Box sx={{ p: 3 }}>
+            <DailyActualLocationComponent colors={colors} />
+          </Box>
+        </DialogContent>
+
+        <DialogActions
+          sx={{
+            p: 2,
+            backgroundColor: '#f5f5f5',
+            borderTop: '1px solid #e0e0e0',
+          }}
+        >
+          <Button
+            onClick={() => setIsMonthlySchedulingOpen(false)}
+            variant="outlined"
+            sx={{
+              color: colors.primary,
+              borderColor: colors.primary,
+              '&:hover': {
+                backgroundColor: `${colors.primary}15`,
+                borderColor: colors.primary,
+              },
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
