@@ -24,19 +24,18 @@ import { fetchTools, updateTool } from '../../../Redux/Actions/toolManagementAct
 import { enqueueSnackbar } from 'notistack';
 import { IoPersonSharp } from 'react-icons/io5';
 
-const BACKEND_API = import.meta.env.VITE_BACKEND_API;
-
 const ToolManage = () => {
   const { token } = useSelector((state) => state.auth);
   const { tools } = useSelector((state) => state.toolManagement);
-  console.log(tools);
+
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
   const [isOpen, setIsOpen] = useState(false);
   const [edit, setEdit] = useState({});
-  const dispatch = useDispatch();
   const [isShowingImg, setIsShowImg] = useState(false);
   const [selectedImg] = useState('https://www.industrialempathy.com/img/remote/ZiClJf-1920w.jpg');
-  console.log(month);
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
     const [selectedYear, selectedMonth] = month.split('-');
     dispatch(fetchTools(selectedYear, selectedMonth, token));
@@ -55,31 +54,50 @@ const ToolManage = () => {
         (errorMsg) => enqueueSnackbar(errorMsg, { variant: 'error' })
       )
     );
-
-    // try {
-    //   const response = await axios.put(
-    //     `${BACKEND_API}/update_tool_management_sheet_entry/${edit.id}`,
-    //     edit,
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     }
-    //   );
-
-    //   console.log(response.data);
-    //   if (
-    //     response.data.message === "Tool management entry updated successfully"
-    //   ) {
-    //     setEdit({});
-    //   }
-    // } catch (error) {
-    //   console.error("Error updating data:", error);
-    // }
   };
+
+  // Legend items configuration
+  const legendItems = [
+    { color: '#ef4444', label: 'PM PLAN' },
+    { color: '#22c55e', label: 'PM ACTUAL' },
+    { color: '#3b82f6', label: 'MODIFICATIONS' },
+    { color: '#6b7280', label: 'REPAIR' },
+  ];
+
+  // Footer buttons configuration
+  const footerButtons = [
+    'MASTER LIST OF MOLD',
+    'TOOL LIFE MONITORING SHEET',
+    'PM MAINTAINANCE PLAN',
+    'TOOL MAINTAINANCE CHECK SHEET',
+  ];
+
+  // Render checkbox for calendar days
+  const renderCalendarCheckbox = (elem, index, dateField, color) => {
+    const isChecked =
+      typeof elem?.[dateField] === 'string' &&
+      elem[dateField].split('-')[2] === String(index + 1).padStart(2, '0');
+
+    return isChecked ? (
+      <Checkbox
+        sx={{
+          width: '0.5rem',
+          height: '0.5rem',
+          padding: '0',
+          color: color,
+          '&.Mui-checked': {
+            color: color,
+          },
+        }}
+        size="small"
+        checked
+      />
+    ) : null;
+  };
+
   return (
     <Box maxHeight={'89vh'} minHeight={'89vh'} position={'relative'}>
+      {/* Add Tools Modal */}
       {isOpen && (
         <Box
           bgcolor={'rgba(0, 0, 0, 0.6)'}
@@ -98,23 +116,20 @@ const ToolManage = () => {
         </Box>
       )}
 
+      {/* Header */}
       <Typography
         sx={{
           fontSize: '2rem',
           textAlign: 'center',
-          // borderBottom: "1px solid #282828",
           width: '100%',
-          // marginLeft: "auto",
           mr: 'auto',
-          // padding: "1rem 0rem",
-          // bgcolor: 'white',
           borderRadius: '12px',
-          // boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
         }}
       >
         TOOL MANAGEMENT BOARD
       </Typography>
 
+      {/* Control Panel */}
       <Box
         sx={{
           height: '6rem',
@@ -129,7 +144,7 @@ const ToolManage = () => {
           border: '1px solid rgba(0, 0, 0, 0.08)',
         }}
       >
-        {/* Left Side - Responsible Person */}
+        {/* Responsible Person Section */}
         <Box
           display={'flex'}
           alignItems={'center'}
@@ -246,12 +261,11 @@ const ToolManage = () => {
           )}
         </Box>
 
-        {/* Middle - Legend */}
+        {/* Legend */}
         <Box
           width={'45rem'}
           height={'95%'}
           display={'flex'}
-          // flexWrap={'wrap'}
           p={'0.5rem'}
           sx={{
             backgroundColor: 'rgba(248, 249, 250, 0.8)',
@@ -259,112 +273,37 @@ const ToolManage = () => {
             border: '1px solid rgba(0, 0, 0, 0.05)',
           }}
         >
-          <Box
-            width={'48%'}
-            height={'2rem'}
-            bgcolor={'white'}
-            m={'0.1rem'}
-            display={'flex'}
-            alignItems={'center'}
-            justifyContent={'start'}
-            sx={{
-              borderRadius: '6px',
-              boxShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 3px',
-              border: '1px solid rgba(0, 0, 0, 0.05)',
-            }}
-          >
+          {legendItems.map((item, index) => (
             <Box
-              height={'12px'}
-              width={'12px'}
-              bgcolor={'#ef4444'}
-              ml={'0.6rem'}
-              borderRadius={'50%'}
-            />
-            <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
-              PM PLAN
-            </Typography>
-          </Box>
-
-          <Box
-            width={'48%'}
-            height={'2rem'}
-            bgcolor={'white'}
-            m={'0.1rem'}
-            display={'flex'}
-            alignItems={'center'}
-            justifyContent={'start'}
-            sx={{
-              borderRadius: '6px',
-              boxShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 3px',
-              border: '1px solid rgba(0, 0, 0, 0.05)',
-            }}
-          >
-            <Box
-              height={'12px'}
-              width={'12px'}
-              bgcolor={'#22c55e'}
-              ml={'0.6rem'}
-              borderRadius={'50%'}
-            />
-            <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
-              PM ACTUAL
-            </Typography>
-          </Box>
-
-          <Box
-            width={'48%'}
-            height={'2rem'}
-            bgcolor={'white'}
-            m={'0.1rem'}
-            display={'flex'}
-            alignItems={'center'}
-            justifyContent={'start'}
-            sx={{
-              borderRadius: '6px',
-              boxShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 3px',
-              border: '1px solid rgba(0, 0, 0, 0.05)',
-            }}
-          >
-            <Box
-              height={'12px'}
-              width={'12px'}
-              bgcolor={'#3b82f6'}
-              ml={'0.6rem'}
-              borderRadius={'50%'}
-            />
-            <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
-              MODIFICATIONS
-            </Typography>
-          </Box>
-
-          <Box
-            width={'48%'}
-            height={'2rem'}
-            bgcolor={'white'}
-            m={'0.1rem'}
-            display={'flex'}
-            alignItems={'center'}
-            justifyContent={'start'}
-            sx={{
-              borderRadius: '6px',
-              boxShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 3px',
-              border: '1px solid rgba(0, 0, 0, 0.05)',
-            }}
-          >
-            <Box
-              height={'12px'}
-              width={'12px'}
-              bgcolor={'#6b7280'}
-              ml={'0.6rem'}
-              borderRadius={'50%'}
-            />
-            <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
-              REPAIR
-            </Typography>
-          </Box>
+              key={index}
+              width={'48%'}
+              height={'2rem'}
+              bgcolor={'white'}
+              m={'0.1rem'}
+              display={'flex'}
+              alignItems={'center'}
+              justifyContent={'start'}
+              sx={{
+                borderRadius: '6px',
+                boxShadow: 'rgba(0, 0, 0, 0.08) 0px 1px 3px',
+                border: '1px solid rgba(0, 0, 0, 0.05)',
+              }}
+            >
+              <Box
+                height={'12px'}
+                width={'12px'}
+                bgcolor={item.color}
+                ml={'0.6rem'}
+                borderRadius={'50%'}
+              />
+              <Typography ml={'0.4rem'} fontSize={'0.75rem'} fontWeight={500}>
+                {item.label}
+              </Typography>
+            </Box>
+          ))}
         </Box>
 
-        {/* Right Side - Date Selector and Add Button */}
+        {/* Date Selector and Add Button */}
         <Box display="flex" alignItems="center" gap={2}>
           <TextField
             size="small"
@@ -408,16 +347,14 @@ const ToolManage = () => {
         </Box>
       </Box>
 
+      {/* Main Table Container */}
       <Box
         position="relative"
-        // p="0.7rem"
         borderRadius="6px"
         display="flex"
         flexDirection="column"
         alignItems="start"
         sx={{
-          // bgcolor: "red",
-          // p: '1rem 0rem',
           height: '81.5vh',
           width: '100%',
           overflow: 'auto',
@@ -436,22 +373,24 @@ const ToolManage = () => {
         }}
       >
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-          <TableContainer sx={{
-      maxHeight: "73vh",   // limits height so vertical scrollbar appears
-      overflow: "auto",    // allow both scrollbars
-      scrollbarWidth: "thin",
-      "&::-webkit-scrollbar": {
-        width: "8px",
-        height: "8px",
-      },
-      "&::-webkit-scrollbar-thumb": {
-        backgroundColor: "#888",
-        borderRadius: "4px",
-      },
-      "&::-webkit-scrollbar-thumb:hover": {
-        backgroundColor: "#555",
-      },
-    }}>
+          <TableContainer
+            sx={{
+              maxHeight: '73vh',
+              overflow: 'auto',
+              scrollbarWidth: 'thin',
+              '&::-webkit-scrollbar': {
+                width: '8px',
+                height: '8px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#888',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                backgroundColor: '#555',
+              },
+            }}
+          >
             <Table stickyHeader aria-label="sticky table" border={1}>
               <TableHead>
                 <TableRow sx={{ bgcolor: '#f5f5f5', borderBottom: '1px solid #ddd' }}>
@@ -467,7 +406,6 @@ const ToolManage = () => {
                   >
                     Sr No
                   </TableCell>
-
                   <TableCell
                     align="center"
                     sx={{
@@ -564,7 +502,6 @@ const ToolManage = () => {
                   >
                     Remark
                   </TableCell>
-
                   <TableCell
                     align="center"
                     sx={{
@@ -578,6 +515,7 @@ const ToolManage = () => {
                     Edit
                   </TableCell>
 
+                  {/* Calendar Days */}
                   {[...Array(31)].map((_, index) => (
                     <TableCell
                       align="center"
@@ -604,64 +542,38 @@ const ToolManage = () => {
                       key={elem._id || index}
                       hover
                       sx={{
-                        bgcolor: elem._id == edit._id && 'rgb(188, 196, 209)',
+                        bgcolor: elem._id === edit._id && 'rgb(188, 196, 209)',
                         transition: '0.4s',
                       }}
                     >
-                      <TableCell>{index + 1}</TableCell>
+                      <TableCell align="center">{index + 1}</TableCell>
+
+                      {/* Machine - NON-EDITABLE */}
                       <TableCell align="center">
-                        {elem._id == edit._id ? (
-                          <TextField
-                            fullWidth
-                            // label="Schedule"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="text"
-                            defaultValue={elem.machine}
-                            onChange={(e) => setEdit({ ...edit, machine: e.target.value })}
-                            sx={{ width: '100%' }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.machine
-                        )}
+                        <Typography>{elem.machine}</Typography>
                       </TableCell>
 
+                      {/* Mould Name - NON-EDITABLE */}
                       <TableCell
                         align="center"
                         style={{ width: '10rem', minWidth: '10rem', maxWidth: '10rem' }}
                       >
-                        {elem._id == edit._id ? (
-                          <TextField
-                            fullWidth
-                            // label="Schedule"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
-                            type="text"
-                            defaultValue={elem.mould_name}
-                            onChange={(e) => setEdit({ ...edit, mould_name: e.target.value })}
-                            sx={{ width: '100%' }}
-                            size="small"
-                          />
-                        ) : (
-                          elem.mould_name
-                        )}
+                        <Typography>{elem.mould_name}</Typography>
                       </TableCell>
+
+                      {/* Last PM Date/Cum - NON-EDITABLE */}
                       <TableCell sx={{ p: 0, width: '7rem', minWidth: '7rem', maxWidth: '7rem' }}>
                         <Box
                           display="flex"
                           flexDirection="column"
-                          // bgcolor="red"
-                          // width="100%"
-
                           height={'100%'}
                           alignItems={'center'}
                         >
                           <Box
                             width="100%"
-                            //   bgcolor="green"
                             borderBottom="1px solid rgb(92, 92, 92)"
                             p={'0.4rem'}
                             textAlign={'center'}
-                            // sx={{maxHeight: '1rem', height: '1rem'}}
                           >
                             <Box
                               sx={{
@@ -673,30 +585,9 @@ const ToolManage = () => {
                                 width: '7rem',
                                 maxWidth: '7rem',
                                 minWidth: '7rem',
-                                // bgcolor: 'red'
                               }}
                             >
-                              {elem._id == edit._id ? (
-                                <TextField
-                                  size="small"
-                                  // label="Last PM Date"
-                                  // sx={{ width: '45rem' }}
-                                  sx={{ height: '100%', width: '100%' }}
-                                  type="date"
-                                  // value={lastPmDate}
-                                  // onChange={(e) => setDate(e.target.value)}
-                                  InputLabelProps={{ shrink: true }}
-                                  defaultValue={elem.last_pm_date}
-                                  onChange={(e) =>
-                                    setEdit({
-                                      ...edit,
-                                      last_pm_date: e.target.value,
-                                    })
-                                  }
-                                />
-                              ) : (
-                                <Typography>{elem.last_pm_date}</Typography>
-                              )}
+                              <Typography>{elem.last_pm_date}</Typography>
                             </Box>
                           </Box>
                           <Box
@@ -710,18 +601,17 @@ const ToolManage = () => {
                         </Box>
                       </TableCell>
 
+                      {/* Plan PM Date */}
                       <TableCell sx={{ p: 0, width: '7rem', minWidth: '7rem', maxWidth: '7rem' }}>
                         <Box
                           display="flex"
                           flexDirection="column"
-                          // bgcolor="red"
                           width="100%"
                           height={'100%'}
                           alignItems={'center'}
                         >
                           <Box
                             width="100%"
-                            //   bgcolor="green"
                             borderBottom="1px solid rgb(92, 92, 92)"
                             p={'0.4rem'}
                             textAlign={'center'}
@@ -738,22 +628,15 @@ const ToolManage = () => {
                                 width: '7rem',
                               }}
                             >
-                              {elem._id == edit._id ? (
+                              {elem._id === edit._id ? (
                                 <TextField
                                   size="small"
-                                  // label="Last PM Date"
-                                  // sx={{ width: '45rem' }}
                                   sx={{ height: '100%', width: '100%' }}
                                   type="date"
-                                  // value={lastPmDate}
-                                  // onChange={(e) => setDate(e.target.value)}
                                   InputLabelProps={{ shrink: true }}
                                   defaultValue={elem.plan_pm_date}
                                   onChange={(e) =>
-                                    setEdit({
-                                      ...edit,
-                                      plan_pm_date: e.target.value,
-                                    })
+                                    setEdit({ ...edit, plan_pm_date: e.target.value })
                                   }
                                 />
                               ) : (
@@ -772,18 +655,17 @@ const ToolManage = () => {
                         </Box>
                       </TableCell>
 
+                      {/* Actual PM Date */}
                       <TableCell sx={{ p: 0, width: '7rem', minWidth: '7rem', maxWidth: '7rem' }}>
                         <Box
                           display="flex"
                           flexDirection="column"
-                          // bgcolor="red"
                           width="100%"
                           height={'100%'}
                           alignItems={'center'}
                         >
                           <Box
                             width="100%"
-                            //   bgcolor="green"
                             borderBottom="1px solid rgb(92, 92, 92)"
                             p={'0.4rem'}
                             textAlign={'center'}
@@ -800,22 +682,15 @@ const ToolManage = () => {
                                 width: '7rem',
                               }}
                             >
-                              {elem._id == edit._id ? (
+                              {elem._id === edit._id ? (
                                 <TextField
                                   size="small"
-                                  // label="Last PM Date"
-                                  // sx={{ width: '45rem' }}
                                   sx={{ height: '100%', width: '100%' }}
                                   type="date"
-                                  // value={lastPmDate}
-                                  // onChange={(e) => setDate(e.target.value)}
                                   InputLabelProps={{ shrink: true }}
                                   defaultValue={elem.actual_pm_date}
                                   onChange={(e) =>
-                                    setEdit({
-                                      ...edit,
-                                      actual_pm_date: e.target.value,
-                                    })
+                                    setEdit({ ...edit, actual_pm_date: e.target.value })
                                   }
                                 />
                               ) : (
@@ -834,12 +709,11 @@ const ToolManage = () => {
                         </Box>
                       </TableCell>
 
+                      {/* Month End CUM */}
                       <TableCell align="center">
-                        {elem._id == edit._id ? (
+                        {elem._id === edit._id ? (
                           <TextField
                             fullWidth
-                            // label="Schedule"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="text"
                             defaultValue={elem.month_end_CUM}
                             onChange={(e) => setEdit({ ...edit, month_end_CUM: e.target.value })}
@@ -850,12 +724,12 @@ const ToolManage = () => {
                           elem.month_end_CUM
                         )}
                       </TableCell>
+
+                      {/* Status */}
                       <TableCell align="center">
-                        {elem._id == edit._id ? (
+                        {elem._id === edit._id ? (
                           <TextField
                             fullWidth
-                            // label="Schedule"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="text"
                             defaultValue={elem.status}
                             onChange={(e) => setEdit({ ...edit, status: e.target.value })}
@@ -867,12 +741,11 @@ const ToolManage = () => {
                         )}
                       </TableCell>
 
+                      {/* Remarks */}
                       <TableCell align="center">
-                        {elem._id == edit._id ? (
+                        {elem._id === edit._id ? (
                           <TextField
                             fullWidth
-                            // label="Schedule"
-                            // placeholder='rtsp://192.168.1.100:554/stream1'
                             type="text"
                             defaultValue={elem.remarks}
                             onChange={(e) => setEdit({ ...edit, remarks: e.target.value })}
@@ -884,28 +757,23 @@ const ToolManage = () => {
                         )}
                       </TableCell>
 
-                      {/* <TableCell>{elem.remarks}</TableCell> */}
+                      {/* Edit Actions */}
                       <TableCell
                         style={{ width: '5rem', minWidth: '5rem', maxWidth: '5rem' }}
                         align="center"
                       >
-                        {/* {edit.id == elem.id ? <Button onClick={handleUpdate}>Submit</Button>:<Button onClick={()=> setEdit(elem)}>Edit</Button>}  */}
-                        {edit._id == elem._id ? (
+                        {edit._id === elem._id ? (
                           <Box
                             sx={{
                               display: 'flex',
                               width: '100%',
                               justifyContent: 'center',
                               alignItems: 'center',
-                              // bgcolor: 'pink'
                             }}
                           >
-                            {/* <Button variant="outlined" sx={{}} color="error" onClick={()=> setEdit({})} size="small">Cancel</Button> */}
                             <IconButton onClick={() => setEdit({})} size="small">
                               <CloseIcon style={{ color: '#CC7C7C' }} />
                             </IconButton>
-                            {/* import CloseIcon from '@mui/icons-material/Close'; */}
-                            {/* <Button variant="contained"  color="success" onClick={handleSubmit}>Submit</Button> */}
                             <IconButton
                               onClick={handleUpdate}
                               style={{ color: 'green' }}
@@ -915,7 +783,6 @@ const ToolManage = () => {
                             </IconButton>
                           </Box>
                         ) : (
-                          // <Button onClick={()=> setEdit(elem)}>Edit</Button>
                           <Box
                             width={'100%'}
                             display={'flex'}
@@ -928,77 +795,8 @@ const ToolManage = () => {
                           </Box>
                         )}
                       </TableCell>
-                      {/* {
-                  [...Array(31)].map((elem, index) => (
-                      <TableCell key={index} ><Checkbox checked={elem?.last_pm_date?.split('-')[1] == index+1 || false} /></TableCell>
-                      
-                  ))} */}
-                      {/* {[...Array(31)].map((_, index) => (
-                      <TableCell  key={index}  align="center" style={{width: '1rem', minWidth: '1rem', maxWidth: '1rem', backgroundColor: 'green'}}>
-                        <Checkbox
-                        sx={{bgcolor: 'pink', width: '100%'}}
-                        size="small"
-                          checked={
-                            elem?.last_pm_date?.split("-")[2] ===
-                              String(index + 1).padStart(2, "0") || false
-                          }
-                        />
-                      </TableCell>
-                    ))} */}
-                      {/* {[...Array(31)].map((_, index) => (
-  <TableCell
-    key={index}
-    align="center"
-    sx={{
-      width: '1rem',
-      minWidth: '1rem',
-      maxWidth: '1rem',
-      padding: '0.2rem', // Reduce padding for smaller size
-    }}
-  >
-    <Box >
-    <Checkbox
-      sx={{
-        width: '0.5rem', // Adjust checkbox size
-        height: '0.5rem', // Adjust checkbox size
-        padding: '0', // Remove extra padding
-        color: 'red', // Unchecked color
-    '&.Mui-checked': {
-      color: 'red', // Checked color
-    },
-      }}
-      size="small"
-      // checked={
-      //   elem?.last_pm_date?.split("-")[2] === String(index + 1).padStart(2, "0") || false
-      // }
-      checked={
-        typeof elem?.plan_pm_date === 'string' &&
-        elem.plan_pm_date.split('-')[2] === String(index + 1).padStart(2, '0')
-      }
-    />
 
-<Checkbox
-      sx={{
-        width: '0.5rem', // Adjust checkbox size
-        height: '0.5rem', // Adjust checkbox size
-        padding: '0', // Remove extra padding
-        color: 'green', // Unchecked color
-    '&.Mui-checked': {
-      color: 'green', // Checked color
-    },
-      }}
-      size="small"
-      // checked={
-      //   elem?.last_pm_date?.split("-")[2] === String(index + 1).padStart(2, "0") || false
-      // }
-      checked={
-        typeof elem?.actual_pm_date === 'string' &&
-        elem.actual_pm_date.split('-')[2] === String(index + 1).padStart(2, '0')
-      }
-    />
-    </Box>
-  </TableCell>
-))} */}
+                      {/* Calendar Days with Checkboxes */}
                       {[...Array(31)].map((_, index) => (
                         <TableCell
                           key={index}
@@ -1011,43 +809,10 @@ const ToolManage = () => {
                           }}
                         >
                           <Box>
-                            {/* Red checkbox (planned PM date) */}
-                            {typeof elem?.plan_pm_date === 'string' &&
-                              elem.plan_pm_date.split('-')[2] ===
-                                String(index + 1).padStart(2, '0') && (
-                                <Checkbox
-                                  sx={{
-                                    width: '0.5rem',
-                                    height: '0.5rem',
-                                    padding: '0',
-                                    color: 'red',
-                                    '&.Mui-checked': {
-                                      color: 'red',
-                                    },
-                                  }}
-                                  size="small"
-                                  checked
-                                />
-                              )}
-
-                            {/* Green checkbox (actual PM date) */}
-                            {typeof elem?.actual_pm_date === 'string' &&
-                              elem.actual_pm_date.split('-')[2] ===
-                                String(index + 1).padStart(2, '0') && (
-                                <Checkbox
-                                  sx={{
-                                    width: '0.5rem',
-                                    height: '0.5rem',
-                                    padding: '0',
-                                    color: 'green',
-                                    '&.Mui-checked': {
-                                      color: 'green',
-                                    },
-                                  }}
-                                  size="small"
-                                  checked
-                                />
-                              )}
+                            {/* Red checkbox for planned PM date */}
+                            {renderCalendarCheckbox(elem, index, 'plan_pm_date', 'red')}
+                            {/* Green checkbox for actual PM date */}
+                            {renderCalendarCheckbox(elem, index, 'actual_pm_date', 'green')}
                           </Box>
                         </TableCell>
                       ))}
@@ -1065,6 +830,7 @@ const ToolManage = () => {
           </TableContainer>
         </Paper>
 
+        {/* Footer Buttons */}
         <Box
           width={'100%'}
           display={'flex'}
@@ -1072,99 +838,54 @@ const ToolManage = () => {
           p={'0.5rem 0.4rem'}
           position={'sticky'}
           bottom={0}
-          // mt={"2rem"}
           bgcolor={'white'}
-          // zIndex={100} // Ensure it's above other elements
         >
-          <Box
-            width={'20rem'}
-            height={'3rem'}
-            border={'1px solid black'}
-            display={'flex'}
-            alignItems={'center'}
-            justifyContent={'center'}
-            textAlign={'center'}
-            onClick={() => setIsShowImg(true)}
-            sx={{ cursor: 'pointer' }}
-          >
-            MASTER LIST OF MOLD
-          </Box>
-          <Box
-            width={'20rem'}
-            height={'3rem'}
-            border={'1px solid black'}
-            display={'flex'}
-            alignItems={'center'}
-            justifyContent={'center'}
-            textAlign={'center'}
-            onClick={() => setIsShowImg(true)}
-            sx={{ cursor: 'pointer' }}
-          >
-            TOOL LIFE MONITORING SHEET
-          </Box>
-          <Box
-            width={'20rem'}
-            height={'3rem'}
-            border={'1px solid black'}
-            display={'flex'}
-            alignItems={'center'}
-            justifyContent={'center'}
-            textAlign={'center'}
-            onClick={() => setIsShowImg(true)}
-            sx={{ cursor: 'pointer' }}
-          >
-            PM MAINTAINANCE PLAN
-          </Box>
-          <Box
-            width={'20rem'}
-            height={'3rem'}
-            border={'1px solid black'}
-            display={'flex'}
-            alignItems={'center'}
-            justifyContent={'center'}
-            textAlign={'center'}
-            onClick={() => setIsShowImg(true)}
-            sx={{ cursor: 'pointer' }}
-          >
-            TOOL MAINTAINANCE CHECK SHEET
-          </Box>
-        </Box>
-        {isShowingImg && (
-          <>
+          {footerButtons.map((buttonText, index) => (
             <Box
-              onClick={() => {
-                setIsShowImg(false);
-              }}
-              bgcolor={'rgba(24, 24, 24, 0.77)'}
-              sx={{ overflowY: 'auto' }}
-              position={'fixed'}
-              height={'100%'}
-              width={'100%'}
-              zIndex={'77'}
-              top={0}
-              left={'0'}
+              key={index}
+              width={'20rem'}
+              height={'3rem'}
+              border={'1px solid black'}
               display={'flex'}
               alignItems={'center'}
               justifyContent={'center'}
+              textAlign={'center'}
+              onClick={() => setIsShowImg(true)}
+              sx={{ cursor: 'pointer' }}
             >
-              <img
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                style={{
-                  width: '70%',
-                  marginTop: '1rem',
-                  cursor: 'pointer',
-                  boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
-                }}
-                src={selectedImg}
-                alt=""
-              />
-              {/* <Button sx={{position: 'absolute', top: '1rem', right: '1rem'}} onClick={()=> setIsShowImg(false)}>Delete</Button> */}
+              {buttonText}
             </Box>
+          ))}
+        </Box>
 
-            {/* </Box> */}
-          </>
+        {/* Image Modal */}
+        {isShowingImg && (
+          <Box
+            onClick={() => setIsShowImg(false)}
+            bgcolor={'rgba(24, 24, 24, 0.77)'}
+            sx={{ overflowY: 'auto' }}
+            position={'fixed'}
+            height={'100%'}
+            width={'100%'}
+            zIndex={'77'}
+            top={0}
+            left={'0'}
+            display={'flex'}
+            alignItems={'center'}
+            justifyContent={'center'}
+          >
+            <img
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '70%',
+                marginTop: '1rem',
+                cursor: 'pointer',
+                boxShadow: 'rgba(0, 0, 0, 0.24) 0px 3px 8px',
+              }}
+              src={selectedImg}
+              alt=""
+            />
+          </Box>
         )}
       </Box>
     </Box>

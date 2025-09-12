@@ -60,11 +60,11 @@ const StoreStock = () => {
   const [monthlyScheduleData, setMonthlyScheduleData] = useState({
     item_description: '',
     schedule: '',
-    month: new Date().getMonth() + 1, // Current month
-    year: new Date().getFullYear(), // Current year
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
   });
-  console.log(userData.sub);
-  // Item descriptions for dropdown (you can modify this list based on your needs)
+
+  // Item descriptions for dropdown
   const itemDescriptions = [
     'PC GRANITE-BLACK',
     'PP - 30% TF',
@@ -73,8 +73,6 @@ const StoreStock = () => {
     'PP - WHITE',
     'PC',
     'HDPE',
-
-    // Add more item descriptions as needed
   ];
 
   // Function to refresh store stock data
@@ -88,85 +86,92 @@ const StoreStock = () => {
   }, [date, isOpen, dispatch, token]);
 
   // Validation function for location fields
+  const validateLocationField = (value) => {
+    if (!value) return { isValid: true, error: '' };
+
+    const trimmedValue = value.trim();
+
+    if (value !== trimmedValue || value.includes(' ')) {
+      return { isValid: false, error: 'No spaces allowed' };
+    }
+
+    if (!/^[a-zA-Z0-9.]*$/.test(value)) {
+      return { isValid: false, error: 'No special characters allowed' };
+    }
+
+    if (value.length > 10) {
+      return { isValid: false, error: 'Maximum 10 characters allowed' };
+    }
+
+    const isStartsWithNumber = /^[0-9]/.test(value);
+    if (isStartsWithNumber) {
+      const isNumeric = /^[0-9.]+$/.test(value);
+      if (isNumeric) {
+        const numericPart = value.replace(/\./g, '');
+        if (numericPart.length > 7) {
+          return { isValid: false, error: 'Max 7 numeric digits allowed' };
+        }
+        const decimalCount = (value.match(/\./g) || []).length;
+        if (decimalCount > 1) {
+          return { isValid: false, error: 'Only one decimal point allowed' };
+        }
+        return { isValid: true, error: '' };
+      }
+      return { isValid: false, error: 'If starting with number, use numbers only' };
+    }
+
+    const isStartsWithLetter = /^[a-zA-Z]/.test(value);
+    if (isStartsWithLetter) {
+      const isOnlyLetters = /^[a-zA-Z]+$/.test(value);
+      if (isOnlyLetters) {
+        if (value.length > 3) {
+          return { isValid: false, error: 'Max 3 letters allowed' };
+        }
+        return { isValid: true, error: '' };
+      }
+
+      const alphanumericMatch = value.match(/^([a-zA-Z]+)([0-9.]+)$/);
+      if (alphanumericMatch) {
+        const [, letters, numbers] = alphanumericMatch;
+
+        if (letters.length > 3) {
+          return { isValid: false, error: 'Max 3 letters allowed' };
+        }
+
+        const numericPart = numbers.replace(/\./g, '');
+        if (numericPart.length > 7) {
+          return { isValid: false, error: 'Max 7 numeric digits allowed' };
+        }
+
+        const decimalCount = (numbers.match(/\./g) || []).length;
+        if (decimalCount > 1) {
+          return { isValid: false, error: 'Only one decimal point allowed' };
+        }
+
+        return { isValid: true, error: '' };
+      }
+
+      return { isValid: false, error: 'Format: letters + numbers (e.g., A123, AB12.34)' };
+    }
+
+    return { isValid: false, error: 'Start with letters or numbers only' };
+  };
+
   const validateAllLocationFields = (locationObj) => {
-    const validateLocationField = (value) => {
-      if (!value) return { isValid: true, error: '' };
-
-      const trimmedValue = value.trim();
-
-      if (value !== trimmedValue || value.includes(' ')) {
-        return { isValid: false, error: 'No spaces allowed' };
-      }
-
-      if (!/^[a-zA-Z0-9.]*$/.test(value)) {
-        return { isValid: false, error: 'No special characters allowed' };
-      }
-
-      if (value.length > 10) {
-        return { isValid: false, error: 'Maximum 10 characters allowed' };
-      }
-
-      const isStartsWithNumber = /^[0-9]/.test(value);
-      if (isStartsWithNumber) {
-        const isNumeric = /^[0-9.]+$/.test(value);
-        if (isNumeric) {
-          const numericPart = value.replace(/\./g, '');
-          if (numericPart.length > 7) {
-            return { isValid: false, error: 'Max 7 numeric digits allowed' };
-          }
-          const decimalCount = (value.match(/\./g) || []).length;
-          if (decimalCount > 1) {
-            return { isValid: false, error: 'Only one decimal point allowed' };
-          }
-          return { isValid: true, error: '' };
-        }
-        return { isValid: false, error: 'If starting with number, use numbers only' };
-      }
-
-      const isStartsWithLetter = /^[a-zA-Z]/.test(value);
-      if (isStartsWithLetter) {
-        const isOnlyLetters = /^[a-zA-Z]+$/.test(value);
-        if (isOnlyLetters) {
-          if (value.length > 3) {
-            return { isValid: false, error: 'Max 3 letters allowed' };
-          }
-          return { isValid: true, error: '' };
-        }
-
-        const alphanumericMatch = value.match(/^([a-zA-Z]+)([0-9.]+)$/);
-        if (alphanumericMatch) {
-          const [, letters, numbers] = alphanumericMatch;
-
-          if (letters.length > 3) {
-            return { isValid: false, error: 'Max 3 letters allowed' };
-          }
-
-          const numericPart = numbers.replace(/\./g, '');
-          if (numericPart.length > 7) {
-            return { isValid: false, error: 'Max 7 numeric digits allowed' };
-          }
-
-          const decimalCount = (numbers.match(/\./g) || []).length;
-          if (decimalCount > 1) {
-            return { isValid: false, error: 'Only one decimal point allowed' };
-          }
-
-          return { isValid: true, error: '' };
-        }
-
-        return { isValid: false, error: 'Format: letters + numbers (e.g., A123, AB12.34)' };
-      }
-
-      return { isValid: false, error: 'Start with letters or numbers only' };
-    };
-
     const results = {};
     ['p1', 'p2', 'p3'].forEach((key) => {
       const value = locationObj[key] || '';
       results[key] = validateLocationField(value);
     });
-
     return results;
+  };
+
+  // Handle edit button click - set actual to "0" initially
+  const handleEditClick = (elem) => {
+    setEdit({
+      ...elem,
+      actual: '0', // Set actual to "0" when starting edit
+    });
   };
 
   const handleSubmit = async () => {
@@ -313,7 +318,7 @@ const StoreStock = () => {
         month: new Date().getMonth() + 1,
         year: new Date().getFullYear(),
       });
-      // **IMMEDIATELY REFRESH STORE STOCK DATA AFTER SUCCESS**
+
       const [year, month, day] = date.split('-');
       dispatch(fetchStoreStock(year, month, day, token));
     } catch (error) {
@@ -330,6 +335,165 @@ const StoreStock = () => {
     }
   };
 
+  // Location input handler
+  const handleLocationChange = (key, value, locObj) => {
+    const trimmedValue = value.trim();
+
+    if (/^[0-9]/.test(trimmedValue)) {
+      const isNumeric = /^[0-9.]+$/.test(trimmedValue);
+      if (isNumeric) {
+        const numericPart = trimmedValue.replace(/\./g, '');
+        if (numericPart.length > 7) return;
+      }
+    }
+
+    if (/^[a-zA-Z]/.test(trimmedValue) && trimmedValue.length > 10) return;
+    if (trimmedValue.length > 10) return;
+
+    setEdit((prev) => ({
+      ...prev,
+      location: {
+        ...locObj,
+        [key]: trimmedValue,
+      },
+    }));
+
+    const validation = validateLocationField(trimmedValue);
+    const isFilled = (val) => val && val.trim() !== '';
+
+    if (validation.isValid && isFilled(trimmedValue)) {
+      if (key === 'p1' && !fetched.p1) {
+        setFetched((prev) => ({ ...prev, p1: true }));
+        refreshStoreStock();
+      }
+      if (key === 'p2' && !fetched.p2) {
+        setFetched((prev) => ({ ...prev, p2: true }));
+        refreshStoreStock();
+      }
+    }
+  };
+
+  // Render location cells for editing
+  const renderEditLocationCells = (elem) => {
+    let locObj;
+    if (typeof elem.location === 'object' && elem.location !== null) {
+      locObj = edit.location || elem.location;
+    } else {
+      locObj = edit.location || { p1: elem.location || '', p2: '', p3: '' };
+    }
+
+    const isFilled = (val) => val && val.trim() !== '';
+
+    return ['p1', 'p2', 'p3'].map((key) => {
+      const val = locObj[key] || '';
+      const validation = validateLocationField(val);
+
+      let disabled = false;
+      if (key === 'p2' && !isFilled(locObj.p1)) disabled = true;
+      if (key === 'p3' && !isFilled(locObj.p2)) disabled = true;
+
+      return (
+        <TableCell align="center" key={key}>
+          <Box>
+            <TextField
+              fullWidth
+              size="small"
+              value={val}
+              onChange={(e) => handleLocationChange(key, e.target.value, locObj)}
+              sx={{
+                background: '#fff',
+                borderRadius: 1,
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: !validation.isValid && val ? '#d32f2f' : undefined,
+                  },
+                },
+              }}
+              placeholder={key.toUpperCase()}
+              disabled={disabled}
+              error={!validation.isValid && val !== ''}
+            />
+            {!validation.isValid && val && (
+              <Typography
+                variant="caption"
+                color="error"
+                sx={{
+                  display: 'block',
+                  mt: 0.5,
+                  fontSize: '0.70rem',
+                  lineHeight: 1.2,
+                  textAlign: 'left',
+                }}
+              >
+                {validation.error}
+              </Typography>
+            )}
+          </Box>
+        </TableCell>
+      );
+    });
+  };
+
+  // Render location cells for display
+  const renderDisplayLocationCells = (elem) => {
+    if (typeof elem.location === 'object' && elem.location !== null) {
+      return ['p1', 'p2', 'p3'].map((key) => {
+        const val = elem.location[key] || '';
+        const match = typeof val === 'string' ? val.match(/^([a-zA-Z]+)\s*([\d.]+)$/) : null;
+
+        return (
+          <TableCell align="center" key={key}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              sx={{
+                border: '2px solid #1976d2',
+                borderRadius: 2,
+                padding: '8px 16px',
+                minWidth: 60,
+                background: '#f5faff',
+              }}
+            >
+              {match ? (
+                <>
+                  <Typography fontWeight="bold" color="#1976d2" mr={1}>
+                    {match[1]}
+                  </Typography>
+                  <Box sx={{ borderLeft: '2px solid #1976d2', height: 24, mx: 1 }} />
+                  <Typography fontWeight="bold" color="#388e3c">
+                    {match[2]}
+                  </Typography>
+                </>
+              ) : (
+                <Typography fontWeight="bold">{val}</Typography>
+              )}
+            </Box>
+          </TableCell>
+        );
+      });
+    } else {
+      return (
+        <TableCell align="center" colSpan={3}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            sx={{
+              border: '2px solid #1976d2',
+              borderRadius: 2,
+              padding: '8px 16px',
+              minWidth: 120,
+              background: '#f5faff',
+            }}
+          >
+            <Typography fontWeight="bold">{elem.location || ''}</Typography>
+          </Box>
+        </TableCell>
+      );
+    }
+  };
+
   return (
     <>
       <Box
@@ -341,7 +505,7 @@ const StoreStock = () => {
           padding: '1rem',
         }}
       >
-        {/* Top Bar */}
+        {/* Header */}
         <Typography
           sx={{
             fontSize: '2rem',
@@ -635,186 +799,10 @@ const StoreStock = () => {
                           {elem.current}
                         </TableCell>
 
-                        {/* Location cells - keeping original complex logic */}
-                        {edit._id == elem._id ? (
-                          (() => {
-                            let locObj;
-                            if (typeof elem.location === 'object' && elem.location !== null) {
-                              locObj = edit.location || elem.location;
-                            } else {
-                              locObj = edit.location || { p1: elem.location || '', p2: '', p3: '' };
-                            }
-
-                            const isFilled = (val) => val && val.trim() !== '';
-
-                            const validateLocationField = (value) => {
-                              if (!value) return { isValid: true, error: '' };
-                              // Using the same validation logic as before
-                              const trimmedValue = value.trim();
-                              if (value !== trimmedValue || value.includes(' ')) {
-                                return { isValid: false, error: 'No spaces allowed' };
-                              }
-                              if (!/^[a-zA-Z0-9.]*$/.test(value)) {
-                                return { isValid: false, error: 'No special characters allowed' };
-                              }
-                              if (value.length > 10) {
-                                return { isValid: false, error: 'Maximum 10 characters allowed' };
-                              }
-                              return { isValid: true, error: '' };
-                            };
-
-                            const handleLocationChange = (key, value) => {
-                              const trimmedValue = value.trim();
-                              let restrictedValue = trimmedValue;
-
-                              if (/^[0-9]/.test(trimmedValue)) {
-                                const isNumeric = /^[0-9.]+$/.test(trimmedValue);
-                                if (isNumeric) {
-                                  const numericPart = trimmedValue.replace(/\./g, '');
-                                  if (numericPart.length > 7) {
-                                    return;
-                                  }
-                                }
-                              }
-
-                              if (/^[a-zA-Z]/.test(trimmedValue) && trimmedValue.length > 10) {
-                                return;
-                              }
-
-                              if (trimmedValue.length > 10) {
-                                return;
-                              }
-
-                              setEdit((prev) => ({
-                                ...prev,
-                                location: {
-                                  ...locObj,
-                                  [key]: restrictedValue,
-                                },
-                              }));
-
-                              const validation = validateLocationField(restrictedValue);
-                              if (validation.isValid && isFilled(restrictedValue)) {
-                                if (key === 'p1' && !fetched.p1) {
-                                  setFetched((prev) => ({ ...prev, p1: true }));
-                                  refreshStoreStock();
-                                }
-                                if (key === 'p2' && !fetched.p2) {
-                                  setFetched((prev) => ({ ...prev, p2: true }));
-                                  refreshStoreStock();
-                                }
-                              }
-                            };
-
-                            return ['p1', 'p2', 'p3'].map((key) => {
-                              const val = locObj[key] || '';
-                              const validation = validateLocationField(val);
-
-                              let disabled = false;
-                              if (key === 'p2' && !isFilled(locObj.p1)) disabled = true;
-                              if (key === 'p3' && !isFilled(locObj.p2)) disabled = true;
-
-                              return (
-                                <TableCell align="center" key={key}>
-                                  <Box>
-                                    <TextField
-                                      fullWidth
-                                      size="small"
-                                      value={val}
-                                      onChange={(e) => handleLocationChange(key, e.target.value)}
-                                      sx={{
-                                        background: '#fff',
-                                        borderRadius: 1,
-                                        '& .MuiOutlinedInput-root': {
-                                          '& fieldset': {
-                                            borderColor:
-                                              !validation.isValid && val ? '#d32f2f' : undefined,
-                                          },
-                                        },
-                                      }}
-                                      placeholder={key.toUpperCase()}
-                                      disabled={disabled}
-                                      error={!validation.isValid && val !== ''}
-                                    />
-                                    {!validation.isValid && val && (
-                                      <Typography
-                                        variant="caption"
-                                        color="error"
-                                        sx={{
-                                          display: 'block',
-                                          mt: 0.5,
-                                          fontSize: '0.70rem',
-                                          lineHeight: 1.2,
-                                          textAlign: 'left',
-                                        }}
-                                      >
-                                        {validation.error}
-                                      </Typography>
-                                    )}
-                                  </Box>
-                                </TableCell>
-                              );
-                            });
-                          })()
-                        ) : typeof elem.location === 'object' && elem.location !== null ? (
-                          ['p1', 'p2', 'p3'].map((key) => {
-                            const val = elem.location[key] || '';
-                            const match =
-                              typeof val === 'string'
-                                ? val.match(/^([a-zA-Z]+)\s*([\d.]+)$/)
-                                : null;
-
-                            return (
-                              <TableCell align="center" key={key}>
-                                <Box
-                                  display="flex"
-                                  alignItems="center"
-                                  justifyContent="center"
-                                  sx={{
-                                    border: '2px solid #1976d2',
-                                    borderRadius: 2,
-                                    padding: '8px 16px',
-                                    minWidth: 60,
-                                    background: '#f5faff',
-                                  }}
-                                >
-                                  {match ? (
-                                    <>
-                                      <Typography fontWeight="bold" color="#1976d2" mr={1}>
-                                        {match[1]}
-                                      </Typography>
-                                      <Box
-                                        sx={{ borderLeft: '2px solid #1976d2', height: 24, mx: 1 }}
-                                      />
-                                      <Typography fontWeight="bold" color="#388e3c">
-                                        {match[2]}
-                                      </Typography>
-                                    </>
-                                  ) : (
-                                    <Typography fontWeight="bold">{val}</Typography>
-                                  )}
-                                </Box>
-                              </TableCell>
-                            );
-                          })
-                        ) : (
-                          <TableCell align="center" colSpan={3}>
-                            <Box
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="center"
-                              sx={{
-                                border: '2px solid #1976d2',
-                                borderRadius: 2,
-                                padding: '8px 16px',
-                                minWidth: 120,
-                                background: '#f5faff',
-                              }}
-                            >
-                              <Typography fontWeight="bold">{elem.location || ''}</Typography>
-                            </Box>
-                          </TableCell>
-                        )}
+                        {/* Location cells */}
+                        {edit._id === elem._id
+                          ? renderEditLocationCells(elem)
+                          : renderDisplayLocationCells(elem)}
 
                         {/* Status column */}
                         <TableCell sx={{ width: '7rem', padding: 0 }} align="center">
@@ -847,35 +835,24 @@ const StoreStock = () => {
                           )}
                         </TableCell>
 
-                        {/* Schedule column */}
+                        {/* Schedule column - NOT EDITABLE, show as string */}
                         <TableCell sx={{ width: '9rem' }} align="center">
-                          {edit._id === elem._id ? (
-                            <TextField
-                              fullWidth
-                              type="text"
-                              defaultValue={elem.plan}
-                              onChange={(e) => setEdit({ ...edit, plan: e.target.value })}
-                              sx={{ width: '100%' }}
-                              size="small"
-                            />
-                          ) : (
-                            elem.plan
-                          )}
+                          <Typography>{elem.plan || '-'}</Typography>
                         </TableCell>
 
-                        {/* Actual column */}
+                        {/* Actual column - starts with "0" when editing */}
                         <TableCell sx={{ width: '14rem' }} align="center">
                           {edit._id === elem._id ? (
                             <TextField
                               fullWidth
                               type="text"
-                              defaultValue={elem.actual}
+                              value={edit.actual || '0'}
                               onChange={(e) => setEdit({ ...edit, actual: e.target.value })}
                               sx={{ width: '100%' }}
                               size="small"
                             />
                           ) : (
-                            elem.actual
+                            elem.actual || '-'
                           )}
                         </TableCell>
 
@@ -891,7 +868,7 @@ const StoreStock = () => {
                               </IconButton>
                             </Box>
                           ) : (
-                            <IconButton onClick={() => setEdit(elem)}>
+                            <IconButton onClick={() => handleEditClick(elem)}>
                               <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
                             </IconButton>
                           )}
