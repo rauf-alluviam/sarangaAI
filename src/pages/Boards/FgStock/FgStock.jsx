@@ -705,7 +705,7 @@ const FgStock = () => {
                     Current Stock
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
-                    Dispatched *
+                    Dispatched 
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Balance
@@ -798,13 +798,13 @@ const FgStock = () => {
                         {edit._id == elem._id ? (
                           <TextField
                             type="number"
-                            value={edit.dispatched || '0'}
+                            value={edit.dispatched }
                             onChange={(e) => setEdit({ ...edit, dispatched: e.target.value })}
                             sx={{ width: '100%' }}
                             size="small"
-                            required
-                            error={!edit.dispatched || edit.dispatched === 0}
-                            helperText={!edit.dispatched || edit.dispatched === 0 ? 'Required' : ''}
+                            // required
+                            // error={!edit.dispatched || edit.dispatched === 0}
+                            // helperText={!edit.dispatched || edit.dispatched === 0 ? 'Required' : ''}
                           />
                         ) : (
                           elem.dispatched
