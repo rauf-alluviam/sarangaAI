@@ -915,7 +915,7 @@ const Production = () => {
                               variant="caption"
                               sx={{ fontWeight: 600, fontSize: '0.7rem', color: '#333' }}
                             >
-                              {(partData.schedule || 0) - partData.totalPlan}
+                              {Math.abs((partData.schedule || 0) - partData.totalPlan)}
                             </Typography>
                           </Box>
                           <Box sx={{ ...cellStyle, backgroundColor: '#f8f9fa' }}>
@@ -1287,7 +1287,7 @@ const Production = () => {
         onClose={() => setMonthlyScheduleModal(false)}
         selectedDate={selectedDate}
         fetchData={fetchData}
-        resetDataFlag={resetDataFlag}  // Add this line
+        resetDataFlag={resetDataFlag} // Add this line
       />
     </Box>
   );

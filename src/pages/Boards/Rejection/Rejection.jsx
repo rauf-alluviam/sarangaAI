@@ -661,21 +661,21 @@ const Rejection = () => {
         <Paper sx={{ overflow: 'hidden', border: `1px solid #e0e0e0`, boxShadow: 3 }}>
           <TableContainer
             sx={{
-      maxHeight: "73vh",   // limits height so vertical scrollbar appears
-      overflow: "auto",    // allow both scrollbars
-      scrollbarWidth: "thin",
-      "&::-webkit-scrollbar": {
-        width: "8px",
-        height: "8px",
-      },
-      "&::-webkit-scrollbar-thumb": {
-        backgroundColor: "#888",
-        borderRadius: "4px",
-      },
-      "&::-webkit-scrollbar-thumb:hover": {
-        backgroundColor: "#555",
-      },
-    }}
+              maxHeight: '73vh', // limits height so vertical scrollbar appears
+              overflow: 'auto', // allow both scrollbars
+              scrollbarWidth: 'thin',
+              '&::-webkit-scrollbar': {
+                width: '8px',
+                height: '8px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#888',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                backgroundColor: '#555',
+              },
+            }}
           >
             <Table stickyHeader>
               <TableHead>
@@ -764,7 +764,7 @@ const Rejection = () => {
                         fontSize: '0.875rem',
                         border: `1px solid #e0e0e0`,
                         width: '60px',
-                        maxWidth: '6  0px',
+                        padding: '12px 12px', // ⬅️ Add vertical + horizontal padding
                       }}
                     >
                       {day}
