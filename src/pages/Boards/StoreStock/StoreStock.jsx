@@ -837,7 +837,7 @@ const StoreStock = () => {
 
                         {/* Schedule column - NOT EDITABLE, show as string */}
                         <TableCell sx={{ width: '9rem' }} align="center">
-                          <Typography>{elem.plan || '-'}</Typography>
+                          <Typography>{elem.schedule || '-'}</Typography>
                         </TableCell>
 
                         {/* Actual column - starts with "0" when editing */}

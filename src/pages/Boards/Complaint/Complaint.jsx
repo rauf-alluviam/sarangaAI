@@ -55,6 +55,30 @@ const Complaint = () => {
     return { value: year, label: year.toString() };
   });
 
+  // Function to determine background color based on target date and status
+  const getTargetDateBackgroundColor = (targetDate, status) => {
+    if (status === 'yes') {
+      return '#90EE90'; // light green
+    }
+
+    if (!targetDate) {
+      return 'inherit';
+    }
+
+    const currentDate = new Date();
+    const target = new Date(targetDate);
+
+    // Set time to 00:00:00 for accurate date comparison
+    currentDate.setHours(0, 0, 0, 0);
+    target.setHours(0, 0, 0, 0);
+
+    if (currentDate <= target) {
+      return '#FFE4B5'; // light orange
+    } else {
+      return '#FFB6C1'; // light red
+    }
+  };
+
   // Fetch complaints when year or quarter changes
   useEffect(() => {
     if (selectedYear && selectedQuarter) {
@@ -494,9 +518,22 @@ const Complaint = () => {
                       <TableCell align="center">
                         {renderEditableField(elem, 'permanent_action')}
                       </TableCell>
-                      <TableCell align="center">
+
+                      {/* Target Date Column with Background Color Logic */}
+                      <TableCell
+                        align="center"
+                        sx={{
+                          backgroundColor: getTargetDateBackgroundColor(
+                            edit.id === elem.id
+                              ? edit.permanent_target_date
+                              : elem.permanent_target_date,
+                            edit.id === elem.id ? edit.status : elem.status
+                          ),
+                        }}
+                      >
                         {renderEditableField(elem, 'permanent_target_date', 'date')}
                       </TableCell>
+
                       <TableCell align="center">
                         {renderEditableField(elem, 'responsibility')}
                       </TableCell>
