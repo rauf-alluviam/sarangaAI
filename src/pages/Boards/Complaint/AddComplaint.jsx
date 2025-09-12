@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import colors from "../../../utils/colors";
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -9,522 +8,285 @@ import {
   Select,
   TextField,
   Typography,
-} from "@mui/material";
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  addFgStock,
-  getAllFgStock,
-} from "../../../Redux/Actions/fgStockActions";
-import { addComplaint } from "../../../Redux/Actions/complaintAction";
-import { enqueueSnackbar } from "notistack";
-
-const BACKEND_API = import.meta.env.VITE_BACKEND_API;
+  Grid,
+} from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { addComplaint } from '../../../Redux/Actions/complaintAction';
+import { enqueueSnackbar } from 'notistack';
+import colors from '../../../utils/colors';
 
 const AddComplaint = ({ setIsOpen }) => {
-  const {  complaintsLoading } = useSelector((state) => state.complaint);
-  const { token } = useSelector((state) => state.auth);
+  const { complaintsLoading } = useSelector((state) => state.complaint);
   const dispatch = useDispatch();
-  //   const [itemDescription, setItemDescription]= React.useState('');
-  //   const [itemCode, setItemCode]= React.useState('');
-  //   const [minimum, setMinimum]= React.useState('');
-  //   const [maximum, setMaximum]= React.useState('');
-  //   const [todaysTarget, setTodaysTarget]= useState('');
-  //   const [current, setCurrent]= React.useState('');
-  //   const [schedule, setSchedule]= React.useState('');
-  //   const [dispatched, setDispatched]= React.useState('');
-  //   const [balance, setBalance]= React.useState('');
-  //   const [nextAction, setNextAction]= React.useState('');
-  //   const [resp, setResp]= React.useState('');
-  //   const [nextDayTarget, setNextDayTarget]= React.useState('');
-  //   const [timestamp, setTimestamp]= React.useState('2025-05-22T13:20:56.257Z');
 
-  // {
-  //     "customer": "IJL ",
-  //     "part_name": "Shade-A",
-  //     "complaint": "Short Height mold",
-  //     "complaint_date": "2025-06-05",
-  //     "part_recieved_date": "2025-06-05",
-  //     "problem_description": " PINS hole location area short mold",
-  //     "quantity": 2,
-  //     "line_name": "Molding",
-  //     "tracebility": "2025-04-25",
-  //     "first_repeat": "first",
-  //     "supplier": "Inhouse",
-  //     "process": "Molding",
-  //     "temporary_action": "marking in areas",
-  //     "temporary_target_date": "2025-05-14",
-  //     "root_cause": "setup part mixed",
-  //     "permanent_action": "s - ok marking in each part",
-  //     "permanent_target_date": "2025-05-07",
-  //     "responsibility": "Amzad",
-  //     "status": "ok",
-  //     "standerdization": "not ok",
-  //     "horizental_deployment": true,
-  //     "timestamp": "2025-06-11T13:27:34.298000",
-  //     "part_received_date": "2025-09-05",
-  //     "id": "684981ca67e965218a328fc8"
-  //   },
-  const [customer, setCustomer] = useState("");
-  const [partName, setPartName] = useState("");
-  const [complaint, setComplaint] = useState("");
-  const [complaintDate, setComplaintDate] = useState("");
-  const [partRecievedDate, setPartRecievedDate] = useState("");
-  const [problemDescription, setProblemDescription] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [lineName, setLineName] = useState("");
-  const [tracebility, setTracebility] = useState("");
-  const [firstRepeat, setFirstRepeat] = useState("");
-  const [supplier, setSupplier] = useState("");
-  const [process, setProcess] = useState("");
-  const [temporaryAction, setTemporaryAction] = useState("");
-  const [temporaryTargetDate, setTemporaryTargetDate] = useState("");
-  const [rootCause, setRootCause] = useState("");
-  const [permanentAction, setPermanentAction] = useState("");
-  const [permanentTargetDate, setPermanentTargetDate] = useState("");
-  const [responsibility, setResponsibility] = useState("");
-  const [status, setStatus] = useState("");
-  const [standerdization, setStanderdization] = useState("");
-  const [horizentalDeployment, setHorizentalDeployment] = useState('yes');
-  const [partReceivedDate, setPartReceivedDate] = useState("");
-  const [timestamp, setTimestamp] = useState(new Date().toISOString());
+  // Form state - organized by mandatory/optional
+  const [formData, setFormData] = useState({
+    // Mandatory fields
+    customer: '',
+    partName: '',
+    complaint: '',
+    complaintDate: '',
+    problemDescription: '',
+    quantity: '',
+    lineName: '',
+    traceability: '',
+    firstRepeat: '',
+    supplier: '',
+    process: '',
+    temporaryAction: '',
+    temporaryTargetDate: '',
+    rootCause: '',
+    permanentAction: '',
+    permanentTargetDate: '',
+    responsibility: '',
 
-//   const dispatch = useDispatch();
-  // console.log(new Date())
+    // Optional fields
+    status: '',
+    standardization: '',
+    horizontalDeployment: '',
+    partReceivedDate: '',
+  });
 
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     // const data = {
-//     //     customer: "Honda",
-//     //     part_name: "Shade-B",
-//     //     complaint: "Short Height mold",
-//     //     complaint_date: "2025-06-05",
-//     //     part_recieved_date: "2025-06-05",
-//     //     problem_description: "PINS hole location area short mold",
-//     //     quantity: 2,
-//     //     line_name: "Molding",
-//     //     tracebility: "2025-04-25",
-//     //     first_repeat: "first",
-//     //     supplier: "Inhouse",
-//     //     process: "Molding",
-//     //     temporary_action: "marking in areas",
-//     //     temporary_target_date: "2025-05-14",
-//     //     root_cause: "setup part mixed",
-//     //     permanent_action: "s - ok marking in each part",
-//     //     permanent_target_date: "2025-05-07",
-//     //     responsibility: "Amzad",
-//     //     status: "ok",
-//     //     standerdization: "not ok",
-//     //     horizental_deployment: "true",
-//     //     timestamp: "2025-06-11T13:27:34.298000",
-//     //     part_received_date: "2025-09-05"
-//     // };
+  const [errors, setErrors] = useState({});
 
-//     const data = {
-//         customer,
-//         part_name: partName,
-//         complaint,
-//         complaint_date: complaintDate,
-//         part_recieved_date: partRecievedDate,
-//         problem_description: problemDescription,
-//         quantity,
-//         line_name: lineName,
-//         tracebility,
-//         first_repeat: firstRepeat,
-//         supplier,
-//         process,
-//         temporary_action: temporaryAction,
-//         temporary_target_date: temporaryTargetDate,
-//         root_cause: rootCause,
-//         permanent_action: permanentAction,
-//         permanent_target_date: permanentTargetDate,
-//         responsibility,
-//         status,
-//         standerdization,
-//         horizental_deployment: horizentalDeployment,
-//         timestamp,
-//         part_received_date: partReceivedDate,
-//       };
-//     console.log(data)
-//     try {
-//         console.log(data)
-//       const response= await axios.post(`${BACKEND_API}/submit_customer_complaint_sheet_entry`, data,
-//         {
-//           headers: {
-//             'accept': 'application/json',
-//             'Authorization': `Bearer ${token}`,
-//             'Content-Type': 'application/json',
-//           }
-//         } 
-//       );
-//       setIsOpen(false);
-//       alert(response.data.message)
-//     } catch (error) {
-//       console.log(error)
+  // Mandatory fields list
+  const mandatoryFields = [
+    'customer',
+    'partName',
+    'complaint',
+    'complaintDate',
+    'problemDescription',
+    'quantity',
+    'lineName',
+    'traceability',
+    'firstRepeat',
+    'supplier',
+    'process',
+    'temporaryAction',
+    'temporaryTargetDate',
+    'rootCause',
+    'permanentAction',
+    'permanentTargetDate',
+    'responsibility',
+  ];
 
-//     }
+  // Handle input changes
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
 
-//     // dispatch(addFgStock(data));
-//     // setIsOpen(false);
-//     // axios.post('http://
-//   };
-
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('first')
-    // const data = {
-    //   customer,
-    //   part_name: partName,
-    //   complaint,
-    //   complaint_date: complaintDate,
-    //   part_recieved_date: partRecievedDate,
-    //   problem_description: problemDescription,
-    //   quantity,
-    //   line_name: lineName,
-    //   tracebility,
-    //   first_repeat: firstRepeat,
-    //   supplier,
-    //   process,
-    //   temporary_action: temporaryAction,
-    //   temporary_target_date: temporaryTargetDate,
-    //   root_cause: rootCause,
-    //   permanent_action: permanentAction,
-    //   permanent_target_date: permanentTargetDate,
-    //   responsibility,
-    //   status,
-    //   standerdization,
-    //   horizental_deployment: horizentalDeployment,
-    //   timestamp,
-    //   part_received_date: partReceivedDate,
-    // };
-
-    const data = {
-      customer,
-      part_name: partName,
-      complaint,
-      complaint_date: complaintDate,
-      part_received_date: partReceivedDate, // ✅ correct key
-      problem_description: problemDescription,
-      quantity,
-      line_name: lineName,
-      tracebility,
-      first_repeat: firstRepeat,
-      supplier,
-      process,
-      temporary_action: temporaryAction,
-      temporary_target_date: temporaryTargetDate,
-      root_cause: rootCause,
-      permanent_action: permanentAction,
-      permanent_target_date: permanentTargetDate,
-      responsibility,
-      status,
-      standerdization,
-      horizental_deployment: horizentalDeployment,
-      resp_person: responsibility, // ✅ this was missing from your code
-      timestamp,
-    };
-    console.log(data);
-    dispatch(addComplaint(data, 
-      (successMsg)=>{setIsOpen(false); enqueueSnackbar(successMsg, { variant: 'success' }) },
-      (errorMsg)=> enqueueSnackbar(errorMsg, { variant: 'error' })
-    
-    ));
-    
-      // try {
-    //   const response = await axios.post(
-    //     `${BACKEND_API}/submit_customer_complaint_sheet_entry`,
-    //     data,
-    //     {
-    //       headers: {
-    //         accept: "application/json",
-    //         Authorization: `Bearer ${token}`,
-    //         "Content-Type": "application/json",
-    //       },
-    //     }
-    //   );
-    //   setIsOpen(false);
-    //   alert(response.data.message);
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: '',
+      }));
+    }
   };
+
+  // Validate form
+  const validateForm = () => {
+    const newErrors = {};
+
+    mandatoryFields.forEach((field) => {
+      if (!formData[field] || formData[field].toString().trim() === '') {
+        newErrors[field] = 'This field is required';
+      }
+    });
+
+    // Additional validation
+    if (formData.quantity && formData.quantity <= 0) {
+      newErrors.quantity = 'Quantity must be greater than 0';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      enqueueSnackbar('Please fill all mandatory fields', { variant: 'error' });
+      return;
+    }
+
+    const submitData = {
+      customer: formData.customer,
+      part_name: formData.partName,
+      complaint: formData.complaint,
+      complaint_date: formData.complaintDate,
+      part_received_date: formData.partReceivedDate || null,
+      problem_description: formData.problemDescription,
+      quantity: parseInt(formData.quantity),
+      line_name: formData.lineName,
+      tracebility: formData.traceability,
+      first_repeat: formData.firstRepeat,
+      supplier: formData.supplier,
+      process: formData.process,
+      temporary_action: formData.temporaryAction,
+      temporary_target_date: formData.temporaryTargetDate,
+      root_cause: formData.rootCause,
+      permanent_action: formData.permanentAction,
+      permanent_target_date: formData.permanentTargetDate,
+      responsibility: formData.responsibility,
+      resp_person: formData.responsibility,
+      status: formData.status || '',
+      standerdization: formData.standardization || '',
+      horizental_deployment: formData.horizontalDeployment || '',
+      timestamp: new Date().toISOString().split('T')[0],
+    };
+
+    dispatch(
+      addComplaint(
+        submitData,
+        (successMsg) => {
+          setIsOpen(false);
+          enqueueSnackbar(successMsg, { variant: 'success' });
+        },
+        (errorMsg) => enqueueSnackbar(errorMsg, { variant: 'error' })
+      )
+    );
+  };
+
+  // Render input field with validation
+  const renderTextField = (field, label, type = 'text', isOptional = false) => (
+    <TextField
+      fullWidth
+      label={`${label}${isOptional ? ' (Optional)' : ' *'}`}
+      type={type}
+      value={formData[field]}
+      onChange={(e) => handleInputChange(field, e.target.value)}
+      error={!!errors[field]}
+      helperText={errors[field]}
+      sx={{ mb: 2 }}
+      size="small"
+      InputLabelProps={type === 'date' ? { shrink: true } : undefined}
+    />
+  );
+
+  // Render select field with validation
+  const renderSelectField = (field, label, options, isOptional = false) => (
+    <FormControl fullWidth sx={{ mb: 2 }} size="small" error={!!errors[field]}>
+      <InputLabel>{`${label}${isOptional ? ' (Optional)' : ' *'}`}</InputLabel>
+      <Select
+        value={formData[field]}
+        label={`${label}${isOptional ? ' (Optional)' : ' *'}`}
+        onChange={(e) => handleInputChange(field, e.target.value)}
+      >
+        {options.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            {option.label}
+          </MenuItem>
+        ))}
+      </Select>
+      {errors[field] && (
+        <Typography variant="caption" color="error" sx={{ ml: 2, mt: 0.5 }}>
+          {errors[field]}
+        </Typography>
+      )}
+    </FormControl>
+  );
+
   return (
     <Box
-    onClick={(e) => e.stopPropagation()}
-    height={"auto"}
-    borderRadius={"8px"}
-    width={"60rem"}
-    bgcolor={"white"}
-    display={"flex"}
-    flexDirection={"column"}
-    alignItems={"center"}
-    justifyContent={"space-between"}
-    p={"2rem"}
-  >
-    <Typography fontSize={"1.8rem"} textAlign={"center"}>
-      Add Complaint
-    </Typography>
-  
-    <form
-       onSubmit={handleSubmit}
-      style={{
-        width: "100%",
-        display: "flex",
-        justifyContent: "space-between",
-        paddingTop: "0.7rem",
-      }}
+      onClick={(e) => e.stopPropagation()}
+      borderRadius="8px"
+      width="70rem"
+      maxWidth="95vw"
+      bgcolor="white"
+      p={3}
+      maxHeight="90vh"
+      overflow="auto"
     >
-      <Box display={"flex"} flexDirection={"column"} width={"49%"}>
-        <TextField
-          fullWidth
-          label="Customer Name"
-          type="text"
-          value={customer}
-          onChange={(e) => setCustomer(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          fullWidth
-          label="Part Name"
-          type="text"
-          value={partName}
-          onChange={(e) => setPartName(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          fullWidth
-          label="Complaint"
-          type="text"
-          value={complaint}
-          onChange={(e) => setComplaint(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          size="small"
-          label="Complaint Date"
-          sx={{ mt: "1rem" }}
-          type="date"
-          value={complaintDate}
-          onChange={(e) => setComplaintDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-  
-        <TextField
-          size="small"
-          label="Part Received Date"
-          sx={{ mt: "1rem" }}
-          type="date"
-          value={partRecievedDate}
-          onChange={(e) => setPartRecievedDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-  
-        <TextField
-          fullWidth
-          label="Problem Description"
-          type="text"
-          value={problemDescription}
-          onChange={(e) => setProblemDescription(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          fullWidth
-          label="Line Name"
-          type="text"
-          value={lineName}
-          onChange={(e) => setLineName(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          fullWidth
-          label="Traceability"
-          type="text"
-          value={tracebility}
-          onChange={(e) => setTracebility(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
+      <Typography variant="h4" textAlign="center" mb={3}>
+        Add Complaint
+      </Typography>
 
-<TextField
-          fullWidth
-          label="Quantity"
-          type="number"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <FormControl fullWidth sx={{ mt: "1rem" }} size="small">
-          <InputLabel id="first-repeat-label">First / Repeat</InputLabel>
-          <Select
-            labelId="first-repeat-label"
-            value={firstRepeat}
-            label="First / Repeat"
-            onChange={(e) => setFirstRepeat(e.target.value)}
-          >
-            <MenuItem value="first">First</MenuItem>
-            <MenuItem value="repeat">Repeat</MenuItem>
-          </Select>
-        </FormControl>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={3}>
+          {/* Left Column */}
+          <Grid item xs={12} md={6}>
+            {renderTextField('customer', 'Customer Name')}
+            {renderTextField('partName', 'Part Name')}
+            {renderTextField('complaint', 'Complaint')}
+            {renderTextField('complaintDate', 'Complaint Date', 'date')}
+            {renderTextField('problemDescription', 'Problem Description')}
+            {renderTextField('quantity', 'Quantity', 'number')}
+            {renderTextField('lineName', 'Line Name')}
+            {renderTextField('traceability', 'Traceability')}
 
-<TextField
-          fullWidth
-          label="Supplier"
-          type="text"
-          value={supplier}
-          onChange={(e) => setSupplier(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-      </Box>
-  
-      <Box display={"flex"} flexDirection={"column"} width={"49%"}>
-        
-  
-       
-  
-        <TextField
-          fullWidth
-          label="Process"
-          type="text"
-          value={process}
-          onChange={(e) => setProcess(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          fullWidth
-          label="Temporary Action"
-          type="text"
-          value={temporaryAction}
-          onChange={(e) => setTemporaryAction(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          size="small"
-          label="Temporary Target Date"
-          sx={{ mt: "1rem" }}
-          type="date"
-          value={temporaryTargetDate}
-          onChange={(e) => setTemporaryTargetDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-  
-        <TextField
-          fullWidth
-          label="Root Cause"
-          type="text"
-          value={rootCause}
-          onChange={(e) => setRootCause(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          fullWidth
-          label="Permanent Action"
-          type="text"
-          value={permanentAction}
-          onChange={(e) => setPermanentAction(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <TextField
-          size="small"
-          label="Permanent Target Date"
-          sx={{ mt: "1rem" }}
-          type="date"
-          value={permanentTargetDate}
-          onChange={(e) => setPermanentTargetDate(e.target.value)}
-          InputLabelProps={{ shrink: true }}
-        />
-  
-        <TextField
-          fullWidth
-          label="Responsibility"
-          type="text"
-          value={responsibility}
-          onChange={(e) => setResponsibility(e.target.value)}
-          sx={{ mt: "1rem" }}
-          size="small"
-        />
-  
-        <FormControl fullWidth sx={{ mt: "1rem" }} size="small">
-          <InputLabel id="status-label">Status</InputLabel>
-          <Select
-            labelId="status-label"
-            value={status}
-            label="Status"
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <MenuItem value="yes">Yes</MenuItem>
-            <MenuItem value="no">No</MenuItem>
-          </Select>
-        </FormControl>
-  
-        <FormControl fullWidth sx={{ mt: "1rem" }} size="small">
-          <InputLabel id="standardization-label">Standardization</InputLabel>
-          <Select
-            labelId="standardization-label"
-            value={standerdization}
-            label="Standardization"
-            onChange={(e) => setStanderdization(e.target.value)}
-          >
-            <MenuItem value="yes">Yes</MenuItem>
-            <MenuItem value="no">No</MenuItem>
-          </Select>
-        </FormControl>
-<FormControl fullWidth sx={{ mt: "1rem" }} size="small">
-  <InputLabel id="horizental-deployment-label">Horizontal Deployment</InputLabel>
-  <Select
-    labelId="horizental-deployment-label"
-    value={horizentalDeployment}
-    onChange={(e) => setHorizentalDeployment(e.target.value)}
-    label="Horizontal Deployment"
-  >
-    <MenuItem value="yes">Yes</MenuItem>
-    <MenuItem value="no">No</MenuItem>
-  </Select>
-</FormControl>
-        
-        <TextField
-          size="small"
-          label="Part Received Date"
-          sx={{ mt: "1rem" }}
-          type="date"
-          value={partReceivedDate}
-          onChange={(e) => setPartReceivedDate(e.target.value)}
-          InputLabelProps={{ shrink: true }} />
-      </Box>
-    </form>
-  
+            {renderSelectField('firstRepeat', 'First / Repeat', [
+              { value: 'first', label: 'First' },
+              { value: 'repeat', label: 'Repeat' },
+            ])}
 
-    <Button
-      type="submit"
-      onClick={handleSubmit}
-      variant="contained"
-      sx={{ bgcolor: colors.primary, mt: 2 }}
-      fullWidth
-      loading={complaintsLoading}
-    >
-      Submit
-    </Button>
-  </Box>
+            {renderTextField('supplier', 'Supplier')}
+          </Grid>
+
+          {/* Right Column */}
+          <Grid item xs={12} md={6}>
+            {renderTextField('process', 'Process')}
+            {renderTextField('temporaryAction', 'Temporary Action')}
+            {renderTextField('temporaryTargetDate', 'Temporary Target Date', 'date')}
+            {renderTextField('rootCause', 'Root Cause')}
+            {renderTextField('permanentAction', 'Permanent Action')}
+            {renderTextField('permanentTargetDate', 'Permanent Target Date', 'date')}
+            {renderTextField('responsibility', 'Responsibility')}
+
+            {/* Optional Fields */}
+            {renderSelectField(
+              'status',
+              'Status',
+              [
+                { value: 'yes', label: 'Yes' },
+                { value: 'no', label: 'No' },
+              ],
+              true
+            )}
+
+            {renderSelectField(
+              'standardization',
+              'Standardization',
+              [
+                { value: 'yes', label: 'Yes' },
+                { value: 'no', label: 'No' },
+              ],
+              true
+            )}
+
+            {renderSelectField(
+              'horizontalDeployment',
+              'Horizontal Deployment',
+              [
+                { value: 'yes', label: 'Yes' },
+                { value: 'no', label: 'No' },
+              ],
+              true
+            )}
+
+            {renderTextField('partReceivedDate', 'Part Received Date', 'date', true)}
+          </Grid>
+        </Grid>
+
+        <Box mt={3} display="flex" gap={2} justifyContent="flex-end">
+          <Button variant="outlined" onClick={() => setIsOpen(false)} disabled={complaintsLoading}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ bgcolor: colors.primary }}
+            disabled={complaintsLoading}
+          >
+            {complaintsLoading ? 'Submitting...' : 'Submit'}
+          </Button>
+        </Box>
+      </form>
+    </Box>
   );
 };
 
