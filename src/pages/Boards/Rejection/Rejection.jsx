@@ -434,6 +434,9 @@ const Rejection = () => {
 
     const getPercent = (value) => (issued ? ((value / issued) * 100).toFixed(2) + '%' : '0.00%');
 
+    const lumpsPercent = issued ? (partData.total.lumps / issued) * 100 : 0;
+    const runnerPercent = issued ? (partData.total.runner / issued) * 100 : 0;
+
     const totals = [
       getPercent(partData.total.ok_parts || 0), // OK %
       getPercent(partData.total.rejections || 0), // Rejection %
@@ -465,39 +468,52 @@ const Rejection = () => {
           justifyContent: 'space-between',
         }}
       >
-        {totals.map((total, index) => (
-          <Box
-            key={index}
-            sx={{
-              fontSize: '0.7rem',
-              padding: '4px 8px',
-              backgroundColor: index % 2 === 0 ? '#f0f8ff' : '#f8f9fa',
-              borderBottom: index < totals.length - 1 ? '1px solid #e0e0e0' : 'none',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '22px',
-              ...(index === totals.length - 1 && {
-                border: '1px solid #2196f3',
-                backgroundColor: '#e3f2fd',
-                borderRadius: '3px',
-                margin: '1px 0',
-                fontWeight: 600,
-              }),
-            }}
-          >
-            <Typography
-              variant="caption"
+        {totals.map((total, index) => {
+          // check if it's lumps or runner and combined % > 1
+          const highlight = (index === 2 || index === 3) && lumpsPercent + runnerPercent > 1;
+
+          return (
+            <Box
+              key={index}
               sx={{
-                fontWeight: index === totals.length - 1 ? 700 : 600,
-                fontSize: index === totals.length - 1 ? '0.75rem' : '0.7rem',
-                color: index === totals.length - 1 ? '#1976d2' : '#333',
+                fontSize: '0.7rem',
+                padding: '4px 8px',
+                backgroundColor: highlight
+                  ? '#ffe5e5' // light red if condition true
+                  : index % 2 === 0
+                  ? '#f0f8ff'
+                  : '#f8f9fa',
+                borderBottom: index < totals.length - 1 ? '1px solid #e0e0e0' : 'none',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '22px',
+                ...(index === totals.length - 1 && {
+                  border: '1px solid #2196f3',
+                  backgroundColor: '#e3f2fd',
+                  borderRadius: '3px',
+                  margin: '1px 0',
+                  fontWeight: 600,
+                }),
               }}
             >
-              {total}
-            </Typography>
-          </Box>
-        ))}
+              <Typography
+                variant="caption"
+                sx={{
+                  fontWeight: index === totals.length - 1 ? 700 : 600,
+                  fontSize: index === totals.length - 1 ? '0.75rem' : '0.7rem',
+                  color: highlight
+                    ? '#d32f2f' // darker red text
+                    : index === totals.length - 1
+                    ? '#1976d2'
+                    : '#333',
+                }}
+              >
+                {total}
+              </Typography>
+            </Box>
+          );
+        })}
       </Box>
     );
   };
