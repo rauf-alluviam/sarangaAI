@@ -89,6 +89,16 @@ const FgStock = () => {
     dispatch(getAllFgStock(date, setMessage));
   }, [date, monthlyUpdateData]);
 
+  // Check if the selected date is today
+  const isToday = (dateToCheck) => {
+    const today = new Date();
+    const checkDate = new Date(dateToCheck);
+    return today.toDateString() === checkDate.toDateString();
+  };
+
+  // Check if current selected date is today
+  const isCurrentDateToday = isToday(date);
+
   // Handle edit button click - set dispatch planning to 0
   const handleEditClick = (elem) => {
     setEdit({
@@ -99,23 +109,22 @@ const FgStock = () => {
     });
   };
 
+  // Handle responsible person edit - set first row dispatched to 0
+  const handleResponsiblePersonEdit = (firstRowData) => {
+    setEdit({
+      ...firstRowData,
+      dispatched: '0', // Set dispatched to 0 when editing responsible person
+      todays_planning: firstRowData.todays_planning || '0',
+      next_action: firstRowData.next_action || '',
+    });
+  };
+
   // Enhanced validation for mandatory fields
   const handleSubmit = async () => {
-    // Validate mandatory fields
-    // if (!edit.dispatched || edit.dispatched === '') {
-    //   enqueueSnackbar('Please enter a valid dispatched value', { variant: 'error' });
-    //   return;
-    // }
-
     if (!edit.next_action || edit.next_action === '') {
       enqueueSnackbar('Next Action is required', { variant: 'error' });
       return;
     }
-
-    // if (!edit.todays_planning || edit.todays_planning === '') {
-    //   enqueueSnackbar('Dispatch Planning is required', { variant: 'error' });
-    //   return;
-    // }
 
     // Calculate status based on current stock value
     const currentStock = Number(edit.current) || 0;
@@ -329,12 +338,20 @@ const FgStock = () => {
               </Typography>
             )}
 
+            {/* Responsible Person Edit Icon - Only enabled for current date */}
             {fgStockArr.length > 0 && edit._id !== fgStockArr[0]?._id && (
               <IconButton
-                onClick={() => setEdit(fgStockArr[0])}
-                style={{ color: 'grey', marginLeft: '1rem' }}
+                onClick={
+                  isCurrentDateToday ? () => handleResponsiblePersonEdit(fgStockArr[0]) : undefined
+                }
+                disabled={!isCurrentDateToday}
+                style={{
+                  color: isCurrentDateToday ? 'grey' : '#ccc',
+                  marginLeft: '1rem',
+                  cursor: isCurrentDateToday ? 'pointer' : 'not-allowed',
+                }}
               >
-                <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
+                <EditIcon style={{ color: isCurrentDateToday ? 'rgb(201, 162, 56)' : '#ccc' }} />
               </IconButton>
             )}
           </Box>
@@ -705,7 +722,7 @@ const FgStock = () => {
                     Current Stock
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
-                    Dispatched 
+                    Dispatched
                   </TableCell>
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Balance
@@ -798,13 +815,10 @@ const FgStock = () => {
                         {edit._id == elem._id ? (
                           <TextField
                             type="number"
-                            value={edit.dispatched }
+                            value={edit.dispatched}
                             onChange={(e) => setEdit({ ...edit, dispatched: e.target.value })}
                             sx={{ width: '100%' }}
                             size="small"
-                            // required
-                            // error={!edit.dispatched || edit.dispatched === 0}
-                            // helperText={!edit.dispatched || edit.dispatched === 0 ? 'Required' : ''}
                           />
                         ) : (
                           elem.dispatched
@@ -897,7 +911,7 @@ const FgStock = () => {
                         )}
                       </TableCell>
 
-                      {/* Edit Actions */}
+                      {/* Edit Actions - Only enabled for current date */}
                       <TableCell sx={{ width: '5rem', maxWidth: '5rem' }} align="center">
                         {edit._id == elem._id ? (
                           <Box
@@ -917,10 +931,16 @@ const FgStock = () => {
                           </Box>
                         ) : (
                           <IconButton
-                            onClick={() => handleEditClick(elem)}
-                            style={{ color: 'grey' }}
+                            onClick={isCurrentDateToday ? () => handleEditClick(elem) : undefined}
+                            disabled={!isCurrentDateToday}
+                            style={{
+                              color: isCurrentDateToday ? 'grey' : '#ccc',
+                              cursor: isCurrentDateToday ? 'pointer' : 'not-allowed',
+                            }}
                           >
-                            <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
+                            <EditIcon
+                              style={{ color: isCurrentDateToday ? 'rgb(201, 162, 56)' : '#ccc' }}
+                            />
                           </IconButton>
                         )}
                       </TableCell>
