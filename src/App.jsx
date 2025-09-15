@@ -59,7 +59,7 @@ import PesCoverB from './pages/Detection/PesCoverB/PesCoverB';
 
 function App() {
   const { token, userData } = useSelector((state) => state.auth);
-  console.log(token, userData);
+
   //  const [isLoggedIn, setIsLoggedIn]= useState(true)
   const [isOpen, setIsOpen] = useState(false);
   const [isSliderOpen, setIsSliderOpen] = useState(false);

@@ -45,6 +45,7 @@ const StoreStock = () => {
 
   // State management
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isDailyActualOpen, setIsDailyActualOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [edit, setEdit] = useState({});
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
@@ -594,7 +595,7 @@ const StoreStock = () => {
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => setIsMonthlySchedulingOpen(true)}
+              onClick={() => setIsDailyActualOpen(true)} // ← CHANGE THIS
               sx={{
                 bgcolor: colors.secondary,
                 '&:hover': {
@@ -605,6 +606,7 @@ const StoreStock = () => {
             >
               Daily Actual & Location
             </Button>
+
             {userData.sub === 'ajith@rabs.co.in' && (
               <Button
                 variant="contained"
@@ -1165,8 +1167,8 @@ const StoreStock = () => {
       )}
       {/* Daily Actual & Location Modal */}
       <Dialog
-        open={isMonthlySchedulingOpen}
-        onClose={() => setIsMonthlySchedulingOpen(false)}
+        open={isDailyActualOpen} // ← CHANGE FROM isMonthlySchedulingOpen
+        onClose={() => setIsDailyActualOpen(false)} // ← CHANGE FROM setIsMonthlySchedulingOpen(false)
         maxWidth="lg"
         fullWidth
         PaperProps={{
@@ -1192,7 +1194,7 @@ const StoreStock = () => {
           </Typography>
           <IconButton
             aria-label="close"
-            onClick={() => setIsMonthlySchedulingOpen(false)}
+            onClick={() => setIsDailyActualOpen(false)}
             sx={{
               color: 'white',
               '&:hover': {
@@ -1223,7 +1225,7 @@ const StoreStock = () => {
           }}
         >
           <Button
-            onClick={() => setIsMonthlySchedulingOpen(false)}
+            onClick={() => setIsDailyActualOpen(false)}
             variant="outlined"
             sx={{
               color: colors.primary,
