@@ -49,7 +49,6 @@ const DailyActualLocationComponent = ({ colors }) => {
           },
         }
       );
-
       if (response.ok) {
         const data = await response.json();
         setAuditData(data.audit_logs || []);
@@ -66,14 +65,17 @@ const DailyActualLocationComponent = ({ colors }) => {
   }, [selectedMonth, selectedYear]);
 
   const toggleExpanded = (entryId) => {
-    setExpandedEntries(prev => ({
+    setExpandedEntries((prev) => ({
       ...prev,
-      [entryId]: !prev[entryId]
+      [entryId]: !prev[entryId],
     }));
   };
 
   const groupedByDay = auditData.reduce((acc, entry) => {
-    const day = new Date(entry.timestamp).getDate();
+    // Parse the backend timestamp format: "15-09-2025 05:05:38 PM"
+    const [datePart] = entry.timestamp.split(' ');
+    const [day] = datePart.split('-');
+
     if (!acc[day]) {
       acc[day] = [];
     }
@@ -82,18 +84,32 @@ const DailyActualLocationComponent = ({ colors }) => {
   }, {});
 
   const formatTimestamp = (timestamp) => {
-    const date = new Date(timestamp);
+    // Backend already provides formatted timestamp: "15-09-2025 05:05:38 PM"
+    const [datePart, timePart, period] = timestamp.split(' ');
+    const [day, month, year] = datePart.split('-');
+
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dateObj = new Date(year, parseInt(month) - 1, day);
+    const dayName = dayNames[dateObj.getDay()];
+
     return {
-      date: date.toLocaleDateString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-      }),
-      time: date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      }),
+      date: `${dayName}, ${monthNames[parseInt(month) - 1]} ${parseInt(day)}`,
+      time: `${timePart} ${period}`,
     };
   };
 
@@ -122,9 +138,9 @@ const DailyActualLocationComponent = ({ colors }) => {
             ))}
           </Box>
         </Box>
-
-        <Typography variant="h6" sx={{ mx: 1 }}>→</Typography>
-
+        <Typography variant="h6" sx={{ mx: 1 }}>
+          →
+        </Typography>
         {/* New Location */}
         <Box display="flex" flexDirection="column" alignItems="center">
           <Typography variant="caption" color="textSecondary">
@@ -169,13 +185,7 @@ const DailyActualLocationComponent = ({ colors }) => {
     return (
       <Box display="flex" gap={1} flexWrap="wrap">
         {changeTypes.map((type) => (
-          <Chip
-            key={type}
-            label={type}
-            size="small"
-            color="info"
-            variant="outlined"
-          />
+          <Chip key={type} label={type} size="small" color="info" variant="outlined" />
         ))}
       </Box>
     );
@@ -262,10 +272,21 @@ const DailyActualLocationComponent = ({ colors }) => {
                       color="secondary"
                     />
                   </Box>
-
                   <Stack spacing={2}>
                     {groupedByDay[day]
-                      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // Sort by time (newest first)
+                      .sort((a, b) => {
+                        // Sort by timestamp (newest first)
+                        const parseTime = (timestamp) => {
+                          const [datePart, timePart, period] = timestamp.split(' ');
+                          const [day, month, year] = datePart.split('-');
+                          const [hours, minutes, seconds] = timePart.split(':');
+                          let hour24 = parseInt(hours);
+                          if (period === 'PM' && hour24 !== 12) hour24 += 12;
+                          if (period === 'AM' && hour24 === 12) hour24 = 0;
+                          return new Date(year, month - 1, day, hour24, minutes, seconds);
+                        };
+                        return parseTime(b.timestamp) - parseTime(a.timestamp);
+                      })
                       .map((entry, index) => {
                         const timeInfo = formatTimestamp(entry.timestamp);
                         const isExpanded = expandedEntries[entry._id] || index === 0;
@@ -281,12 +302,8 @@ const DailyActualLocationComponent = ({ colors }) => {
                                 onClick={() => toggleExpanded(entry._id)}
                               >
                                 <Box display="flex" alignItems="center" gap={2}>
-                                  <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                                    ID: ...{entry.entry_id?.slice(-8)}
-                                  </Typography>
                                   {renderChangesSummary(entry.changes)}
                                 </Box>
-
                                 <Box display="flex" alignItems="center" gap={2}>
                                   <Typography variant="caption" color="textSecondary">
                                     {timeInfo.time}
@@ -305,41 +322,13 @@ const DailyActualLocationComponent = ({ colors }) => {
                                       {entry.updated_by.name.charAt(0)}
                                     </Avatar>
                                   </Tooltip>
-                                  <Typography variant="body2">
-                                    {isExpanded ? '▼' : '▶'}
-                                  </Typography>
+                                  <Typography variant="body2">{isExpanded ? '▼' : '▶'}</Typography>
                                 </Box>
                               </Box>
-
                               <Collapse in={isExpanded}>
                                 <Box mt={2}>
                                   <Divider sx={{ my: 1 }} />
                                   <Box display="flex" flexDirection="column" gap={2}>
-                                    {/* Entry Details */}
-                                    <Paper sx={{ p: 2, bgcolor: 'grey.50' }}>
-                                      <Typography variant="subtitle2" gutterBottom>
-                                        🔍 Entry Details
-                                      </Typography>
-                                      <Grid container spacing={2}>
-                                        <Grid item xs={12} md={6}>
-                                          <Typography variant="caption" color="textSecondary">
-                                            Entry ID
-                                          </Typography>
-                                          <Typography variant="body2" fontFamily="monospace">
-                                            {entry.entry_id}
-                                          </Typography>
-                                        </Grid>
-                                        <Grid item xs={12} md={6}>
-                                          <Typography variant="caption" color="textSecondary">
-                                            Audit ID
-                                          </Typography>
-                                          <Typography variant="body2" fontFamily="monospace">
-                                            {entry._id}
-                                          </Typography>
-                                        </Grid>
-                                      </Grid>
-                                    </Paper>
-
                                     {/* Changes Details */}
                                     {entry.changes.location && (
                                       <Paper sx={{ p: 2, bgcolor: 'rgba(33, 150, 243, 0.1)' }}>
@@ -349,7 +338,6 @@ const DailyActualLocationComponent = ({ colors }) => {
                                         {renderLocationChange(entry.changes.location)}
                                       </Paper>
                                     )}
-
                                     {entry.changes.actual && (
                                       <Paper sx={{ p: 2, bgcolor: 'rgba(76, 175, 80, 0.1)' }}>
                                         <Typography variant="subtitle2" gutterBottom>
@@ -358,16 +346,13 @@ const DailyActualLocationComponent = ({ colors }) => {
                                         {renderActualChange(entry.changes.actual)}
                                       </Paper>
                                     )}
-
                                     {/* User Info */}
                                     <Paper sx={{ p: 2, bgcolor: 'rgba(156, 39, 176, 0.1)' }}>
                                       <Typography variant="subtitle2" gutterBottom>
                                         👤 Modified By
                                       </Typography>
                                       <Box display="flex" alignItems="center" gap={2}>
-                                        <Avatar sx={{ bgcolor: colors.secondary }}>
-                                          👤
-                                        </Avatar>
+                                        <Avatar sx={{ bgcolor: colors.secondary }}>👤</Avatar>
                                         <Box>
                                           <Typography variant="body2" fontWeight="medium">
                                             {entry.updated_by.name}

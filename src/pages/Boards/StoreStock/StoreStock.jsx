@@ -604,7 +604,7 @@ const StoreStock = () => {
                 },
               }}
             >
-              Daily Actual & Location
+              Audit Trail Logs
             </Button>
 
             {userData.sub === 'ajith@rabs.co.in' && (

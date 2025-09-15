@@ -288,8 +288,8 @@ const MonthlyStoreStockNew = () => {
                               </TableCell>
                               <TableCell align="center">
                                 <Box bgcolor="#fffde7" px={1} borderRadius={1}>
-                                  {typeof monthData.total_plan === 'number'
-                                    ? monthData.total_plan
+                                  {typeof monthData.total_schedule === 'number'
+                                    ? monthData.total_schedule
                                     : '-'}
                                 </Box>
                               </TableCell>
