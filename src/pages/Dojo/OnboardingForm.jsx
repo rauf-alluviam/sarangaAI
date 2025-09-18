@@ -30,6 +30,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  FormHelperText,
 } from '@mui/material';
 import {
   Upload,
@@ -85,6 +86,7 @@ const OnboardingForm = () => {
     // Professional info
     employees_role: '',
     qualification: '',
+    other_qualification: '', // For "Other" qualification
     experience: '',
     department: '',
     designation: '',
@@ -108,7 +110,72 @@ const OnboardingForm = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const { token } = useSelector((state) => state.auth);
-  //   const fileInputRef = useRef(null);
+
+  // Blood group options
+  const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
+  // Experience options (standard format)
+  const experienceOptions = [
+    { value: 'fresher', label: '0 - 1 year (Fresher)' },
+    { value: 'experienced', label: '2 - 5 years (Experienced)' },
+    { value: 'management_head', label: '6+ years (Management / Head)' },
+  ];
+
+  // File validation
+  const validateFile = (file, category) => {
+    const { name, size } = file;
+    const extension = name.split('.').pop().toLowerCase();
+
+    // Size limits
+    const sizeLimits = {
+      avatar: 5 * 1024 * 1024, // 5MB
+      id_proof: 5 * 1024 * 1024, // 5MB
+      education_certificates: 10 * 1024 * 1024, // 10MB
+      experience_letters: 10 * 1024 * 1024, // 10MB
+      other_documents: 10 * 1024 * 1024, // 10MB
+    };
+
+    // Allowed extensions
+    const allowedExtensions = {
+      avatar: ['jpg', 'jpeg', 'png'],
+      id_proof: ['jpg', 'jpeg', 'png'],
+      education_certificates: ['pdf', 'doc', 'docx'],
+      experience_letters: ['pdf', 'doc', 'docx'],
+      other_documents: ['pdf', 'doc', 'docx'],
+    };
+
+    if (size > sizeLimits[category]) {
+      const maxSizeMB = sizeLimits[category] / (1024 * 1024);
+      return `File size should not exceed ${maxSizeMB}MB`;
+    }
+
+    if (!allowedExtensions[category].includes(extension)) {
+      return `Only ${allowedExtensions[category].join(', ').toUpperCase()} files are allowed`;
+    }
+
+    return null;
+  };
+
+  // Input filters
+  const handleInputFilter = (e, type) => {
+    const { value } = e.target;
+    let filteredValue = value;
+
+    switch (type) {
+      case 'text-only':
+        // Only allow letters and spaces
+        filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+        break;
+      case 'numeric-only':
+        // Only allow numbers
+        filteredValue = value.replace(/[^0-9]/g, '');
+        break;
+      default:
+        break;
+    }
+
+    e.target.value = filteredValue;
+  };
 
   // Validation rules
   const validateField = (name, value) => {
@@ -117,7 +184,10 @@ const OnboardingForm = () => {
     switch (name) {
       case 'full_name':
         if (!value) error = 'Full name is required';
+        else if (!/^[a-zA-Z\s]+$/.test(value))
+          error = 'Full name should contain only letters and spaces';
         break;
+
       case 'dob':
         if (!value) {
           error = 'Date of birth is required';
@@ -127,7 +197,6 @@ const OnboardingForm = () => {
           let age = today.getFullYear() - dob.getFullYear();
           const monthDiff = today.getMonth() - dob.getMonth();
 
-          // Adjust if birthday hasn't occurred yet this year
           if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
             age--;
           }
@@ -143,6 +212,18 @@ const OnboardingForm = () => {
           error = 'Phone number is required';
         } else if (!/^[6-9]\d{9}$/.test(value)) {
           error = 'Please enter a valid Indian phone number (10 digits starting with 6-9)';
+        } else if (value === formData.emergency_contact_number) {
+          error = 'Phone number and emergency contact cannot be the same';
+        }
+        break;
+
+      case 'emergency_contact_number':
+        if (!value) {
+          error = 'Emergency contact is required';
+        } else if (!/^[6-9]\d{9}$/.test(value)) {
+          error = 'Please enter a valid Indian phone number (10 digits starting with 6-9)';
+        } else if (value === formData.phone) {
+          error = 'Emergency contact and phone number cannot be the same';
         }
         break;
 
@@ -150,32 +231,33 @@ const OnboardingForm = () => {
         if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
           error = 'Please enter a valid email address';
         break;
-      case 'experience':
-        // Check only numbers allowed & within a reasonable range (0-50 years for example)
-        if (value && (!/^\d+$/.test(value) || value < 0 || value > 50)) {
-          error = 'Please enter a valid experience (0-50 years)';
-        }
-        break;
+
       case 'aadhaar_number':
         if (!value) error = 'Aadhaar number is required';
         else if (!/^\d{12}$/.test(value)) error = 'Please enter a valid 12-digit Aadhaar number';
         break;
-      case 'emergency_contact_number':
-        if (!value) error = 'Emergency contact is required';
-        else if (!/^[6-9]\d{9}$/.test(value))
-          error = 'Please enter a valid Indian phone number (10 digits starting with 6-9)';
-        break;
+
       case 'salary_account_number':
-        if (!value) {
-          error = 'Salary account number is required';
-        } else if (!/^\d{9,18}$/.test(value)) {
+        // Remove the required validation, only validate format if value exists
+        if (value && !/^\d{9,18}$/.test(value)) {
           error = 'Please enter a valid salary account number (9–18 digits)';
         }
+        break;
+
+      case 'gender':
+        if (!value) error = 'Gender is required';
         break;
 
       case 'employees_role':
         if (!value) error = 'Employee role is required';
         break;
+
+      case 'other_qualification':
+        if (formData.qualification === 'Other' && !value) {
+          error = 'Please specify your qualification';
+        }
+        break;
+
       default:
         break;
     }
@@ -185,7 +267,6 @@ const OnboardingForm = () => {
 
   // Handle next/back navigation
   const handleNext = () => {
-    // Validate current step before proceeding
     const errors = {};
     let hasErrors = false;
 
@@ -197,8 +278,9 @@ const OnboardingForm = () => {
         'phone',
         'aadhaar_number',
         'emergency_contact_number',
-        'salary_account_number',
+        'gender',
       ];
+
       personalFields.forEach((field) => {
         const error = validateField(field, formData[field]);
         if (error) {
@@ -207,6 +289,17 @@ const OnboardingForm = () => {
         }
       });
 
+      // Cross-validation for phone numbers
+      if (
+        formData.phone &&
+        formData.emergency_contact_number &&
+        formData.phone === formData.emergency_contact_number
+      ) {
+        errors.phone = 'Phone number and emergency contact cannot be the same';
+        errors.emergency_contact_number = 'Phone number and emergency contact cannot be the same';
+        hasErrors = true;
+      }
+
       // Avatar validation
       if (documents.avatar.length === 0) {
         setError('Please upload an avatar photo');
@@ -214,9 +307,23 @@ const OnboardingForm = () => {
       }
     } else if (activeStep === 1) {
       // Professional info validation
-      if (!formData.employees_role) {
-        errors.employees_role = 'Employee role is required';
-        hasErrors = true;
+      const requiredFields = ['employees_role'];
+
+      requiredFields.forEach((field) => {
+        const error = validateField(field, formData[field]);
+        if (error) {
+          errors[field] = error;
+          hasErrors = true;
+        }
+      });
+
+      // Validate "Other" qualification
+      if (formData.qualification === 'Other') {
+        const error = validateField('other_qualification', formData.other_qualification);
+        if (error) {
+          errors.other_qualification = error;
+          hasErrors = true;
+        }
       }
     }
 
@@ -242,36 +349,96 @@ const OnboardingForm = () => {
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Apply input filters based on field type
+    let filteredValue = value;
+    if (name === 'full_name') {
+      filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
+    } else if (
+      name === 'phone' ||
+      name === 'emergency_contact_number' ||
+      name === 'aadhaar_number'
+    ) {
+      filteredValue = value.replace(/[^0-9]/g, '');
+      if (name === 'phone' || name === 'emergency_contact_number') {
+        filteredValue = filteredValue.slice(0, 10); // Limit to 10 digits
+      } else if (name === 'aadhaar_number') {
+        filteredValue = filteredValue.slice(0, 12); // Limit to 12 digits
+      }
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: filteredValue }));
 
     // Validate field immediately
-    const error = validateField(name, value);
+    const error = validateField(name, filteredValue);
     setFieldErrors((prev) => ({ ...prev, [name]: error }));
+
+    // Cross-validate phone numbers
+    if (name === 'phone' || name === 'emergency_contact_number') {
+      const otherField = name === 'phone' ? 'emergency_contact_number' : 'phone';
+      if (formData[otherField] && filteredValue === formData[otherField]) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          [name]: 'Phone number and emergency contact cannot be the same',
+          [otherField]: 'Phone number and emergency contact cannot be the same',
+        }));
+      } else {
+        setFieldErrors((prev) => {
+          const newErrors = { ...prev };
+          if (prev[otherField] && prev[otherField].includes('cannot be the same')) {
+            delete newErrors[otherField];
+          }
+          return newErrors;
+        });
+      }
+    }
   };
 
   // Handle file uploads
   const handleFileUpload = (category, files) => {
     const newFiles = Array.from(files);
+    const validFiles = [];
+    const errors = [];
+
+    newFiles.forEach((file) => {
+      const error = validateFile(file, category);
+      if (error) {
+        errors.push(`${file.name}: ${error}`);
+      } else {
+        validFiles.push(file);
+      }
+    });
+
+    if (errors.length > 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'File Upload Error',
+        html: errors.join('<br>'),
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#d33',
+      });
+      return;
+    }
 
     // For avatar, only keep one file
     if (category === 'avatar') {
       setDocuments((prev) => ({
         ...prev,
-        [category]: newFiles.slice(0, 1),
+        [category]: validFiles.slice(0, 1),
       }));
 
       // Create preview for avatar
-      if (newFiles.length > 0) {
+      if (validFiles.length > 0) {
         const reader = new FileReader();
         reader.onload = (e) => {
           setPreviewImage(e.target.result);
         };
-        reader.readAsDataURL(newFiles[0]);
+        reader.readAsDataURL(validFiles[0]);
       }
     } else {
       setDocuments((prev) => ({
         ...prev,
-        [category]: [...prev[category], ...newFiles],
+        [category]: [...prev[category], ...validFiles],
       }));
     }
   };
@@ -299,7 +466,6 @@ const OnboardingForm = () => {
   const handleSubmit = async () => {
     setError('');
     setSuccess(false);
-
     setLoading(true);
 
     try {
@@ -308,7 +474,7 @@ const OnboardingForm = () => {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result.split(',')[1]); // Remove data URL prefix
+          reader.onload = () => resolve(reader.result.split(',')[1]);
           reader.onerror = (error) => reject(error);
         });
       };
@@ -332,23 +498,25 @@ const OnboardingForm = () => {
         }
       }
 
+      // Prepare form data with proper qualification handling
+      const submissionData = { ...formData };
+      if (formData.qualification === 'Other' && formData.other_qualification) {
+        submissionData.qualification = `Other (${formData.other_qualification})`;
+      }
+
       // Prepare the payload in the expected format
       const payload = {
-        payload: formData,
+        payload: submissionData,
         docs: docsPayload,
       };
 
-      const response = await axios.post(
-        `${API_URL}/submit_onboarding_with_documents`, // ✅ dynamic base URL
-        payload,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, // ✅ dynamic token
-            Accept: 'application/json',
-          },
-        }
-      );
+      const response = await axios.post(`${API_URL}/submit_onboarding_with_documents`, payload, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
 
       if (response.status === 200) {
         setSuccess(true);
@@ -356,20 +524,18 @@ const OnboardingForm = () => {
         setDocuments(initialDocuments);
         setPreviewImage(null);
         setTimeout(() => {
-          navigate(0); // This refreshes the current route
+          navigate(0);
         }, 2000);
       } else {
         throw new Error('Submission failed');
       }
     } catch (err) {
-      // Check if it's a specific API error with detail message
       if (
         err.response &&
         err.response.status === 400 &&
         err.response.data &&
         err.response.data.detail
       ) {
-        // Show SweetAlert2 for specific API errors
         Swal.fire({
           icon: 'error',
           title: 'Registration Error',
@@ -378,7 +544,6 @@ const OnboardingForm = () => {
           confirmButtonColor: '#d33',
         });
       } else {
-        // Show regular error for other types of errors
         setError(
           'Failed to submit form. Please try again.' + (err?.message ? ` (${err.message})` : '')
         );
@@ -388,146 +553,41 @@ const OnboardingForm = () => {
     }
   };
 
-  // Field definitions for each step
-  const personalFields = [
-    {
-      name: 'full_name',
-      label: 'Full Name',
-      type: 'text',
-      required: true,
-      icon: <Users />,
-    },
-    { name: 'dob', label: 'Date of Birth', type: 'date', required: true },
-    {
-      name: 'phone',
-      label: 'Phone Number',
-      type: 'tel',
-      required: true,
-      icon: <Phone />,
-    },
-    {
-      name: 'email',
-      label: 'Email Address',
-      type: 'email',
-      required: false,
-      icon: <Mail />,
-    },
-    {
-      name: 'aadhaar_number',
-      label: 'Aadhaar Number',
-      type: 'text',
-      required: true,
-      icon: <CreditCard />,
-    },
-    {
-      name: 'emergency_contact_number',
-      label: 'Emergency Contact',
-      type: 'tel',
-      required: true,
-    },
-    {
-      name: 'salary_account_number',
-      label: 'Salary Account Number',
-      type: 'text',
-      required: true,
-    },
-  ];
-
-  const professionalFields = [
-    {
-      name: 'employees_role',
-      label: 'Employee Role',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'qualification',
-      label: 'Qualification',
-      type: 'text',
-      required: false,
-      icon: <GraduationCap />,
-    },
-    {
-      name: 'experience',
-      label: 'Experience (Years)',
-      type: 'number',
-      required: false,
-      icon: <Briefcase />,
-    },
-    {
-      name: 'department',
-      label: 'Department',
-      type: 'text',
-      required: false,
-      icon: <Briefcase />,
-    },
-    {
-      name: 'designation',
-      label: 'Designation',
-      type: 'text',
-      required: false,
-      icon: <Briefcase />,
-    },
-  ];
-
-  const additionalFields = [
-    {
-      name: 'blood_group',
-      label: 'Blood Group',
-      type: 'text',
-      required: false,
-    },
-    {
-      name: 'marital_status',
-      label: 'Marital Status',
-      type: 'text',
-      required: false,
-    },
-    {
-      name: 'address',
-      label: 'Address',
-      type: 'text',
-      required: false,
-      multiline: true,
-      rows: 3,
-      icon: <Home />,
-    },
-  ];
-
+  // Document categories with updated file restrictions
   const documentCategories = {
     avatar: {
       title: 'Profile Photo',
-      description: 'Upload your profile photo (required)',
-      accept: 'image/*',
+      description: 'Upload your profile photo (Max 5MB, JPG/PNG only)',
+      accept: '.jpg,.jpeg,.png',
       multiple: false,
       color: '#1976d2',
       required: true,
     },
     id_proof: {
       title: 'Identity Proof',
-      description: 'Aadhaar, PAN, Voter ID, etc.',
-      accept: 'image/*,.pdf',
+      description: 'Aadhaar, PAN, Voter ID, etc. (Max 5MB, JPG/PNG only)',
+      accept: '.jpg,.jpeg,.png',
       multiple: true,
       color: '#f57c00',
     },
     education_certificates: {
       title: 'Educational Certificates',
-      description: 'Degree, Diploma, Marksheets, etc.',
-      accept: 'image/*,.pdf',
+      description: 'Degree, Diploma, Marksheets, etc. (Max 10MB, PDF/Word only)',
+      accept: '.pdf,.doc,.docx',
       multiple: true,
       color: '#388e3c',
     },
     experience_letters: {
       title: 'Experience Letters',
-      description: 'Previous employment documents',
-      accept: 'image/*,.pdf',
+      description: 'Previous employment documents (Max 10MB, PDF/Word only)',
+      accept: '.pdf,.doc,.docx',
       multiple: true,
       color: '#d32f2f',
     },
     other_documents: {
       title: 'Other Documents',
-      description: 'Any other relevant documents',
-      accept: 'image/*,.pdf',
+      description: 'Any other relevant documents (Max 10MB, PDF/Word only)',
+      accept: '.pdf,.doc,.docx',
       multiple: true,
       color: '#7b1fa2',
     },
@@ -560,16 +620,16 @@ const OnboardingForm = () => {
                   >
                     <Avatar src={previewImage} sx={{ width: 120, height: 120, mb: 2 }} />
                     <Button variant="outlined" component="label" startIcon={<Upload />}>
-                      Upload Photo
+                      Upload Photo *
                       <input
                         type="file"
                         hidden
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png"
                         onChange={(e) => handleFileUpload('avatar', e.target.files)}
                       />
                     </Button>
                     <Typography variant="caption" sx={{ mt: 1, textAlign: 'center' }}>
-                      Required: JPG, PNG under 2MB
+                      Required: JPG, PNG under 5MB
                     </Typography>
                   </Box>
                 </Grid>
@@ -577,23 +637,91 @@ const OnboardingForm = () => {
                 {/* Personal Details */}
                 <Grid item xs={12} md={8}>
                   <Grid container spacing={2}>
-                    {personalFields.map((field) => (
-                      <Grid item xs={12} sm={6} key={field.name}>
-                        <TextField
-                          fullWidth
-                          type={field.type}
-                          label={field.label}
-                          name={field.name}
-                          value={formData[field.name]}
-                          onChange={handleInputChange}
-                          required={field.required}
-                          error={!!fieldErrors[field.name]}
-                          helperText={fieldErrors[field.name]}
-                          InputLabelProps={field.type === 'date' ? { shrink: true } : {}}
-                          variant="outlined"
-                        />
-                      </Grid>
-                    ))}
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Full Name"
+                        name="full_name"
+                        value={formData.full_name}
+                        onChange={handleInputChange}
+                        required
+                        error={!!fieldErrors.full_name}
+                        helperText={fieldErrors.full_name}
+                        variant="outlined"
+                        inputProps={{
+                          pattern: '[a-zA-Z\\s]+',
+                          title: 'Only letters and spaces allowed',
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        type="date"
+                        label="Date of Birth"
+                        name="dob"
+                        value={formData.dob}
+                        onChange={handleInputChange}
+                        required
+                        error={!!fieldErrors.dob}
+                        helperText={fieldErrors.dob}
+                        InputLabelProps={{ shrink: true }}
+                        variant="outlined"
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Phone Number"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        required
+                        error={!!fieldErrors.phone}
+                        helperText={fieldErrors.phone}
+                        variant="outlined"
+                        inputProps={{
+                          maxLength: 10,
+                          pattern: '[0-9]{10}',
+                          title: 'Enter 10-digit phone number',
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        type="email"
+                        label="Email Address"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        error={!!fieldErrors.email}
+                        helperText={fieldErrors.email}
+                        variant="outlined"
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Aadhaar Number"
+                        name="aadhaar_number"
+                        value={formData.aadhaar_number}
+                        onChange={handleInputChange}
+                        required
+                        error={!!fieldErrors.aadhaar_number}
+                        helperText={fieldErrors.aadhaar_number}
+                        variant="outlined"
+                        inputProps={{
+                          maxLength: 12,
+                          pattern: '[0-9]{12}',
+                          title: 'Enter 12-digit Aadhaar number',
+                        }}
+                      />
+                    </Grid>
 
                     <Grid item xs={12} sm={6}>
                       <FormControl fullWidth required error={!!fieldErrors.gender}>
@@ -603,7 +731,6 @@ const OnboardingForm = () => {
                           value={formData.gender}
                           onChange={handleInputChange}
                           label="Gender"
-                          sx={{ width: '200px' }} // ✅ use object here
                         >
                           <MenuItem value="">Select Gender</MenuItem>
                           <MenuItem value="male">Male</MenuItem>
@@ -611,11 +738,73 @@ const OnboardingForm = () => {
                           <MenuItem value="other">Other</MenuItem>
                         </Select>
                         {fieldErrors.gender && (
-                          <Typography variant="caption" color="error" sx={{ ml: 2 }}>
-                            {fieldErrors.gender}
-                          </Typography>
+                          <FormHelperText>{fieldErrors.gender}</FormHelperText>
                         )}
                       </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Emergency Contact"
+                        name="emergency_contact_number"
+                        value={formData.emergency_contact_number}
+                        onChange={handleInputChange}
+                        required
+                        error={!!fieldErrors.emergency_contact_number}
+                        helperText={fieldErrors.emergency_contact_number}
+                        variant="outlined"
+                        inputProps={{
+                          maxLength: 10,
+                          pattern: '[0-9]{10}',
+                          title: 'Enter 10-digit phone number',
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Salary Account Number"
+                        name="salary_account_number"
+                        value={formData.salary_account_number}
+                        onChange={handleInputChange}
+                        error={!!fieldErrors.salary_account_number}
+                        helperText={fieldErrors.salary_account_number}
+                        variant="outlined"
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <FormControl fullWidth>
+                        <InputLabel>Blood Group</InputLabel>
+                        <Select
+                          name="blood_group"
+                          value={formData.blood_group}
+                          onChange={handleInputChange}
+                          label="Blood Group"
+                        >
+                          <MenuItem value="">Select Blood Group</MenuItem>
+                          {bloodGroups.map((group) => (
+                            <MenuItem key={group} value={group}>
+                              {group}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Address"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        multiline
+                        rows={3}
+                        variant="outlined"
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -638,12 +827,7 @@ const OnboardingForm = () => {
 
               <Grid container spacing={3}>
                 <Grid item xs={12} sm={6}>
-                  <FormControl
-                    fullWidth
-                    required
-                    error={!!fieldErrors.employees_role}
-                    sx={{ width: '200px' }}
-                  >
+                  <FormControl fullWidth required error={!!fieldErrors.employees_role}>
                     <InputLabel>Employee Role</InputLabel>
                     <Select
                       name="employees_role"
@@ -656,9 +840,7 @@ const OnboardingForm = () => {
                       <MenuItem value="Contract">Contract</MenuItem>
                     </Select>
                     {fieldErrors.employees_role && (
-                      <Typography variant="caption" color="error" sx={{ ml: 2 }}>
-                        {fieldErrors.employees_role}
-                      </Typography>
+                      <FormHelperText>{fieldErrors.employees_role}</FormHelperText>
                     )}
                   </FormControl>
                 </Grid>
@@ -671,7 +853,6 @@ const OnboardingForm = () => {
                       value={formData.qualification}
                       onChange={handleInputChange}
                       label="Qualification"
-                      sx={{ width: '200px' }}
                     >
                       <MenuItem value="">Select Qualification</MenuItem>
                       <MenuItem value="SSC">SSC</MenuItem>
@@ -685,20 +866,63 @@ const OnboardingForm = () => {
                   </FormControl>
                 </Grid>
 
-                {professionalFields.slice(2).map((field) => (
-                  <Grid item xs={12} sm={6} key={field.name}>
+                {formData.qualification === 'Other' && (
+                  <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      type={field.type}
-                      label={field.label}
-                      name={field.name}
-                      value={formData[field.name]}
+                      label="Specify Qualification"
+                      name="other_qualification"
+                      value={formData.other_qualification}
                       onChange={handleInputChange}
-                      required={field.required}
+                      required
+                      error={!!fieldErrors.other_qualification}
+                      helperText={fieldErrors.other_qualification}
                       variant="outlined"
+                      placeholder="Enter your qualification"
                     />
                   </Grid>
-                ))}
+                )}
+
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Experience</InputLabel>
+                    <Select
+                      name="experience"
+                      value={formData.experience}
+                      onChange={handleInputChange}
+                      label="Experience"
+                    >
+                      <MenuItem value="">Select Experience</MenuItem>
+                      {experienceOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Department"
+                    name="department"
+                    value={formData.department}
+                    onChange={handleInputChange}
+                    variant="outlined"
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Designation"
+                    name="designation"
+                    value={formData.designation}
+                    onChange={handleInputChange}
+                    variant="outlined"
+                  />
+                </Grid>
 
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth>
@@ -708,7 +932,6 @@ const OnboardingForm = () => {
                       value={formData.marital_status}
                       onChange={handleInputChange}
                       label="Marital Status"
-                      sx={{ width: '200px' }}
                     >
                       <MenuItem value="">Select Status</MenuItem>
                       <MenuItem value="Single">Single</MenuItem>
@@ -717,38 +940,6 @@ const OnboardingForm = () => {
                     </Select>
                   </FormControl>
                 </Grid>
-
-                {additionalFields.slice(0, 1).map((field) => (
-                  <Grid item xs={12} sm={6} key={field.name}>
-                    <TextField
-                      fullWidth
-                      type={field.type}
-                      label={field.label}
-                      name={field.name}
-                      value={formData[field.name]}
-                      onChange={handleInputChange}
-                      required={field.required}
-                      variant="outlined"
-                    />
-                  </Grid>
-                ))}
-
-                {additionalFields.slice(2).map((field) => (
-                  <Grid item xs={12} key={field.name}>
-                    <TextField
-                      fullWidth
-                      type={field.type}
-                      label={field.label}
-                      name={field.name}
-                      value={formData[field.name]}
-                      onChange={handleInputChange}
-                      required={field.required}
-                      multiline={field.multiline}
-                      rows={field.rows}
-                      variant="outlined"
-                    />
-                  </Grid>
-                ))}
               </Grid>
             </CardContent>
           </Card>
@@ -930,11 +1121,17 @@ const OnboardingForm = () => {
                     </Box>
                     <Box>
                       <Typography variant="body2" color="text.secondary">
-                        Salary Account Number
+                        Blood Group
                       </Typography>
                       <Typography variant="body1">
-                        {formData.salary_account_number || 'Not provided'}
+                        {formData.blood_group || 'Not provided'}
                       </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Address
+                      </Typography>
+                      <Typography variant="body1">{formData.address || 'Not provided'}</Typography>
                     </Box>
                   </Stack>
                 </Grid>
@@ -958,7 +1155,9 @@ const OnboardingForm = () => {
                         Qualification
                       </Typography>
                       <Typography variant="body1">
-                        {formData.qualification || 'Not provided'}
+                        {formData.qualification === 'Other'
+                          ? `Other (${formData.other_qualification})`
+                          : formData.qualification || 'Not provided'}
                       </Typography>
                     </Box>
                     <Box>
@@ -966,7 +1165,8 @@ const OnboardingForm = () => {
                         Experience
                       </Typography>
                       <Typography variant="body1">
-                        {formData.experience ? `${formData.experience} years` : 'Not provided'}
+                        {experienceOptions.find((opt) => opt.value === formData.experience)
+                          ?.label || 'Not provided'}
                       </Typography>
                     </Box>
                     <Box>
@@ -992,20 +1192,6 @@ const OnboardingForm = () => {
                       <Typography variant="body1">
                         {formData.marital_status || 'Not provided'}
                       </Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Blood Group
-                      </Typography>
-                      <Typography variant="body1">
-                        {formData.blood_group || 'Not provided'}
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Address
-                      </Typography>
-                      <Typography variant="body1">{formData.address || 'Not provided'}</Typography>
                     </Box>
                   </Stack>
                 </Grid>
@@ -1042,7 +1228,6 @@ const OnboardingForm = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      {/* Header */}
       {/* Sticky Container for Header + Stepper */}
       <Box
         sx={{
@@ -1082,8 +1267,8 @@ const OnboardingForm = () => {
           sx={{
             p: 2,
             backgroundColor: 'background.paper',
-            overflowX: 'auto', // allows horizontal scroll
-            '&::-webkit-scrollbar': { display: 'none' }, // optional, hides scrollbar
+            overflowX: 'auto',
+            '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
           <Stepper activeStep={activeStep} sx={{ minWidth: '600px' }}>
@@ -1126,7 +1311,7 @@ const OnboardingForm = () => {
             background: 'linear-gradient(135deg, #3A4B5E 0%, #764ba2 100%)',
             color: 'white',
             '&:hover': {
-              background: 'linear-gradient(135deg, #2c3e50 0%, #5c2e91 100%)', // ✅ optional hover effect
+              background: 'linear-gradient(135deg, #2c3e50 0%, #5c2e91 100%)',
             },
           }}
         >
