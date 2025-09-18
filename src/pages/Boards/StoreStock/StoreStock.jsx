@@ -77,6 +77,15 @@ const StoreStock = () => {
     'HDPE',
   ];
 
+  const isToday = (dateToCheck) => {
+    const today = new Date();
+    const checkDate = new Date(dateToCheck);
+    return today.toDateString() === checkDate.toDateString();
+  };
+
+  // Add this variable
+  const isCurrentDateToday = isToday(date);
+
   // Function to refresh store stock data
   const refreshStoreStock = () => {
     const [year, month, day] = date.split('-');
@@ -173,6 +182,13 @@ const StoreStock = () => {
     setEdit({
       ...elem,
       actual: '0', // Set actual to "0" when starting edit
+    });
+  };
+  // Handle responsible person edit - set first row actual to 0
+  const handleResponsiblePersonEdit = (firstRowData) => {
+    setEdit({
+      ...firstRowData,
+      actual: '0', // Set actual to "0" when editing responsible person
     });
   };
 
@@ -582,10 +598,19 @@ const StoreStock = () => {
 
             {storeStockArr.length > 0 && edit._id !== storeStockArr[0]?._id && (
               <IconButton
-                onClick={() => setEdit(storeStockArr[0])}
-                style={{ color: 'grey', marginLeft: '0.5rem' }}
+                onClick={
+                  isCurrentDateToday
+                    ? () => handleResponsiblePersonEdit(storeStockArr[0])
+                    : undefined
+                }
+                disabled={!isCurrentDateToday}
+                style={{
+                  color: isCurrentDateToday ? 'grey' : '#ccc',
+                  marginLeft: '0.5rem',
+                  cursor: isCurrentDateToday ? 'pointer' : 'not-allowed',
+                }}
               >
-                <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
+                <EditIcon style={{ color: isCurrentDateToday ? 'rgb(201, 162, 56)' : '#ccc' }} />
               </IconButton>
             )}
           </Box>
@@ -861,7 +886,7 @@ const StoreStock = () => {
                             <TextField
                               fullWidth
                               type="text"
-                              value={edit.actual || '0'}
+                              value={edit.actual }
                               onChange={(e) => setEdit({ ...edit, actual: e.target.value })}
                               sx={{ width: '100%' }}
                               size="small"
@@ -883,8 +908,17 @@ const StoreStock = () => {
                               </IconButton>
                             </Box>
                           ) : (
-                            <IconButton onClick={() => handleEditClick(elem)}>
-                              <EditIcon style={{ color: 'rgb(201, 162, 56)' }} />
+                            <IconButton
+                              onClick={isCurrentDateToday ? () => handleEditClick(elem) : undefined}
+                              disabled={!isCurrentDateToday}
+                              style={{
+                                color: isCurrentDateToday ? 'grey' : '#ccc',
+                                cursor: isCurrentDateToday ? 'pointer' : 'not-allowed',
+                              }}
+                            >
+                              <EditIcon
+                                style={{ color: isCurrentDateToday ? 'rgb(201, 162, 56)' : '#ccc' }}
+                              />
                             </IconButton>
                           )}
                         </TableCell>
