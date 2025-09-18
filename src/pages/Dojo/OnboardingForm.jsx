@@ -51,6 +51,7 @@ import {
   ChevronRight,
   Plus,
   Trash2,
+  Eye,
 } from 'lucide-react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -109,17 +110,28 @@ const OnboardingForm = () => {
   const [success, setSuccess] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewFile, setPreviewFile] = useState(null);
+  const [filePreviewOpen, setFilePreviewOpen] = useState(false);
   const { token } = useSelector((state) => state.auth);
 
   // Blood group options
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
-  // Experience options (standard format)
+  // Experience options
   const experienceOptions = [
-    { value: 'fresher', label: '0 - 1 year (Fresher)' },
-    { value: 'experienced', label: '2 - 5 years (Experienced)' },
-    { value: 'management_head', label: '6+ years (Management / Head)' },
+    { value: 'fresher', label: '0-1 (Fresher)' },
+    { value: 'experience', label: '3-5 (Experience)' },
+    { value: 'mgt_head', label: '6-10+ (MGT Head)' },
   ];
+
+  // File limits for each category
+  const fileLimits = {
+    avatar: 1,
+    id_proof: 5,
+    education_certificates: 5,
+    experience_letters: 5,
+    other_documents: 5,
+  };
 
   // File validation
   const validateFile = (file, category) => {
@@ -154,27 +166,6 @@ const OnboardingForm = () => {
     }
 
     return null;
-  };
-
-  // Input filters
-  const handleInputFilter = (e, type) => {
-    const { value } = e.target;
-    let filteredValue = value;
-
-    switch (type) {
-      case 'text-only':
-        // Only allow letters and spaces
-        filteredValue = value.replace(/[^a-zA-Z\s]/g, '');
-        break;
-      case 'numeric-only':
-        // Only allow numbers
-        filteredValue = value.replace(/[^0-9]/g, '');
-        break;
-      default:
-        break;
-    }
-
-    e.target.value = filteredValue;
   };
 
   // Validation rules
@@ -238,7 +229,7 @@ const OnboardingForm = () => {
         break;
 
       case 'salary_account_number':
-        // Remove the required validation, only validate format if value exists
+        // Optional field - only validate if value exists
         if (value && !/^\d{9,18}$/.test(value)) {
           error = 'Please enter a valid salary account number (9–18 digits)';
         }
@@ -271,7 +262,7 @@ const OnboardingForm = () => {
     let hasErrors = false;
 
     if (activeStep === 0) {
-      // Personal info validation
+      // Personal info validation - removed salary_account_number from required fields
       const personalFields = [
         'full_name',
         'dob',
@@ -394,11 +385,27 @@ const OnboardingForm = () => {
     }
   };
 
-  // Handle file uploads
+  // Handle file uploads with 5-file limit
   const handleFileUpload = (category, files) => {
     const newFiles = Array.from(files);
     const validFiles = [];
     const errors = [];
+
+    // Check file limit
+    const currentFileCount = documents[category].length;
+    const maxFiles = fileLimits[category];
+    const availableSlots = maxFiles - currentFileCount;
+
+    if (newFiles.length > availableSlots) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'File Limit Exceeded',
+        text: `You can only upload a maximum of ${maxFiles} files for ${documentCategories[category].title}. You have ${availableSlots} slots available.`,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#f57c00',
+      });
+      return;
+    }
 
     newFiles.forEach((file) => {
       const error = validateFile(file, category);
@@ -460,6 +467,12 @@ const OnboardingForm = () => {
   const openFile = (file) => {
     const url = URL.createObjectURL(file);
     window.open(url, '_blank');
+  };
+
+  // Preview file in dialog
+  const previewFileInDialog = (file) => {
+    setPreviewFile(file);
+    setFilePreviewOpen(true);
   };
 
   // Submit form
@@ -553,7 +566,7 @@ const OnboardingForm = () => {
     }
   };
 
-  // Document categories with updated file restrictions
+  // Document categories with updated file restrictions and limits
   const documentCategories = {
     avatar: {
       title: 'Profile Photo',
@@ -562,34 +575,39 @@ const OnboardingForm = () => {
       multiple: false,
       color: '#1976d2',
       required: true,
+      maxFiles: 1,
     },
     id_proof: {
       title: 'Identity Proof',
-      description: 'Aadhaar, PAN, Voter ID, etc. (Max 5MB, JPG/PNG only)',
+      description: 'Aadhaar, PAN, Voter ID, etc. (Max 5MB, JPG/PNG only, Max 5 files)',
       accept: '.jpg,.jpeg,.png',
       multiple: true,
       color: '#f57c00',
+      maxFiles: 5,
     },
     education_certificates: {
       title: 'Educational Certificates',
-      description: 'Degree, Diploma, Marksheets, etc. (Max 10MB, PDF/Word only)',
+      description: 'Degree, Diploma, Marksheets, etc. (Max 10MB, PDF/Word only, Max 5 files)',
       accept: '.pdf,.doc,.docx',
       multiple: true,
       color: '#388e3c',
+      maxFiles: 5,
     },
     experience_letters: {
       title: 'Experience Letters',
-      description: 'Previous employment documents (Max 10MB, PDF/Word only)',
+      description: 'Previous employment documents (Max 10MB, PDF/Word only, Max 5 files)',
       accept: '.pdf,.doc,.docx',
       multiple: true,
       color: '#d32f2f',
+      maxFiles: 5,
     },
     other_documents: {
       title: 'Other Documents',
-      description: 'Any other relevant documents (Max 10MB, PDF/Word only)',
+      description: 'Any other relevant documents (Max 10MB, PDF/Word only, Max 5 files)',
       accept: '.pdf,.doc,.docx',
       multiple: true,
       color: '#7b1fa2',
+      maxFiles: 5,
     },
   };
 
@@ -765,7 +783,7 @@ const OnboardingForm = () => {
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
-                        label="Salary Account Number"
+                        label="Salary Account Number (Optional)"
                         name="salary_account_number"
                         value={formData.salary_account_number}
                         onChange={handleInputChange}
@@ -974,6 +992,9 @@ const OnboardingForm = () => {
                           (Required)
                         </Typography>
                       )}
+                      <Typography variant="caption" color="text.secondary">
+                        ({documents[key].length}/{category.maxFiles} files)
+                      </Typography>
                     </Stack>
 
                     <Box sx={{ mb: 2 }}>
@@ -1027,6 +1048,7 @@ const OnboardingForm = () => {
                       variant="outlined"
                       component="label"
                       startIcon={<Plus />}
+                      disabled={documents[key].length >= category.maxFiles}
                       sx={{
                         borderStyle: 'dashed',
                         borderWidth: 2,
@@ -1036,7 +1058,9 @@ const OnboardingForm = () => {
                         },
                       }}
                     >
-                      Add {category.title}
+                      {documents[key].length >= category.maxFiles
+                        ? `Maximum ${category.maxFiles} files reached`
+                        : `Add ${category.title}`}
                       <input
                         type="file"
                         hidden
@@ -1121,6 +1145,14 @@ const OnboardingForm = () => {
                     </Box>
                     <Box>
                       <Typography variant="body2" color="text.secondary">
+                        Salary Account Number
+                      </Typography>
+                      <Typography variant="body1">
+                        {formData.salary_account_number || 'Not provided'}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
                         Blood Group
                       </Typography>
                       <Typography variant="body1">
@@ -1196,7 +1228,7 @@ const OnboardingForm = () => {
                   </Stack>
                 </Grid>
 
-                {/* Documents Review */}
+                {/* Documents Review - Clickable */}
                 <Grid item xs={12}>
                   <Typography variant="h6" gutterBottom color="primary">
                     Documents Uploaded
@@ -1204,13 +1236,49 @@ const OnboardingForm = () => {
                   <Grid container spacing={2}>
                     {Object.entries(documentCategories).map(([key, category]) => (
                       <Grid item xs={12} sm={6} md={4} key={key}>
-                        <Paper sx={{ p: 2 }}>
+                        <Paper sx={{ p: 2, minHeight: 120 }}>
                           <Typography variant="body2" fontWeight="medium" gutterBottom>
                             {category.title}
                           </Typography>
-                          <Typography variant="body2" color="text.secondary">
+                          <Typography variant="body2" color="text.secondary" gutterBottom>
                             {documents[key].length} file(s) uploaded
                           </Typography>
+
+                          {/* Clickable file list */}
+                          <Box sx={{ mt: 1 }}>
+                            {documents[key].map((file, index) => (
+                              <Box
+                                key={index}
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  cursor: 'pointer',
+                                  p: 0.5,
+                                  borderRadius: 1,
+                                  '&:hover': { backgroundColor: 'action.hover' },
+                                }}
+                                onClick={() => openFile(file)}
+                              >
+                                <FileText size={14} style={{ marginRight: 8 }} />
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    maxWidth: 150,
+                                    color: 'primary.main',
+                                    textDecoration: 'underline',
+                                  }}
+                                >
+                                  {file.name}
+                                </Typography>
+                                <IconButton size="small" sx={{ ml: 0.5 }}>
+                                  <Eye size={12} />
+                                </IconButton>
+                              </Box>
+                            ))}
+                          </Box>
                         </Paper>
                       </Grid>
                     ))}
@@ -1333,6 +1401,17 @@ const OnboardingForm = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setPreviewOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* File Preview Dialog */}
+      <Dialog open={filePreviewOpen} onClose={() => setFilePreviewOpen(false)} maxWidth="md">
+        <DialogTitle>File Preview</DialogTitle>
+        <DialogContent>
+          {previewFile && <Typography variant="body1">File: {previewFile.name}</Typography>}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setFilePreviewOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Container>
