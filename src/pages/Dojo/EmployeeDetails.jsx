@@ -19,6 +19,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
+import StarIcon from '@mui/icons-material/Star';
 
 import {
   ArrowBack as ArrowBackIcon,
@@ -44,6 +45,30 @@ import Level4Tab from './components/Level4Tab.jsx';
 
 const API_URL = `${import.meta.env.VITE_BACKEND_API}/get_trainee_info`;
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
+
+const starColors = {
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  platinum: '#E5E4E2',
+};
+
+const EmployeeStars = ({ silver = 0, gold = 0, platinum = 0 }) => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 2, mb: 1 }}>
+    <Box display="flex" alignItems="center" gap={0.7}>
+      <StarIcon sx={{ color: starColors.silver, fontSize: 28 }} />
+      <Typography sx={{ color: starColors.silver, fontWeight: 600 }}>{silver}</Typography>
+    </Box>
+    <Box display="flex" alignItems="center" gap={0.7}>
+      <StarIcon sx={{ color: starColors.gold, fontSize: 28 }} />
+      <Typography sx={{ color: starColors.gold, fontWeight: 600 }}>{gold}</Typography>
+    </Box>
+    <Box display="flex" alignItems="center" gap={0.7}>
+      <StarIcon sx={{ color: starColors.platinum, fontSize: 28 }} />
+      <Typography sx={{ color: starColors.platinum, fontWeight: 600 }}>{platinum}</Typography>
+    </Box>
+  </Box>
+);
+
 
 const EmployeeDetails = () => {
   const { userId } = useParams();
@@ -427,59 +452,62 @@ const EmployeeDetails = () => {
   }
   if (!employee) return null;
 
-  // Sidebar summary
-  function renderSidebar() {
-    return (
-      <Paper
-        sx={{
-          p: 3,
-          position: { lg: 'sticky' },
-          top: { lg: 24 },
-          mb: { xs: 2, lg: 0 },
-        }}
-      >
-        <Box display="flex" flexDirection="column" alignItems="center">
-          <Avatar
-            src={employee.avatar || ''}
-            alt={employee.fullName}
-            sx={{ width: 80, height: 80, mb: 2, bgcolor: 'primary.main', fontSize: 32 }}
-          >
-            {employee.fullName?.charAt(0) || ''}
-          </Avatar>
-          <Typography variant="h6" fontWeight={500}>
-            {employee?.fullName}
-          </Typography>
-          <Typography color="primary" fontWeight={500} mb={1}>
-            {employee?.designation}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            ID: {employee?.user_id}
-          </Typography>
-        </Box>
-        <Divider sx={{ my: 2 }} />
-        <List dense>
-          <ListItem>
-            <ListItemIcon>
-              <PhoneIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary={employee?.phone} secondary="Phone" />
-          </ListItem>
-          <ListItem>
-            <ListItemIcon>
-              <EmailIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary={employee?.email} secondary="Email" />
-          </ListItem>
-          <ListItem>
-            <ListItemIcon>
-              <DepartmentIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary={employee?.department} secondary="Department" />
-          </ListItem>
-        </List>
-      </Paper>
-    );
-  }
+ function renderSidebar() {
+  return (
+    <Paper sx={{ p: 3, position: { lg: 'sticky' }, top: { lg: 24 }, mb: { xs: 2, lg: 0 } }}>
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Avatar
+          src={employee.avatar || ''}
+          alt={employee.fullName}
+          sx={{ width: 80, height: 80, mb: 2, bgcolor: 'primary.main', fontSize: 32 }}
+        >
+          {employee.fullName?.charAt(0) || ''}
+        </Avatar>
+
+        <Typography variant="h6" fontWeight={500}>
+          {employee?.fullName}
+        </Typography>
+        <Typography color="primary" fontWeight={500} mb={1}>
+          {employee?.designation}
+        </Typography>
+
+        {employee.employee_stars && (
+          <EmployeeStars
+            silver={employee.employee_stars.silver_count}
+            gold={employee.employee_stars.gold_count}
+            platinum={employee.employee_stars.platinum_count}
+          />
+        )}
+
+        <Typography variant="body2" color="textSecondary">
+          ID: {employee?.user_id}
+        </Typography>
+      </Box>
+      <Divider sx={{ my: 2 }} />
+      <List dense>
+        <ListItem>
+          <ListItemIcon>
+            <PhoneIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary={employee?.phone} secondary="Phone" />
+        </ListItem>
+        <ListItem>
+          <ListItemIcon>
+            <EmailIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary={employee?.email} secondary="Email" />
+        </ListItem>
+        <ListItem>
+          <ListItemIcon>
+            <DepartmentIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary={employee?.department} secondary="Department" />
+        </ListItem>
+      </List>
+    </Paper>
+  );
+}
+
 
   // Layout
   return (
