@@ -12,44 +12,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Stack
+  Stack,
 } from '@mui/material';
 import Swal from 'sweetalert2';
 import StarIcon from '@mui/icons-material/Star';
 
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
-// === Star Summary Component ===
-const starColors = {
-  silver: '#C0C0C0',
-  gold: '#FFD700',
-  platinum: '#E5E4E2'
-};
-
-const EmployeeStars = ({ silver = 0, gold = 0, platinum = 0 }) => (
-  <Box sx={{
-    p: 2, my: 2, borderRadius: 2, boxShadow: 2, bgcolor: 'background.paper',
-    display: 'inline-block', minWidth: 260
-  }}>
-    <Typography variant="subtitle1" sx={{ mb: 1 }}>Star Summary</Typography>
-    <Stack direction="row" spacing={3} alignItems="center">
-      <Box display="flex" alignItems="center">
-        <StarIcon sx={{ color: starColors.silver, fontSize: 34, mr: 1 }} />
-        <Typography variant="h6" sx={{ color: starColors.silver }}>{silver}</Typography>
-      </Box>
-      <Box display="flex" alignItems="center">
-        <StarIcon sx={{ color: starColors.gold, fontSize: 34, mr: 1 }} />
-        <Typography variant="h6" sx={{ color: starColors.gold }}>{gold}</Typography>
-      </Box>
-      <Box display="flex" alignItems="center">
-        <StarIcon sx={{ color: starColors.platinum, fontSize: 34, mr: 1 }} />
-        <Typography variant="h6" sx={{ color: starColors.platinum }}>{platinum}</Typography>
-      </Box>
-    </Stack>
-  </Box>
-);
-
-// === Main Component ===
 const PersonalTab = ({ employee, token, onFetchEmployee }) => {
   const [initializingWorkwear, setInitializingWorkwear] = useState(false);
   const [updatingWorkwear, setUpdatingWorkwear] = useState(false);
@@ -210,15 +179,6 @@ const PersonalTab = ({ employee, token, onFetchEmployee }) => {
         )}
       </Box>
 
-      {/* Star Summary
-      {employee?.employee_stars && (
-        <EmployeeStars
-          silver={employee.employee_stars.silver_count}
-          gold={employee.employee_stars.gold_count}
-          platinum={employee.employee_stars.platinum_count}
-        />
-      )} */}
-
       {/* Personal Details */}
       <Grid container spacing={2} sx={{ mb: 2 }}>
         <Grid item xs={12} sm={6}>
@@ -227,7 +187,9 @@ const PersonalTab = ({ employee, token, onFetchEmployee }) => {
         </Grid>
         <Grid item xs={12} sm={6}>
           <Typography variant="caption">DOB</Typography>
-          <Typography>{employee?.dob ? new Date(employee.dob).toLocaleDateString() : 'N/A'}</Typography>
+          <Typography>
+            {employee?.dob ? new Date(employee.dob).toLocaleDateString() : 'N/A'}
+          </Typography>
         </Grid>
         <Grid item xs={12} sm={6}>
           <Typography variant="caption">Gender</Typography>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { keyframes } from '@mui/system';
 
 import {
   Avatar,
@@ -16,10 +17,13 @@ import {
   Grid,
   List,
   ListItem,
+  Fab,
+  Menu,
+  MenuItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
 } from '@mui/material';
-import StarIcon from '@mui/icons-material/Star';
 
 import {
   ArrowBack as ArrowBackIcon,
@@ -30,6 +34,9 @@ import {
   Phone as PhoneIcon,
   Email as EmailIcon,
   AccountTree as DepartmentIcon,
+  Add as AddIcon,
+  Star as StarIcon,
+  StarBorder as StarBorderIcon,
 } from '@mui/icons-material';
 
 import Swal from 'sweetalert2';
@@ -42,33 +49,10 @@ import Level1Tab from './components/Level1Tab';
 import Level2Tab from './components/Level2Tab';
 import Level3Tab from './components/Level3Tab.jsx';
 import Level4Tab from './components/Level4Tab.jsx';
+import EmployeeStars from './components/EmployeeStars'; // Import the new EmployeeStars component
 
 const API_URL = `${import.meta.env.VITE_BACKEND_API}/get_trainee_info`;
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
-
-const starColors = {
-  silver: '#C0C0C0',
-  gold: '#FFD700',
-  platinum: '#E5E4E2',
-};
-
-const EmployeeStars = ({ silver = 0, gold = 0, platinum = 0 }) => (
-  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 2, mb: 1 }}>
-    <Box display="flex" alignItems="center" gap={0.7}>
-      <StarIcon sx={{ color: starColors.silver, fontSize: 28 }} />
-      <Typography sx={{ color: starColors.silver, fontWeight: 600 }}>{silver}</Typography>
-    </Box>
-    <Box display="flex" alignItems="center" gap={0.7}>
-      <StarIcon sx={{ color: starColors.gold, fontSize: 28 }} />
-      <Typography sx={{ color: starColors.gold, fontWeight: 600 }}>{gold}</Typography>
-    </Box>
-    <Box display="flex" alignItems="center" gap={0.7}>
-      <StarIcon sx={{ color: starColors.platinum, fontSize: 28 }} />
-      <Typography sx={{ color: starColors.platinum, fontWeight: 600 }}>{platinum}</Typography>
-    </Box>
-  </Box>
-);
-
 
 const EmployeeDetails = () => {
   const { userId } = useParams();
@@ -118,6 +102,108 @@ const EmployeeDetails = () => {
   // Level 1 Actions
   const [level1Loading, setLevel1Loading] = useState(false);
   const [level1Error, setLevel1Error] = useState(null);
+
+  // Function to handle silver star assignment with month/year input
+  // Function to handle silver star assignment with month/year input (defaults to current)
+  const handleAssignSilverStar = async (userId) => {
+    try {
+      // Get current month and year as defaults
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
+      // Ask user for month and year with current values as default
+      const { value: formValues } = await Swal.fire({
+        title: 'Assign Silver Star',
+        html: `
+        <div style="text-align: left; margin: 20px 0;">
+          <label style="display: block; margin-bottom: 5px; font-weight: 600;">Month:</label>
+          <select id="swal-input1" class="swal2-input" style="margin-bottom: 15px;">
+            <option value="1" ${currentMonth === 1 ? 'selected' : ''}>January</option>
+            <option value="2" ${currentMonth === 2 ? 'selected' : ''}>February</option>
+            <option value="3" ${currentMonth === 3 ? 'selected' : ''}>March</option>
+            <option value="4" ${currentMonth === 4 ? 'selected' : ''}>April</option>
+            <option value="5" ${currentMonth === 5 ? 'selected' : ''}>May</option>
+            <option value="6" ${currentMonth === 6 ? 'selected' : ''}>June</option>
+            <option value="7" ${currentMonth === 7 ? 'selected' : ''}>July</option>
+            <option value="8" ${currentMonth === 8 ? 'selected' : ''}>August</option>
+            <option value="9" ${currentMonth === 9 ? 'selected' : ''}>September</option>
+            <option value="10" ${currentMonth === 10 ? 'selected' : ''}>October</option>
+            <option value="11" ${currentMonth === 11 ? 'selected' : ''}>November</option>
+            <option value="12" ${currentMonth === 12 ? 'selected' : ''}>December</option>
+          </select>
+          <label style="display: block; margin-bottom: 5px; font-weight: 600;">Year:</label>
+          <input id="swal-input2" class="swal2-input" type="number" min="2000" max="2100" value="${currentYear}" placeholder="Enter year">
+        </div>
+      `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Assign Star',
+        cancelButtonText: 'Cancel',
+        preConfirm: () => {
+          const month = document.getElementById('swal-input1').value;
+          const year = document.getElementById('swal-input2').value;
+
+          if (!month) {
+            Swal.showValidationMessage('Please select a month');
+            return false;
+          }
+          if (!year || year < 2000 || year > 2100) {
+            Swal.showValidationMessage('Please enter a valid year (2000-2100)');
+            return false;
+          }
+
+          return { month: parseInt(month), year: parseInt(year) };
+        },
+      });
+
+      if (formValues) {
+        const { month, year } = formValues;
+
+        const response = await fetch(
+          `${
+            import.meta.env.VITE_BACKEND_API
+          }/assign_employee_star?user_id=${userId}&star_type=silver&year=${year}&month=${month}`,
+          {
+            method: 'POST',
+            headers: {
+              accept: 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'Silver Star Assigned!',
+            text: `Silver star has been assigned successfully for ${month}/${year}.`,
+            confirmButtonText: 'Great!',
+            timer: 3000,
+          });
+
+          // Call the API to refresh employee data
+          await fetchEmployee();
+        } else {
+          const error = await response.json();
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Already Assigned',
+            text: error.detail || 'Silver star has already been assigned for this month.',
+            confirmButtonText: 'OK',
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error assigning silver star:', error);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Assignment Failed',
+        text: 'Failed to assign silver star. Please try again.',
+        confirmButtonText: 'OK',
+      });
+    }
+  };
 
   const handleInitializeLevel1 = async () => {
     setLevel1Loading(true);
@@ -452,62 +538,92 @@ const EmployeeDetails = () => {
   }
   if (!employee) return null;
 
- function renderSidebar() {
-  return (
-    <Paper sx={{ p: 3, position: { lg: 'sticky' }, top: { lg: 24 }, mb: { xs: 2, lg: 0 } }}>
-      <Box display="flex" flexDirection="column" alignItems="center">
-        <Avatar
-          src={employee.avatar || ''}
-          alt={employee.fullName}
-          sx={{ width: 80, height: 80, mb: 2, bgcolor: 'primary.main', fontSize: 32 }}
-        >
-          {employee.fullName?.charAt(0) || ''}
-        </Avatar>
+  function renderSidebar() {
+    return (
+      <Paper sx={{ p: 3, position: { lg: 'sticky' }, top: { lg: 24 }, mb: { xs: 2, lg: 0 } }}>
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <Avatar
+            src={employee.avatar || ''}
+            alt={employee.fullName}
+            sx={{ width: 80, height: 80, mb: 2, bgcolor: 'primary.main', fontSize: 32 }}
+          >
+            {employee.fullName?.charAt(0) || ''}
+          </Avatar>
 
-        <Typography variant="h6" fontWeight={500}>
-          {employee?.fullName}
-        </Typography>
-        <Typography color="primary" fontWeight={500} mb={1}>
-          {employee?.designation}
-        </Typography>
+          <Typography variant="h6" fontWeight={500}>
+            {employee?.fullName}
+          </Typography>
+          <Typography color="primary" fontWeight={500} mb={1}>
+            {employee?.designation}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            ID: {employee?.user_id}
+          </Typography>
+          {/* Enhanced Stars with Assignment Button */}
+          {employee?.employee_stars && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                mb: 2.5,
+                width: '100%',
+                justifyContent: 'center',
+              }}
+            >
+              <EmployeeStars
+                silver={employee.employee_stars.silver_count || 0}
+                gold={employee.employee_stars.gold_count || 0}
+                platinum={employee.employee_stars.platinum_count || 0}
+              />
 
-        {employee.employee_stars && (
-          <EmployeeStars
-            silver={employee.employee_stars.silver_count}
-            gold={employee.employee_stars.gold_count}
-            platinum={employee.employee_stars.platinum_count}
-          />
-        )}
+              {/* Star Assignment Button */}
+              <Fab
+                size="small"
+                color="primary"
+                onClick={() => handleAssignSilverStar(employee.user_id)}
+                sx={{
+                  width: 32,
+                  height: 32,
+                  ml: 1,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                  '&:hover': {
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                    transform: 'scale(1.1)',
+                  },
+                }}
+              >
+                <StarIcon sx={{ fontSize: 16, color: '#C0C0C0' }} />
+              </Fab>
+            </Box>
+          )}
 
-        <Typography variant="body2" color="textSecondary">
-          ID: {employee?.user_id}
-        </Typography>
-      </Box>
-      <Divider sx={{ my: 2 }} />
-      <List dense>
-        <ListItem>
-          <ListItemIcon>
-            <PhoneIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary={employee?.phone} secondary="Phone" />
-        </ListItem>
-        <ListItem>
-          <ListItemIcon>
-            <EmailIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary={employee?.email} secondary="Email" />
-        </ListItem>
-        <ListItem>
-          <ListItemIcon>
-            <DepartmentIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary={employee?.department} secondary="Department" />
-        </ListItem>
-      </List>
-    </Paper>
-  );
-}
-
+          {/* Single Silver Star Assignment - No Menu */}
+        </Box>
+        <Divider sx={{ my: 2 }} />
+        <List dense>
+          <ListItem>
+            <ListItemIcon>
+              <PhoneIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary={employee?.phone} secondary="Phone" />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <EmailIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary={employee?.email} secondary="Email" />
+          </ListItem>
+          <ListItem>
+            <ListItemIcon>
+              <DepartmentIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary={employee?.department} secondary="Department" />
+          </ListItem>
+        </List>
+      </Paper>
+    );
+  }
 
   // Layout
   return (
@@ -531,7 +647,6 @@ const EmployeeDetails = () => {
               top: { lg: 24 },
               px: 1,
               position: 'sticky', // Makes the header stick
-
               zIndex: 1000, // Ensures it stays above other content
               // backgroundColor: 'background.paper', // Optional: match theme
             }}
