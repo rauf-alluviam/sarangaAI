@@ -176,7 +176,6 @@ const EmployeeDetails = () => {
         if (response.ok) {
           await Swal.fire({
             icon: 'success',
-            title: 'Silver Star Assigned!',
             text: `Silver star has been assigned successfully for ${month}/${year}.`,
             confirmButtonText: 'Great!',
             timer: 3000,
@@ -188,7 +187,6 @@ const EmployeeDetails = () => {
           const error = await response.json();
           await Swal.fire({
             icon: 'warning',
-            title: 'Already Assigned',
             text: error.detail || 'Silver star has already been assigned for this month.',
             confirmButtonText: 'OK',
           });
