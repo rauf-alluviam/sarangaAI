@@ -110,7 +110,7 @@ const calculateLevelAccess = (employee) => {
             enabled: false,
             reason: `Available after 2 years (${(2 - yearsElapsed).toFixed(1)} years remaining)`,
           };
-  } else if (experience === 'mgt_head') {
+  } else if (experience === 'management') {
     access.level4 = { enabled: true, reason: '' };
     access.level2 = { enabled: false, reason: 'Not available for management heads' };
     access.level3 =

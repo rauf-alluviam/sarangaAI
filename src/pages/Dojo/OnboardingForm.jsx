@@ -121,7 +121,7 @@ const OnboardingForm = () => {
   const experienceOptions = [
     { value: 'fresher', label: '0-1 (Fresher)' },
     { value: 'experience', label: '3-5 (Experience)' },
-    { value: 'mgt_head', label: '6-10+ (MGT Head)' },
+    { value: 'management', label: '6-10+ (Management)' },
   ];
 
   // File limits for each category
