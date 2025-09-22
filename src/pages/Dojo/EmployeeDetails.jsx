@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { keyframes } from '@mui/system';
 
 import {
   Avatar,
@@ -54,6 +53,78 @@ import EmployeeStars from './components/EmployeeStars'; // Import the new Employ
 const API_URL = `${import.meta.env.VITE_BACKEND_API}/get_trainee_info`;
 const BACKEND_API = import.meta.env.VITE_BACKEND_API;
 
+// MOVE THIS FUNCTION OUTSIDE THE COMPONENT - BEFORE EmployeeDetails
+const calculateLevelAccess = (employee) => {
+  if (!employee?.user_info?.experience || !employee?.created_at) {
+    return {
+      level1: { enabled: true, reason: '' },
+      level2: { enabled: false, reason: 'Missing employee data' },
+      level3: { enabled: false, reason: 'Missing employee data' },
+      level4: { enabled: false, reason: 'Missing employee data' },
+    };
+  }
+
+  const experience = employee.user_info.experience.toLowerCase();
+  const createdAt = new Date(employee.created_at);
+  const now = new Date();
+  const monthsElapsed =
+    (now.getFullYear() - createdAt.getFullYear()) * 12 + (now.getMonth() - createdAt.getMonth());
+  const yearsElapsed = (now - createdAt) / (1000 * 60 * 60 * 24 * 365.25);
+
+  let access = {
+    level1: { enabled: true, reason: '' }, // Always enabled
+    level2: { enabled: false, reason: '' },
+    level3: { enabled: false, reason: '' },
+    level4: { enabled: false, reason: '' },
+  };
+
+  if (experience === 'fresher') {
+    access.level2 = { enabled: true, reason: '' };
+    access.level3 =
+      monthsElapsed >= 6
+        ? { enabled: true, reason: '' }
+        : {
+            enabled: false,
+            reason: `Available after 6 months (${6 - monthsElapsed} months remaining)`,
+          };
+    access.level4 =
+      yearsElapsed >= 5
+        ? { enabled: true, reason: '' }
+        : {
+            enabled: false,
+            reason: `Available after 5 years (${(5 - yearsElapsed).toFixed(1)} years remaining)`,
+          };
+  } else if (experience === 'experience') {
+    access.level3 = { enabled: true, reason: '' };
+    access.level2 =
+      monthsElapsed >= 6
+        ? { enabled: true, reason: '' }
+        : {
+            enabled: false,
+            reason: `Available after 6 months (${6 - monthsElapsed} months remaining)`,
+          };
+    access.level4 =
+      yearsElapsed >= 2
+        ? { enabled: true, reason: '' }
+        : {
+            enabled: false,
+            reason: `Available after 2 years (${(2 - yearsElapsed).toFixed(1)} years remaining)`,
+          };
+  } else if (experience === 'mgt_head') {
+    access.level4 = { enabled: true, reason: '' };
+    access.level2 = { enabled: false, reason: 'Not available for management heads' };
+    access.level3 =
+      monthsElapsed >= 6
+        ? { enabled: true, reason: '' }
+        : {
+            enabled: false,
+            reason: `Available after 6 months (${6 - monthsElapsed} months remaining)`,
+          };
+  }
+
+  return access;
+};
+
 const EmployeeDetails = () => {
   const { userId } = useParams();
   const { token } = useSelector((state) => state.auth);
@@ -88,22 +159,42 @@ const EmployeeDetails = () => {
   const [level4Error, setLevel4Error] = useState(null);
   const [level4Success, setLevel4Success] = useState(null);
 
-  // Tabs Data
-  const tabs = [
-    { label: 'Personal', icon: <PersonIcon /> },
-    { label: 'Documents', icon: <ArticleIcon /> },
-    { label: 'Induction', icon: <VideoIcon /> },
-    { label: 'Level 1', icon: <AwardIcon /> },
-    { label: 'Level 2', icon: <AwardIcon /> },
-    { label: 'Level 3', icon: <AwardIcon /> },
-    { label: 'Level 4', icon: <AwardIcon /> },
-  ];
-
   // Level 1 Actions
   const [level1Loading, setLevel1Loading] = useState(false);
   const [level1Error, setLevel1Error] = useState(null);
 
-  // Function to handle silver star assignment with month/year input
+  // Calculate tabs - now this will work because calculateLevelAccess is defined above
+  const levelAccess = calculateLevelAccess(employee);
+  const tabs = [
+    { label: 'Personal', icon: <PersonIcon />, enabled: true, reason: '' },
+    { label: 'Documents', icon: <ArticleIcon />, enabled: true, reason: '' },
+    { label: 'Induction', icon: <VideoIcon />, enabled: true, reason: '' },
+    {
+      label: 'Level 1',
+      icon: <AwardIcon />,
+      enabled: levelAccess.level1.enabled,
+      reason: levelAccess.level1.reason,
+    },
+    {
+      label: 'Level 2',
+      icon: <AwardIcon />,
+      enabled: levelAccess.level2.enabled,
+      reason: levelAccess.level2.reason,
+    },
+    {
+      label: 'Level 3',
+      icon: <AwardIcon />,
+      enabled: levelAccess.level3.enabled,
+      reason: levelAccess.level3.reason,
+    },
+    {
+      label: 'Level 4',
+      icon: <AwardIcon />,
+      enabled: levelAccess.level4.enabled,
+      reason: levelAccess.level4.reason,
+    },
+  ];
+
   // Function to handle silver star assignment with month/year input (defaults to current)
   const handleAssignSilverStar = async (userId) => {
     try {
@@ -280,7 +371,11 @@ const EmployeeDetails = () => {
   // --- HANDLERS ---
 
   // Handle tab switch
-  const handleTabChange = (event, idx) => setTabIndex(idx);
+  const handleTabChange = (event, idx) => {
+    if (tabs[idx]?.enabled) {
+      setTabIndex(idx);
+    }
+  };
 
   // Induction Initialization
   const handleInitializeInduction = async () => {
@@ -509,8 +604,6 @@ const EmployeeDetails = () => {
     );
   }
 
-  // ...existing code...
-
   // Main Loading/Error
   if (loading)
     return (
@@ -558,45 +651,41 @@ const EmployeeDetails = () => {
             ID: {employee?.user_id}
           </Typography>
           {/* Enhanced Stars with Assignment Button */}
-          {employee?.employee_stars && (
-            <Box
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              mb: 2.5,
+              width: '100%',
+              justifyContent: 'center',
+            }}
+          >
+            <EmployeeStars
+              silver={employee?.employee_stars?.silver_count || 0}
+              gold={employee?.employee_stars?.gold_count || 0}
+              platinum={employee?.employee_stars?.platinum_count || 0}
+            />
+
+            {/* Star Assignment Button */}
+            <Fab
+              size="small"
+              color="primary"
+              onClick={() => handleAssignSilverStar(employee.user_id)}
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                mb: 2.5,
-                width: '100%',
-                justifyContent: 'center',
+                width: 32,
+                height: 32,
+                ml: 1,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                '&:hover': {
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+                  transform: 'scale(1.1)',
+                },
               }}
             >
-              <EmployeeStars
-                silver={employee.employee_stars.silver_count || 0}
-                gold={employee.employee_stars.gold_count || 0}
-                platinum={employee.employee_stars.platinum_count || 0}
-              />
-
-              {/* Star Assignment Button */}
-              <Fab
-                size="small"
-                color="primary"
-                onClick={() => handleAssignSilverStar(employee.user_id)}
-                sx={{
-                  width: 32,
-                  height: 32,
-                  ml: 1,
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                  '&:hover': {
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
-                    transform: 'scale(1.1)',
-                  },
-                }}
-              >
-                <StarIcon sx={{ fontSize: 16, color: '#C0C0C0' }} />
-              </Fab>
-            </Box>
-          )}
-
-          {/* Single Silver Star Assignment - No Menu */}
+              <StarIcon sx={{ fontSize: 16, color: '#C0C0C0' }} />
+            </Fab>
+          </Box>
         </Box>
         <Divider sx={{ my: 2 }} />
         <List dense>
@@ -646,7 +735,6 @@ const EmployeeDetails = () => {
               px: 1,
               position: 'sticky', // Makes the header stick
               zIndex: 1000, // Ensures it stays above other content
-              // backgroundColor: 'background.paper', // Optional: match theme
             }}
           >
             <Tabs
@@ -655,9 +743,28 @@ const EmployeeDetails = () => {
               variant="scrollable"
               scrollButtons="auto"
             >
-              {tabs.map((tab, idx) => (
-                <Tab key={tab.label} icon={tab.icon} label={tab.label} value={idx} />
-              ))}
+              {tabs.map((tab, idx) => {
+                if (tab.enabled) {
+                  return <Tab key={tab.label} icon={tab.icon} label={tab.label} value={idx} />;
+                } else {
+                  return (
+                    <Tooltip key={tab.label} title={tab.reason} arrow>
+                      <span>
+                        <Tab
+                          icon={tab.icon}
+                          label={tab.label}
+                          value={idx}
+                          disabled
+                          sx={{
+                            opacity: 0.5,
+                            cursor: 'not-allowed',
+                          }}
+                        />
+                      </span>
+                    </Tooltip>
+                  );
+                }
+              })}
             </Tabs>
           </Paper>
           <Box>
