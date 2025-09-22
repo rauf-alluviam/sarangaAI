@@ -97,7 +97,16 @@ const FgStock = () => {
   };
 
   // Check if current selected date is today
-  const isCurrentDateToday = isToday(date);
+  // Replace the isCurrentDateToday logic with this
+  const canEditDate = (dateToCheck) => {
+    const today = new Date();
+    const checkDate = new Date(dateToCheck);
+    // Allow editing for today and past dates, but not future dates
+    return checkDate <= today;
+  };
+
+  // Replace isCurrentDateToday with this
+  const canEdit = canEditDate(date);
 
   // Handle edit button click - set dispatch planning to 0
   const handleEditClick = (elem) => {
@@ -339,19 +348,18 @@ const FgStock = () => {
             )}
 
             {/* Responsible Person Edit Icon - Only enabled for current date */}
+            {/* Responsible Person Edit Icon - Only enabled for current date and past dates */}
             {fgStockArr.length > 0 && edit._id !== fgStockArr[0]?._id && (
               <IconButton
-                onClick={
-                  isCurrentDateToday ? () => handleResponsiblePersonEdit(fgStockArr[0]) : undefined
-                }
-                disabled={!isCurrentDateToday}
+                onClick={canEdit ? () => handleResponsiblePersonEdit(fgStockArr[0]) : undefined}
+                disabled={!canEdit}
                 style={{
-                  color: isCurrentDateToday ? 'grey' : '#ccc',
+                  color: canEdit ? 'grey' : '#ccc',
                   marginLeft: '1rem',
-                  cursor: isCurrentDateToday ? 'pointer' : 'not-allowed',
+                  cursor: canEdit ? 'pointer' : 'not-allowed',
                 }}
               >
-                <EditIcon style={{ color: isCurrentDateToday ? 'rgb(201, 162, 56)' : '#ccc' }} />
+                <EditIcon style={{ color: canEdit ? 'rgb(201, 162, 56)' : '#ccc' }} />
               </IconButton>
             )}
           </Box>
@@ -389,6 +397,9 @@ const FgStock = () => {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
+          inputProps={{
+            max: new Date().toISOString().split('T')[0], // Prevent future date selection
+          }}
           required
         />
       </Box>
@@ -912,6 +923,7 @@ const FgStock = () => {
                       </TableCell>
 
                       {/* Edit Actions - Only enabled for current date */}
+                      {/* Edit Actions - Only enabled for current date and past dates */}
                       <TableCell sx={{ width: '5rem', maxWidth: '5rem' }} align="center">
                         {edit._id == elem._id ? (
                           <Box
@@ -931,16 +943,14 @@ const FgStock = () => {
                           </Box>
                         ) : (
                           <IconButton
-                            onClick={isCurrentDateToday ? () => handleEditClick(elem) : undefined}
-                            disabled={!isCurrentDateToday}
+                            onClick={canEdit ? () => handleEditClick(elem) : undefined}
+                            disabled={!canEdit}
                             style={{
-                              color: isCurrentDateToday ? 'grey' : '#ccc',
-                              cursor: isCurrentDateToday ? 'pointer' : 'not-allowed',
+                              color: canEdit ? 'grey' : '#ccc',
+                              cursor: canEdit ? 'pointer' : 'not-allowed',
                             }}
                           >
-                            <EditIcon
-                              style={{ color: isCurrentDateToday ? 'rgb(201, 162, 56)' : '#ccc' }}
-                            />
+                            <EditIcon style={{ color: canEdit ? 'rgb(201, 162, 56)' : '#ccc' }} />
                           </IconButton>
                         )}
                       </TableCell>

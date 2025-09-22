@@ -77,14 +77,15 @@ const StoreStock = () => {
     'HDPE',
   ];
 
-  const isToday = (dateToCheck) => {
+  // Date permission logic - UPDATED
+  const canEditDate = (dateToCheck) => {
     const today = new Date();
     const checkDate = new Date(dateToCheck);
-    return today.toDateString() === checkDate.toDateString();
+    // Allow editing for today and past dates, but not future dates
+    return checkDate <= today;
   };
 
-  // Add this variable
-  const isCurrentDateToday = isToday(date);
+  const canEdit = canEditDate(date);
 
   // Function to refresh store stock data
   const refreshStoreStock = () => {
@@ -596,21 +597,23 @@ const StoreStock = () => {
               </Typography>
             )}
 
+            {/* Updated Responsible Person Edit Button */}
             {storeStockArr.length > 0 && edit._id !== storeStockArr[0]?._id && (
               <IconButton
                 onClick={
-                  isCurrentDateToday
+                  canEdit // CHANGED from isCurrentDateToday
                     ? () => handleResponsiblePersonEdit(storeStockArr[0])
                     : undefined
                 }
-                disabled={!isCurrentDateToday}
+                disabled={!canEdit} // CHANGED from !isCurrentDateToday
                 style={{
-                  color: isCurrentDateToday ? 'grey' : '#ccc',
+                  color: canEdit ? 'grey' : '#ccc', // CHANGED from isCurrentDateToday
                   marginLeft: '0.5rem',
-                  cursor: isCurrentDateToday ? 'pointer' : 'not-allowed',
+                  cursor: canEdit ? 'pointer' : 'not-allowed', // CHANGED from isCurrentDateToday
                 }}
               >
-                <EditIcon style={{ color: isCurrentDateToday ? 'rgb(201, 162, 56)' : '#ccc' }} />
+                <EditIcon style={{ color: canEdit ? 'rgb(201, 162, 56)' : '#ccc' }} />{' '}
+                {/* CHANGED from isCurrentDateToday */}
               </IconButton>
             )}
           </Box>
@@ -620,7 +623,7 @@ const StoreStock = () => {
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => setIsDailyActualOpen(true)} // ← CHANGE THIS
+              onClick={() => setIsDailyActualOpen(true)}
               sx={{
                 bgcolor: colors.secondary,
                 '&:hover': {
@@ -655,6 +658,7 @@ const StoreStock = () => {
             >
               Monthly Sheet
             </Button>
+            {/* Updated Date Input with max restriction */}
             <TextField
               size="small"
               label="Select Date"
@@ -663,6 +667,9 @@ const StoreStock = () => {
               value={date}
               onChange={(e) => setDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
+              inputProps={{
+                max: new Date().toISOString().split('T')[0], // ADDED - Prevent future date selection
+              }}
               required
             />
           </Box>
@@ -886,7 +893,7 @@ const StoreStock = () => {
                             <TextField
                               fullWidth
                               type="text"
-                              value={edit.actual }
+                              value={edit.actual}
                               onChange={(e) => setEdit({ ...edit, actual: e.target.value })}
                               sx={{ width: '100%' }}
                               size="small"
@@ -896,7 +903,7 @@ const StoreStock = () => {
                           )}
                         </TableCell>
 
-                        {/* Edit column */}
+                        {/* Updated Edit column */}
                         <TableCell sx={{ width: '6rem' }} align="center">
                           {edit._id === elem._id ? (
                             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -909,15 +916,15 @@ const StoreStock = () => {
                             </Box>
                           ) : (
                             <IconButton
-                              onClick={isCurrentDateToday ? () => handleEditClick(elem) : undefined}
-                              disabled={!isCurrentDateToday}
+                              onClick={canEdit ? () => handleEditClick(elem) : undefined} // CHANGED from isCurrentDateToday
+                              disabled={!canEdit} // CHANGED from !isCurrentDateToday
                               style={{
-                                color: isCurrentDateToday ? 'grey' : '#ccc',
-                                cursor: isCurrentDateToday ? 'pointer' : 'not-allowed',
+                                color: canEdit ? 'grey' : '#ccc', // CHANGED from isCurrentDateToday
+                                cursor: canEdit ? 'pointer' : 'not-allowed', // CHANGED from isCurrentDateToday
                               }}
                             >
                               <EditIcon
-                                style={{ color: isCurrentDateToday ? 'rgb(201, 162, 56)' : '#ccc' }}
+                                style={{ color: canEdit ? 'rgb(201, 162, 56)' : '#ccc' }} // CHANGED from isCurrentDateToday
                               />
                             </IconButton>
                           )}
@@ -1199,10 +1206,11 @@ const StoreStock = () => {
           </Box>
         </Box>
       )}
+
       {/* Daily Actual & Location Modal */}
       <Dialog
-        open={isDailyActualOpen} // ← CHANGE FROM isMonthlySchedulingOpen
-        onClose={() => setIsDailyActualOpen(false)} // ← CHANGE FROM setIsMonthlySchedulingOpen(false)
+        open={isDailyActualOpen}
+        onClose={() => setIsDailyActualOpen(false)}
         maxWidth="lg"
         fullWidth
         PaperProps={{
