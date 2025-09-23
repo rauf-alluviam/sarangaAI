@@ -101,7 +101,7 @@ const EmployeeCard = ({ employee, onClick }) => {
           height: 160,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'center',
           px: 3,
           position: 'relative',
         }}
@@ -150,7 +150,7 @@ const EmployeeCard = ({ employee, onClick }) => {
         </Box>
 
         {/* Right side - Stars */}
-        <Box
+        {/* <Box
           sx={{
             background: 'rgba(255,255,255,0.95)',
             borderRadius: '12px',
@@ -164,7 +164,7 @@ const EmployeeCard = ({ employee, onClick }) => {
             gold={employee?.employee_stars?.gold_count || 0}
             platinum={employee?.employee_stars?.platinum_count || 0}
           />
-        </Box>
+        </Box> */}
       </GradientBackground>
 
       {/* Content section */}
