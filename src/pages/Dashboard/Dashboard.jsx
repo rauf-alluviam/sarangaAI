@@ -290,6 +290,9 @@ const Dashboard = ({ setIsOpen }) => {
       qc: {
         'Inventory Management': ['Complaint Board'],
       },
+      dispatch: {
+        'Inventory Management': ['FG Stock', 'Store Stock'],
+      },
     }),
     []
   );

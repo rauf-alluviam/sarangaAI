@@ -110,26 +110,83 @@ const FgStock = () => {
 
   // Handle edit button click - set dispatch planning to 0
   const handleEditClick = (elem) => {
-    setEdit({
-      ...elem,
-      dispatched: '0',
-      todays_planning: '0', // Reset dispatch planning to 0
-      next_action: elem.next_action || '', // Ensure it has a value
-    });
+    if (userData?.role === 'Dispatch') {
+      // For dispatch users, only bins_available is editable
+      setEdit({
+        ...elem,
+        bins_available: elem.bins_available || '0', // Only this field is editable
+      });
+    } else {
+      // For other users, keep existing behavior
+      setEdit({
+        ...elem,
+        dispatched: '0',
+        todays_planning: '0',
+        next_action: elem.next_action || '',
+        bins_available: elem.bins_available || '0', // Add this field for other users too
+      });
+    }
   };
 
-  // Handle responsible person edit - set first row dispatched to 0
+  // Update handleResponsiblePersonEdit function
   const handleResponsiblePersonEdit = (firstRowData) => {
-    setEdit({
-      ...firstRowData,
-      dispatched: '0', // Set dispatched to 0 when editing responsible person
-      todays_planning: firstRowData.todays_planning || '0',
-      next_action: firstRowData.next_action || '',
-    });
+    if (userData?.role === 'Dispatch') {
+      // For dispatch users, only bins_available is editable
+      setEdit({
+        ...firstRowData,
+        bins_available: firstRowData.bins_available || '0',
+      });
+    } else {
+      // Keep existing behavior for other users
+      setEdit({
+        ...firstRowData,
+        dispatched: '0',
+        todays_planning: firstRowData.todays_planning || '0',
+        next_action: firstRowData.next_action || '',
+        bins_available: firstRowData.bins_available || '0',
+      });
+    }
   };
+  const handleDispatchUpdate = async () => {
+    if (!edit.bins_available) {
+      enqueueSnackbar('Bins Available is required', { variant: 'error' });
+      return;
+    }
 
+    setIsUpdating(true);
+    try {
+      const response = await axios.put(
+        `${BACKEND_API}/update_Fg_stock_entry/dispatch/${edit._id}`,
+        {
+          bins_available: Number(edit.bins_available),
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setEdit({});
+      setIsUpdating(false);
+      enqueueSnackbar(response?.data?.message || 'Bins available updated successfully', {
+        variant: 'success',
+      });
+
+      // Refresh the data
+      dispatch(getAllFgStock(date, setMessage));
+    } catch (error) {
+      setIsUpdating(false);
+      enqueueSnackbar('Failed to update bins available', { variant: 'error' });
+    }
+  };
   // Enhanced validation for mandatory fields
   const handleSubmit = async () => {
+    if (userData?.role === 'Dispatch') {
+      handleDispatchUpdate();
+      return;
+    }
     if (!edit.next_action || edit.next_action === '') {
       enqueueSnackbar('Next Action is required', { variant: 'error' });
       return;
@@ -744,6 +801,11 @@ const FgStock = () => {
                   <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
                     Dispatch Planning *
                   </TableCell>
+
+                  <TableCell align="center" sx={{ fontSize: '1.2rem', backgroundColor: 'inherit' }}>
+                    Bins Available *
+                  </TableCell>
+
                   <TableCell
                     align="center"
                     sx={{
@@ -809,7 +871,6 @@ const FgStock = () => {
                       >
                         {elem.schedule}
                       </TableCell>
-
                       {/* Current Stock - NOT EDITABLE */}
                       <TableCell
                         sx={{ width: '6rem', maxWidth: '6rem', minWidth: '6rem' }}
@@ -817,13 +878,12 @@ const FgStock = () => {
                       >
                         {elem.current}
                       </TableCell>
-
                       {/* Dispatched */}
                       <TableCell
                         sx={{ width: '4rem', maxWidth: '4rem', minWidth: '4rem' }}
                         align="center"
                       >
-                        {edit._id == elem._id ? (
+                        {edit._id == elem._id && userData?.role !== 'Dispatch' ? (
                           <TextField
                             type="number"
                             value={edit.dispatched}
@@ -835,7 +895,6 @@ const FgStock = () => {
                           elem.dispatched
                         )}
                       </TableCell>
-
                       {/* Balance */}
                       <TableCell
                         sx={{ width: '5rem', maxWidth: '5rem', minWidth: '5rem' }}
@@ -843,13 +902,12 @@ const FgStock = () => {
                       >
                         {elem.schedule - elem.dispatched}
                       </TableCell>
-
                       {/* Next Action - MANDATORY */}
                       <TableCell
                         sx={{ width: '9rem', maxWidth: '9rem', minWidth: '9rem' }}
                         align="center"
                       >
-                        {edit._id == elem._id ? (
+                        {edit._id == elem._id && userData?.role !== 'Dispatch' ? (
                           <TextField
                             size="small"
                             label="Select Date"
@@ -868,13 +926,12 @@ const FgStock = () => {
                           '-'
                         )}
                       </TableCell>
-
                       {/* Dispatch Planning - MANDATORY, starts with 0 when editing */}
                       <TableCell
                         sx={{ width: '4rem', maxWidth: '4rem', minWidth: '4rem' }}
                         align="center"
                       >
-                        {edit._id == elem._id ? (
+                        {edit._id == elem._id && userData?.role !== 'Dispatch' ? (
                           <TextField
                             fullWidth
                             type="number"
@@ -891,6 +948,34 @@ const FgStock = () => {
                         )}
                       </TableCell>
 
+                      {/* Bins Available - Editable only for Dispatch role */}
+                      <TableCell
+                        sx={{ width: '4rem', maxWidth: '4rem', minWidth: '4rem' }}
+                        align="center"
+                      >
+                        {edit._id == elem._id ? (
+                          userData?.role === 'Dispatch' ? (
+                            // Only dispatch users can edit this field when in edit mode
+                            <TextField
+                              fullWidth
+                              type="number"
+                              value={edit.bins_available || '0'}
+                              onChange={(e) => setEdit({ ...edit, bins_available: e.target.value })}
+                              sx={{ width: '100%' }}
+                              size="small"
+                              required
+                              error={!edit.bins_available}
+                              helperText={!edit.bins_available ? 'Required' : ''}
+                            />
+                          ) : (
+                            // For non-dispatch users, show as read-only when editing other fields
+                            <Typography>{elem.bins_available || '0'}</Typography>
+                          )
+                        ) : (
+                          // Display value when not in edit mode
+                          elem.bins_available || '0'
+                        )}
+                      </TableCell>
                       {/* Status */}
                       <TableCell>
                         {elem.current < elem.minimum && (
@@ -921,7 +1006,6 @@ const FgStock = () => {
                           />
                         )}
                       </TableCell>
-
                       {/* Edit Actions - Only enabled for current date */}
                       {/* Edit Actions - Only enabled for current date and past dates */}
                       <TableCell sx={{ width: '5rem', maxWidth: '5rem' }} align="center">

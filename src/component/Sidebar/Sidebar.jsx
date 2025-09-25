@@ -68,16 +68,28 @@ const allSections = [
     roles: ['admin', 'production', 'dispatch'], // Added 'dispatch' role
     items: [
       {
+        icon: <MdStorefront />,
+        title: 'Store Stock',
+        path: '/store-stock',
+        roles: ['admin', 'production', 'dispatch'], // Specify which roles can see this item
+      },
+      {
         icon: <RiBox3Fill />,
         title: 'Fg Stock',
         path: '/fg-stock',
         roles: ['admin', 'production', 'dispatch'], // Specify which roles can see this item
       },
       {
-        icon: <MdStorefront />,
-        title: 'Store Stock',
-        path: '/store-stock',
-        roles: ['admin', 'production', 'dispatch'], // Specify which roles can see this item
+        icon: <PrecisionManufacturingIcon />,
+        title: 'Production',
+        path: '/production',
+        roles: ['admin', 'production'], // Only admin and production can see this
+      },
+      {
+        icon: <FaThumbsDown />,
+        title: 'Rejection',
+        path: '/rejection',
+        roles: ['admin', 'production'], // Only admin and production can see this
       },
       {
         icon: <FaTools />,
@@ -89,18 +101,6 @@ const allSections = [
         icon: <MdRateReview />,
         title: 'Complaint Board',
         path: '/complaint-board',
-        roles: ['admin', 'production'], // Only admin and production can see this
-      },
-      {
-        icon: <FaThumbsDown />,
-        title: 'Rejection',
-        path: '/rejection',
-        roles: ['admin', 'production'], // Only admin and production can see this
-      },
-      {
-        icon: <PrecisionManufacturingIcon />,
-        title: 'Production',
-        path: '/production',
         roles: ['admin', 'production'], // Only admin and production can see this
       },
     ],
