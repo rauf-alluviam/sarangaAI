@@ -181,6 +181,7 @@ onChange={(e)=> setPhone_no(e.target.value)}
           <MenuItem value={'HR'}>HR</MenuItem>
           <MenuItem value={'QC'}>QC</MenuItem>
           <MenuItem value={'Production'}>Production</MenuItem>
+          <MenuItem value={'Dispatch'}>Dispatch</MenuItem>
         </Select>
       </FormControl>
 

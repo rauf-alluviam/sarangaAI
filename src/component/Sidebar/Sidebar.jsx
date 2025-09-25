@@ -65,14 +65,44 @@ const allSections = [
     id: 'inventory',
     title: 'Inventory Management',
     icon: <FaClipboardList />,
-    roles: ['admin', 'production'],
+    roles: ['admin', 'production', 'dispatch'], // Added 'dispatch' role
     items: [
-      { icon: <RiBox3Fill />, title: 'Fg Stock', path: '/fg-stock' },
-      { icon: <MdStorefront />, title: 'Store Stock', path: '/store-stock' },
-      { icon: <FaTools />, title: 'Tool Management', path: '/tool-management' },
-      { icon: <MdRateReview />, title: 'Complaint Board', path: '/complaint-board' },
-      { icon: <FaThumbsDown />, title: 'Rejection', path: '/rejection' },
-      { icon: <PrecisionManufacturingIcon />, title: 'Production', path: '/production' },
+      {
+        icon: <RiBox3Fill />,
+        title: 'Fg Stock',
+        path: '/fg-stock',
+        roles: ['admin', 'production', 'dispatch'], // Specify which roles can see this item
+      },
+      {
+        icon: <MdStorefront />,
+        title: 'Store Stock',
+        path: '/store-stock',
+        roles: ['admin', 'production', 'dispatch'], // Specify which roles can see this item
+      },
+      {
+        icon: <FaTools />,
+        title: 'Tool Management',
+        path: '/tool-management',
+        roles: ['admin', 'production'], // Only admin and production can see this
+      },
+      {
+        icon: <MdRateReview />,
+        title: 'Complaint Board',
+        path: '/complaint-board',
+        roles: ['admin', 'production'], // Only admin and production can see this
+      },
+      {
+        icon: <FaThumbsDown />,
+        title: 'Rejection',
+        path: '/rejection',
+        roles: ['admin', 'production'], // Only admin and production can see this
+      },
+      {
+        icon: <PrecisionManufacturingIcon />,
+        title: 'Production',
+        path: '/production',
+        roles: ['admin', 'production'], // Only admin and production can see this
+      },
     ],
   },
   {
@@ -80,21 +110,21 @@ const allSections = [
     title: 'DOJO2.0',
     icon: <Avatar alt="DOJO" src="/images/dojo.png" />,
     roles: ['admin', 'hr'],
-    path: '/dojo-employee', // ✅ Single direct path
+    path: '/dojo-employee',
   },
   {
-    id: 'dojo',
+    id: 'dojo-onboarding',
     title: 'DOJO Onboarding',
     icon: <Avatar alt="Onboarding" src="/images/dojo.png" />,
     roles: ['admin', 'hr'],
-    path: '/dojo-onboarding-form', // ✅ Single direct path
+    path: '/dojo-onboarding-form',
   },
   {
     id: 'complaint-board',
     title: 'Complaint Board',
     icon: <MdRateReview />,
     roles: ['qc'],
-    path: '/complaint-board', // ✅ Direct path instead of nested items
+    path: '/complaint-board',
   },
 ];
 
@@ -118,7 +148,22 @@ const Sidebar = ({ setIsSliderOpen }) => {
   };
 
   const role = userData?.role?.toLowerCase?.();
+
+  // Filter sections based on user role
   const sidebarSections = allSections.filter((section) => section.roles.includes(role));
+
+  // Filter items within sections based on user role
+  const filterItemsByRole = (items, userRole) => {
+    if (!items) return null;
+    return items.filter((item) => {
+      // If item has roles specified, check if user role is included
+      if (item.roles) {
+        return item.roles.includes(userRole);
+      }
+      // If no roles specified for item, show it for all section roles
+      return true;
+    });
+  };
 
   return (
     <div
@@ -194,7 +239,6 @@ const Sidebar = ({ setIsSliderOpen }) => {
       <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
         <List>
           {/* Dashboard */}
-
           <ListItem disableGutters className="sidebar-listItem">
             <Button
               onClick={() => {
@@ -216,11 +260,75 @@ const Sidebar = ({ setIsSliderOpen }) => {
           </ListItem>
 
           {/* Dynamic Sections */}
-          {sidebarSections.map((section) => (
-            <div key={section.id}>
-              {/* ✅ Case 1: Section has items (collapsible) */}
-              {section.items ? (
-                <>
+          {sidebarSections.map((section) => {
+            // Filter items for current user role
+            const filteredItems = section.items ? filterItemsByRole(section.items, role) : null;
+
+            return (
+              <div key={section.id}>
+                {/* Case 1: Section has items (collapsible) */}
+                {filteredItems && filteredItems.length > 0 ? (
+                  <>
+                    <ListItem disableGutters className="sidebar-listItem">
+                      <Tooltip
+                        title={section.title}
+                        placement="right"
+                        disableHoverListener={!isMinimize}
+                      >
+                        <Button
+                          onClick={() => toggleSection(section.id)}
+                          className="sidebar-link section-header"
+                        >
+                          <ListItemButton>
+                            <IconButton sx={{ color: '#ffffff9f' }}>{section.icon}</IconButton>
+                            {!isMinimize && (
+                              <>
+                                <p className="sidebar-list-text" style={{ flex: 1 }}>
+                                  {section.title}
+                                </p>
+                                {expandedSections[section.id] ? (
+                                  <FaChevronDown />
+                                ) : (
+                                  <FaChevronRight />
+                                )}
+                              </>
+                            )}
+                          </ListItemButton>
+                        </Button>
+                      </Tooltip>
+                    </ListItem>
+
+                    <Collapse in={expandedSections[section.id]} timeout="auto" unmountOnExit>
+                      {filteredItems.map((item, index) => (
+                        <ListItem key={index} disableGutters className="sidebar-listItem">
+                          <Tooltip
+                            title={item.title}
+                            placement="right"
+                            disableHoverListener={!isMinimize}
+                          >
+                            <Button
+                              onClick={() => {
+                                navigate(item.path);
+                                setIsSliderOpen(false);
+                              }}
+                              className="sidebar-link"
+                              style={{
+                                marginLeft: isMinimize ? '0' : '2rem',
+                                borderLeft: path === item.path ? '5px solid #E08272' : '',
+                              }}
+                            >
+                              <ListItemButton>
+                                <IconButton sx={{ color: '#ffffff9f' }}>{item.icon}</IconButton>
+                                {!isMinimize && <p className="sidebar-list-text">{item.title}</p>}
+                              </ListItemButton>
+                            </Button>
+                          </Tooltip>
+                        </ListItem>
+                      ))}
+                    </Collapse>
+                  </>
+                ) : section.path ? (
+                  // Case 2: Direct path (like DOJO2.0)
                   <ListItem disableGutters className="sidebar-listItem">
                     <Tooltip
                       title={section.title}
@@ -228,85 +336,26 @@ const Sidebar = ({ setIsSliderOpen }) => {
                       disableHoverListener={!isMinimize}
                     >
                       <Button
-                        onClick={() => toggleSection(section.id)}
-                        className="sidebar-link section-header"
+                        onClick={() => {
+                          navigate(section.path);
+                          setIsSliderOpen(false);
+                        }}
+                        className="sidebar-link"
+                        style={{
+                          borderLeft: path === section.path ? '5px solid #E08272' : '',
+                        }}
                       >
                         <ListItemButton>
                           <IconButton sx={{ color: '#ffffff9f' }}>{section.icon}</IconButton>
-                          {!isMinimize && (
-                            <>
-                              <p className="sidebar-list-text" style={{ flex: 1 }}>
-                                {section.title}
-                              </p>
-                              {expandedSections[section.id] ? (
-                                <FaChevronDown />
-                              ) : (
-                                <FaChevronRight />
-                              )}
-                            </>
-                          )}
+                          {!isMinimize && <p className="sidebar-list-text">{section.title}</p>}
                         </ListItemButton>
                       </Button>
                     </Tooltip>
                   </ListItem>
-
-                  <Collapse in={expandedSections[section.id]} timeout="auto" unmountOnExit>
-                    {section.items.map((item, index) => (
-                      <ListItem key={index} disableGutters className="sidebar-listItem">
-                        <Tooltip
-                          title={item.title}
-                          placement="right"
-                          disableHoverListener={!isMinimize}
-                        >
-                          <Button
-                            onClick={() => {
-                              navigate(item.path);
-                              setIsSliderOpen(false);
-                            }}
-                            className="sidebar-link"
-                            style={{
-                              marginLeft: isMinimize ? '0' : '2rem',
-                              borderLeft: path === item.path ? '5px solid #E08272' : '',
-                            }}
-                          >
-                            <ListItemButton>
-                              <IconButton sx={{ color: '#ffffff9f' }}>{item.icon}</IconButton>
-                              {!isMinimize && <p className="sidebar-list-text">{item.title}</p>}
-                            </ListItemButton>
-                          </Button>
-                        </Tooltip>
-                      </ListItem>
-                    ))}
-                  </Collapse>
-                </>
-              ) : (
-                // ✅ Case 2: Direct path (like DOJO2.0)
-                <ListItem disableGutters className="sidebar-listItem">
-                  <Tooltip
-                    title={section.title}
-                    placement="right"
-                    disableHoverListener={!isMinimize}
-                  >
-                    <Button
-                      onClick={() => {
-                        navigate(section.path);
-                        setIsSliderOpen(false);
-                      }}
-                      className="sidebar-link"
-                      style={{
-                        borderLeft: path === section.path ? '5px solid #E08272' : '',
-                      }}
-                    >
-                      <ListItemButton>
-                        <IconButton sx={{ color: '#ffffff9f' }}>{section.icon}</IconButton>
-                        {!isMinimize && <p className="sidebar-list-text">{section.title}</p>}
-                      </ListItemButton>
-                    </Button>
-                  </Tooltip>
-                </ListItem>
-              )}
-            </div>
-          ))}
+                ) : null}
+              </div>
+            );
+          })}
         </List>
       </div>
 
